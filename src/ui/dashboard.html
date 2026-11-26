@@ -279,13 +279,152 @@
       .qa-box input { flex: 1; }
       .qa-answer {
         margin-top: 10px;
-        padding: 12px;
+        padding: 12px 14px;
         border-radius: 10px;
         background: rgba(109, 124, 255, 0.08);
         border: 1px solid rgba(109, 124, 255, 0.3);
         font-size: 13px;
-        white-space: pre-wrap;
+        line-height: 1.55;
       }
+      .qa-answer.loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #c7d2fe;
+        animation: sg-pulse 1.4s ease-in-out infinite;
+      }
+      .qa-answer p { margin: 0 0 8px; }
+      .qa-answer p:last-child { margin-bottom: 0; }
+      .qa-answer ul { margin: 4px 0 8px; padding-left: 20px; }
+      .qa-answer li { margin: 3px 0; }
+      .qa-answer code, .gh-body code {
+        font-family: var(--mono);
+        font-size: 12px;
+        background: rgba(148, 163, 184, 0.14);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        padding: 1px 5px;
+        border-radius: 5px;
+        color: #e2e8f0;
+      }
+      .spinner {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: sg-spin 0.7s linear infinite;
+        vertical-align: -2px;
+        margin-right: 6px;
+      }
+      @keyframes sg-spin { to { transform: rotate(360deg); } }
+      @keyframes sg-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+      /* GitHub PR Comment Preview */
+      .gh-comment {
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        background: #0d1117;
+        overflow: hidden;
+      }
+      .gh-comment-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 14px;
+        background: #161b22;
+        border-bottom: 1px solid #30363d;
+        font-size: 13px;
+      }
+      .gh-author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .gh-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #06080f;
+        font-weight: 800;
+        font-size: 11px;
+        display: grid;
+        place-items: center;
+      }
+      .gh-bot-pill {
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 999px;
+        border: 1px solid #30363d;
+        color: #8b949e;
+      }
+      .gh-body {
+        padding: 16px 18px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: #e6edf3;
+      }
+      .gh-body h2 { font-size: 17px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid #21262d; }
+      .gh-body h3 { font-size: 15px; margin: 16px 0 8px; }
+      .gh-body h4 { font-size: 13.5px; margin: 12px 0 6px; }
+      .gh-body p { margin: 0 0 10px; }
+      .gh-body ul { margin: 4px 0 10px; padding-left: 20px; }
+      .gh-body li { margin: 3px 0; }
+      .gh-body blockquote {
+        margin: 8px 0 12px;
+        padding: 8px 12px;
+        border-left: 3px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.08);
+        border-radius: 0 6px 6px 0;
+        color: #cbd5e1;
+      }
+      .gh-callout {
+        margin: 10px 0 12px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+      }
+      .gh-callout.caution { border-left-color: var(--red); background: rgba(239, 68, 68, 0.12); color: #fecaca; }
+      .gh-callout.warning { border-left-color: var(--yellow); background: rgba(245, 158, 11, 0.12); color: #fde68a; }
+      .gh-callout.important { border-left-color: var(--accent); background: rgba(109, 124, 255, 0.12); }
+      .gh-callout-title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+      .gh-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0 14px;
+        font-size: 12.5px;
+      }
+      .gh-table th, .gh-table td {
+        border: 1px solid #30363d;
+        padding: 7px 10px;
+      }
+      .gh-table th {
+        background: #161b22;
+        color: #c9d1d9;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 12px;
+      }
+      .gh-details {
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin: 10px 0;
+        background: #0a0e14;
+      }
+      .gh-details summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: #c9d1d9;
+      }
+      .gh-details[open] summary { margin-bottom: 10px; }
+      .gh-body a { color: #58a6ff; text-decoration: none; }
+      .gh-body a:hover { text-decoration: underline; }
+      .diff-add { color: #6ee7b7; background: rgba(16, 185, 129, 0.12); display: block; }
+      .diff-del { color: #fca5a5; background: rgba(239, 68, 68, 0.12); display: block; }
+      .diff-hunk { color: #7dd3fc; display: block; }
       .empty {
         text-align: center;
         padding: 46px 16px;
@@ -305,6 +444,16 @@
         display: none;
         z-index: 50;
       }
+      .toast.success {
+        background: #06281e;
+        border-color: var(--green);
+        color: #a7f3d0;
+      }
+      .toast.error {
+        background: #2a0d12;
+        border-color: var(--red);
+        color: #fecaca;
+      }
     </style>
   </head>
   <body>
@@ -314,7 +463,7 @@
           <div class="logo">SG</div>
           <div>
             <h1>SpriteGuard</h1>
-            <p>Zero-Trust Autonomous PR Security Engineer · Fly Sprites + Claude Opus + Neon pgvector</p>
+            <p>Zero-Trust Autonomous PR Security Engineer · Fly Sprites + Universal LLM + Neon pgvector</p>
           </div>
         </div>
         <div class="controls">
@@ -395,8 +544,12 @@
         expandedId: null,
         activeTab: 'evidence',
         qaReplies: {},
+        qaLoading: {},
+        qaDrafts: {},
+        approving: {},
         mode: 'production',
         scans: [],
+        lastData: null,
       };
 
       function esc(val) {
@@ -408,12 +561,200 @@
           .replace(/'/g, '&#39;');
       }
 
-      function toast(msg) {
+      function toast(msg, variant) {
         const el = document.getElementById('toast');
         el.textContent = msg;
+        el.className = 'toast' + (variant ? ' ' + variant : '');
         el.style.display = 'block';
         clearTimeout(el._t);
-        el._t = setTimeout(() => { el.style.display = 'none'; }, 3800);
+        el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
+      }
+
+      function renderInlineMd(raw) {
+        let s = esc(raw).replace(/&amp;nbsp;/g, '&nbsp;');
+        // Inline code spans first, protecting their contents from bold/link parsing
+        const codes = [];
+        s = s.replace(/`([^`]+)`/g, (_, code) => {
+          const idx = codes.length;
+          let html = '<code>' + code + '</code>';
+          if (/🔴\s*CRITICAL/i.test(code)) html = '<span class="badge sev-Critical">' + code + '</span>';
+          else if (/🟠\s*HIGH/i.test(code)) html = '<span class="badge sev-High">' + code + '</span>';
+          else if (/🟡\s*MEDIUM/i.test(code)) html = '<span class="badge sev-Medium">' + code + '</span>';
+          else if (/🟢\s*LOW/i.test(code)) html = '<span class="badge sev-Low">' + code + '</span>';
+          codes.push(html);
+          return '\x00CODE' + idx + '\x00';
+        });
+        // Safe http(s) markdown links
+        s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        // Bold & italic
+        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/(^|[\s(])_([^_]+)_([\s).,!?:]|$)/g, '$1<em>$2</em>$3');
+        // Restore code/badge placeholders
+        s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => codes[Number(i)] || '');
+        return s;
+      }
+
+      function renderDiffCode(codeText) {
+        return codeText.split('\n').map((line) => {
+          const safe = esc(line);
+          if (line.startsWith('+') && !line.startsWith('+++')) return '<span class="diff-add">' + safe + '</span>';
+          if (line.startsWith('-') && !line.startsWith('---')) return '<span class="diff-del">' + safe + '</span>';
+          if (line.startsWith('@@')) return '<span class="diff-hunk">' + safe + '</span>';
+          return safe;
+        }).join('\n');
+      }
+
+      function renderMarkdownBlocks(md) {
+        if (!md) return '<p class="muted">No content available.</p>';
+        const clean = String(md).replace(/<!--[\s\S]*?-->/g, '').replace(/\r\n/g, '\n');
+        const lines = clean.split('\n');
+        const out = [];
+        let i = 0;
+
+        while (i < lines.length) {
+          const line = lines[i];
+          const trimmed = line.trim();
+
+          if (!trimmed) { i++; continue; }
+
+          // Collapsible <details> block from reportFormatter
+          if (trimmed === '<details>') {
+            let summaryText = 'Details';
+            const inner = [];
+            i++;
+            while (i < lines.length && lines[i].trim() !== '</details>') {
+              const sm = /^<summary>([\s\S]*?)<\/summary>$/i.exec(lines[i].trim());
+              if (sm) summaryText = sm[1].replace(/<\/?strong>/gi, '');
+              else inner.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            out.push(
+              '<details class="gh-details"><summary>' + esc(summaryText) + '</summary>' +
+              renderMarkdownBlocks(inner.join('\n')) +
+              '</details>'
+            );
+            continue;
+          }
+
+          // Fenced code block
+          const fence = /^```(\w*)/.exec(trimmed);
+          if (fence) {
+            const lang = (fence[1] || '').toLowerCase();
+            const codeLines = [];
+            i++;
+            while (i < lines.length && !lines[i].trim().startsWith('```')) {
+              codeLines.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            const rawCode = codeLines.join('\n');
+            out.push('<pre>' + (lang === 'diff' ? renderDiffCode(rawCode) : esc(rawCode)) + '</pre>');
+            continue;
+          }
+
+          // Headings
+          const hm = /^(#{2,4})\s+(.+)$/.exec(trimmed);
+          if (hm) {
+            const level = hm[1].length;
+            out.push('<h' + level + '>' + renderInlineMd(hm[2]) + '</h' + level + '>');
+            i++;
+            continue;
+          }
+
+          // Blockquotes & GitHub Callouts (> [!CAUTION], etc.)
+          if (trimmed.startsWith('>')) {
+            const qLines = [];
+            while (i < lines.length && lines[i].trim().startsWith('>')) {
+              qLines.push(lines[i].trim().replace(/^>\s?/, ''));
+              i++;
+            }
+            const callout = /^\[!(CAUTION|WARNING|IMPORTANT|NOTE|TIP)\]\s*$/i.exec(qLines[0] || '');
+            if (callout) {
+              const kind = callout[1].toLowerCase();
+              out.push(
+                '<div class="gh-callout ' + esc(kind) + '">' +
+                  '<div class="gh-callout-title">' + esc(callout[1].toUpperCase()) + '</div>' +
+                  renderMarkdownBlocks(qLines.slice(1).join('\n')) +
+                '</div>'
+              );
+            } else {
+              out.push('<blockquote>' + qLines.map((l) => renderInlineMd(l)).join('<br>') + '</blockquote>');
+            }
+            continue;
+          }
+
+          // Markdown Table
+          if (trimmed.startsWith('|') && i + 1 < lines.length && /^\|[\s:-]+\|/.test(lines[i + 1].trim())) {
+            const parseCells = (row) => row.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+            const headers = parseCells(lines[i]);
+            i += 2;
+            const bodyRows = [];
+            while (i < lines.length && lines[i].trim().startsWith('|')) {
+              bodyRows.push(parseCells(lines[i]));
+              i++;
+            }
+            out.push(
+              '<table class="gh-table"><thead><tr>' +
+              headers.map((h) => '<th>' + renderInlineMd(h) + '</th>').join('') +
+              '</tr></thead><tbody>' +
+              bodyRows.map((r) => '<tr>' + r.map((c) => '<td>' + renderInlineMd(c) + '</td>').join('') + '</tr>').join('') +
+              '</tbody></table>'
+            );
+            continue;
+          }
+
+          // Bullet / task list
+          if (/^\s*[-*]\s+/.test(line)) {
+            const items = [];
+            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+              let itemText = lines[i].replace(/^\s*[-*]\s+/, '');
+              if (/^\[ \]\s+/.test(itemText)) itemText = '☐ ' + itemText.slice(4);
+              else if (/^\[x\]\s+/i.test(itemText)) itemText = '☑ ' + itemText.slice(4);
+              items.push('<li>' + renderInlineMd(itemText) + '</li>');
+              i++;
+            }
+            out.push('<ul>' + items.join('') + '</ul>');
+            continue;
+          }
+
+          // Paragraph
+          const para = [];
+          while (
+            i < lines.length &&
+            lines[i].trim() &&
+            !/^(#{2,4}\s|```|>|\||<details>|\s*[-*]\s+)/.test(lines[i].trim())
+          ) {
+            para.push(lines[i].trim());
+            i++;
+          }
+          if (para.length) out.push('<p>' + renderInlineMd(para.join(' ')) + '</p>');
+          else i++;
+        }
+        return out.join('');
+      }
+
+      async function copyMarkdownText(text, btn) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+          }
+          if (btn) {
+            const prev = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = prev; }, 1600);
+          }
+          toast('Copied PR Markdown report to clipboard', 'success');
+        } catch (err) {
+          toast('Copy failed: ' + err.message, 'error');
+        }
       }
 
       function authHeaders() {
@@ -449,6 +790,7 @@
           const data = await res.json();
           state.mode = data.mode;
           state.scans = data.scans || [];
+          state.lastData = data;
           render(data);
         } catch (err) {
           document.getElementById('mode-text').textContent = 'Disconnected';
@@ -457,6 +799,14 @@
       }
 
       function render(data) {
+        if (!data) return;
+        const activeEl = document.activeElement;
+        const activeAskScanId = activeEl && activeEl.matches('input[data-ask-input]')
+          ? activeEl.getAttribute('data-ask-input')
+          : null;
+        const activeSelStart = activeAskScanId ? activeEl.selectionStart : null;
+        const activeSelEnd = activeAskScanId ? activeEl.selectionEnd : null;
+
         const isLocal = data.mode === 'local-sandbox';
         document.getElementById('mode-text').textContent = isLocal ? 'Local Sandbox Mode' : 'Production (Fly Sprites)';
         document.getElementById('mode-dot').classList.toggle('warn', isLocal);
@@ -486,6 +836,7 @@
           const score = item.riskScore === null || item.riskScore === undefined ? '—' : item.riskScore;
           const isOpen = state.expandedId === item.id;
           const flagged = (item.egressDomains || []).filter((d) => d.flagged);
+          const isApproving = Boolean(state.approving[item.id]);
 
           rows.push(
             '<tr class="scan-row" data-id="' + esc(item.id) + '">' +
@@ -498,7 +849,9 @@
               '<td class="mono muted">' + esc(item.spriteState) + '</td>' +
               '<td>' +
                 (isLocal && item.status === 'awaiting_approval'
-                  ? '<button class="approve" data-approve="' + esc(item.id) + '">Approve Patch</button> '
+                  ? '<button class="approve" data-approve="' + esc(item.id) + '"' + (isApproving ? ' disabled' : '') + '>' +
+                    (isApproving ? '<span class="spinner"></span>Waking Sprite &amp; Pushing...' : 'Approve Patch') +
+                    '</button> '
                   : '') +
                 '<button data-toggle="' + esc(item.id) + '">' + (isOpen ? 'Hide' : 'Inspect') + '</button>' +
               '</td>' +
@@ -516,14 +869,14 @@
             if (ev.target.closest('button')) return;
             const id = tr.getAttribute('data-id');
             state.expandedId = state.expandedId === id ? null : id;
-            render(data);
+            render(state.lastData);
           });
         });
         tbody.querySelectorAll('button[data-toggle]').forEach((btn) => {
           btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-toggle');
             state.expandedId = state.expandedId === id ? null : id;
-            render(data);
+            render(state.lastData);
           });
         });
         tbody.querySelectorAll('button[data-approve]').forEach((btn) => {
@@ -532,17 +885,42 @@
         tbody.querySelectorAll('button[data-tab]').forEach((btn) => {
           btn.addEventListener('click', () => {
             state.activeTab = btn.getAttribute('data-tab');
-            render(data);
+            render(state.lastData);
+          });
+        });
+        tbody.querySelectorAll('button[data-copy-md]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const scanId = btn.getAttribute('data-copy-md');
+            const scan = state.scans.find((x) => x.id === scanId);
+            if (scan && scan.reportMarkdown) copyMarkdownText(scan.reportMarkdown, btn);
+          });
+        });
+        tbody.querySelectorAll('input[data-ask-input]').forEach((input) => {
+          input.addEventListener('input', () => {
+            const scanId = input.getAttribute('data-ask-input');
+            state.qaDrafts[scanId] = input.value;
           });
         });
         tbody.querySelectorAll('form[data-ask-form]').forEach((form) => {
           form.addEventListener('submit', (ev) => {
             ev.preventDefault();
             const scanId = form.getAttribute('data-ask-form');
+            if (state.qaLoading[scanId]) return;
             const input = form.querySelector('input');
             if (input && input.value.trim()) askDemoQuestion(scanId, input.value.trim());
           });
         });
+
+        // Restore focus & caret if user was typing in the @spriteguard input during 5s refresh
+        if (activeAskScanId) {
+          const restored = tbody.querySelector('input[data-ask-input="' + activeAskScanId.replace(/"/g, '\\"') + '"]');
+          if (restored && !restored.disabled) {
+            restored.focus();
+            if (activeSelStart !== null && activeSelEnd !== null) {
+              try { restored.setSelectionRange(activeSelStart, activeSelEnd); } catch {}
+            }
+          }
+        }
       }
 
       function renderDetailRow(item, isLocal) {
@@ -551,7 +929,22 @@
         let body = '';
 
         if (state.activeTab === 'markdown') {
-          body = '<pre>' + esc(item.reportMarkdown || 'Report markdown not generated yet.') + '</pre>';
+          const md = item.reportMarkdown || '';
+          body =
+            '<div class="gh-comment">' +
+              '<div class="gh-comment-head">' +
+                '<div class="gh-author">' +
+                  '<span class="gh-avatar">SG</span>' +
+                  '<strong>spriteguard</strong>' +
+                  '<span class="gh-bot-pill">bot</span>' +
+                  '<span class="muted">commented on PR #' + esc(item.prNumber) + ' · ' + esc((item.headSha || '').slice(0, 7)) + '</span>' +
+                '</div>' +
+                '<button type="button" data-copy-md="' + esc(item.id) + '"' + (md ? '' : ' disabled') + '>Copy Markdown</button>' +
+              '</div>' +
+              '<div class="gh-body">' +
+                (md ? renderMarkdownBlocks(md) : '<p class="muted">Report markdown not generated yet.</p>') +
+              '</div>' +
+            '</div>';
         } else if (state.activeTab === 'json') {
           body = '<pre>' + esc(JSON.stringify({ scan: item, patch: patch || null }, null, 2)) + '</pre>';
         } else {
@@ -579,18 +972,29 @@
             : '';
 
           const diffHtml = patch
-            ? '<div style="margin-top:12px"><div style="margin-bottom:6px"><strong>Verified Patch Diff</strong> · status=<span class="mono">' + esc(patch.status) + '</span> · tests=<span class="mono">' + esc(patch.verification?.testsAfter?.summary || '—') + '</span></div><pre>' + esc(patch.diff) + '</pre></div>'
+            ? '<div style="margin-top:12px"><div style="margin-bottom:6px"><strong>Verified Patch Diff</strong> · status=<span class="mono">' + esc(patch.status) + '</span> · tests=<span class="mono">' + esc(patch.verification?.testsAfter?.summary || '—') + '</span></div><pre>' + renderDiffCode(patch.diff || '') + '</pre></div>'
             : '';
 
           body = findingsHtml + egressList + diffHtml;
         }
 
+        const isAsking = Boolean(state.qaLoading[item.id]);
+        const draft = state.qaDrafts[item.id] || '';
+        const reply = state.qaReplies[item.id];
+        const qaAnswerHtml = isAsking
+          ? '<div class="qa-answer loading"><span class="spinner"></span>Querying SpriteGuard...</div>'
+          : reply
+            ? '<div class="qa-answer">' + renderMarkdownBlocks(reply) + '</div>'
+            : '';
+
         const qaHtml = isLocal
           ? '<form class="qa-box" data-ask-form="' + esc(item.id) + '">' +
-              '<input type="text" placeholder="Ask @spriteguard a question about this PR (e.g., Why was egress flagged?)" />' +
-              '<button type="submit">Ask @spriteguard</button>' +
+              '<input type="text" data-ask-input="' + esc(item.id) + '" value="' + esc(draft) + '"' + (isAsking ? ' disabled' : '') + ' placeholder="Ask @spriteguard a question about this PR (e.g., Why was egress flagged?)" />' +
+              '<button type="submit"' + (isAsking ? ' disabled' : '') + '>' +
+                (isAsking ? '<span class="spinner"></span>Querying SpriteGuard...' : 'Ask @spriteguard') +
+              '</button>' +
             '</form>' +
-            (state.qaReplies[item.id] ? '<div class="qa-answer">' + esc(state.qaReplies[item.id]) + '</div>' : '')
+            qaAnswerHtml
           : '';
 
         return (
@@ -615,7 +1019,7 @@
         const btn = document.getElementById('run-demo-btn');
         const kind = document.getElementById('demo-kind').value;
         btn.disabled = true;
-        btn.textContent = 'Running Sprite Audit…';
+        btn.innerHTML = '<span class="spinner"></span>Running Sprite Audit...';
         try {
           const res = await fetch('/api/demo/trigger', {
             method: 'POST',
@@ -625,10 +1029,10 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Demo audit failed');
           state.expandedId = data.scan.id;
-          toast('Audited ' + data.scan.repoFullName + '#' + data.scan.prNumber + ' (Risk ' + data.scan.riskScore + '/100)');
+          toast('Audited ' + data.scan.repoFullName + '#' + data.scan.prNumber + ' (Risk ' + data.scan.riskScore + '/100)', 'success');
           await fetchScans();
         } catch (err) {
-          toast('Error: ' + err.message);
+          toast('Error: ' + err.message, 'error');
         } finally {
           btn.disabled = false;
           btn.textContent = 'Run Demo PR Audit';
@@ -636,6 +1040,9 @@
       }
 
       async function approveDemoScan(scanId) {
+        if (state.approving[scanId]) return;
+        state.approving[scanId] = true;
+        render(state.lastData);
         try {
           const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/approve', {
             method: 'POST',
@@ -644,17 +1051,21 @@
           });
           const data = await res.json();
           if (!res.ok || !data.ok) throw new Error(data.reason || data.error || 'Approval rejected');
-          toast('Approved & committed fix: ' + (data.commitSha || '').slice(0, 7));
+          toast('Approved & pushed verified fix (' + (data.commitSha || '').slice(0, 7) + ')', 'success');
           await fetchScans();
         } catch (err) {
-          toast('Approval failed: ' + err.message);
+          toast('Approval failed: ' + err.message, 'error');
+        } finally {
+          delete state.approving[scanId];
+          render(state.lastData);
         }
       }
 
       async function askDemoQuestion(scanId, question) {
+        state.qaLoading[scanId] = true;
+        state.qaDrafts[scanId] = question;
+        render(state.lastData);
         try {
-          state.qaReplies[scanId] = 'Querying SpriteGuard…';
-          await fetchScans();
           const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -662,10 +1073,12 @@
           });
           const data = await res.json();
           state.qaReplies[scanId] = data.answer || data.error || 'No response';
-          await fetchScans();
+          state.qaDrafts[scanId] = '';
         } catch (err) {
           state.qaReplies[scanId] = 'Error: ' + err.message;
-          await fetchScans();
+        } finally {
+          delete state.qaLoading[scanId];
+          render(state.lastData);
         }
       }
 
