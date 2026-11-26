@@ -1,0 +1,38 @@
+# Fly.io deployment configuration for SpriteGuard
+app = "spriteguard"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  HOST = "0.0.0.0"
+  PORT = "8080"
+  LOG_LEVEL = "info"
+  LOCAL_SANDBOX_MODE = "false"
+  ANTHROPIC_MODEL = "claude-opus-4-6"
+  SPRITE_NAME_PREFIX = "sg"
+  SPRITE_TTL_HOURS = "72"
+  SPRITE_ENFORCE_EGRESS_POLICY = "true"
+  APPROVER_MIN_PERMISSION = "maintain"
+  AUTO_PATCH = "true"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1024mb"

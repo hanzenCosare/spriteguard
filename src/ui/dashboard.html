@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpriteGuard — Zero-Trust PR Security Console</title>
+    <style>
+      :root {
+        --bg: #07090f;
+        --panel: #0e1320;
+        --panel-2: #141b2d;
+        --border: #202a44;
+        --text: #e6ecf8;
+        --muted: #8b98b8;
+        --accent: #6d7cff;
+        --accent-2: #22d3ee;
+        --green: #10b981;
+        --yellow: #f59e0b;
+        --orange: #f97316;
+        --red: #ef4444;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at 20% -10%, rgba(109, 124, 255, 0.14), transparent 45%), var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.45;
+      }
+      .wrap {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 24px 20px 56px;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 18px;
+        color: #06080f;
+        box-shadow: 0 0 24px rgba(109, 124, 255, 0.35);
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+      .brand p {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--muted);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+      }
+      .dot.warn { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+      button, select, input {
+        font-family: inherit;
+        font-size: 13px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 7px 12px;
+      }
+      button {
+        cursor: pointer;
+        font-weight: 600;
+        transition: border-color 0.15s, background 0.15s, transform 0.05s;
+      }
+      button:hover { border-color: var(--accent); }
+      button:active { transform: translateY(1px); }
+      button.primary {
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        border-color: transparent;
+      }
+      button.approve {
+        background: rgba(16, 185, 129, 0.16);
+        border-color: rgba(16, 185, 129, 0.5);
+        color: #6ee7b7;
+      }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .demo-bar {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        background: rgba(34, 211, 238, 0.06);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+      }
+      .demo-bar.visible { display: flex; }
+      .demo-bar .left {
+        font-size: 13px;
+        color: #a5f3fc;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      @media (max-width: 900px) {
+        .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+      }
+      .kpi-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+      .kpi-value {
+        font-size: 30px;
+        font-weight: 700;
+        margin-top: 6px;
+        letter-spacing: -0.02em;
+      }
+      .kpi-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .table-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .table-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .table-head h2 {
+        margin: 0;
+        font-size: 15px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th, td {
+        text-align: left;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        background: rgba(20, 27, 45, 0.7);
+      }
+      tr.scan-row { cursor: pointer; }
+      tr.scan-row:hover { background: rgba(109, 124, 255, 0.06); }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .sev-Critical { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+      .sev-High { background: rgba(249, 115, 22, 0.18); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); }
+      .sev-Medium { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+      .sev-Low { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+      .status-awaiting_approval { background: rgba(245, 158, 11, 0.16); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
+      .status-pushed { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); }
+      .status-clean { background: rgba(34, 211, 238, 0.14); color: #67e8f9; border: 1px solid rgba(34, 211, 238, 0.35); }
+      .status-running, .status-queued { background: rgba(109, 124, 255, 0.18); color: #c7d2fe; border: 1px solid rgba(109, 124, 255, 0.4); }
+      .status-failed, .status-publish_failed { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
+      .status-needs_review, .status-superseded, .status-closed { background: rgba(139, 152, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(139, 152, 184, 0.3); }
+      .mono { font-family: var(--mono); font-size: 12px; }
+      .muted { color: var(--muted); }
+      .detail-row td {
+        background: #0a0e19;
+        padding: 18px;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .tab-btn {
+        background: var(--panel);
+        color: var(--muted);
+      }
+      .tab-btn.active {
+        background: rgba(109, 124, 255, 0.2);
+        border-color: var(--accent);
+        color: var(--text);
+      }
+      pre {
+        background: #05070d;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 12px;
+        max-height: 420px;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .finding-card {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .qa-box {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .qa-box input { flex: 1; }
+      .qa-answer {
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(109, 124, 255, 0.08);
+        border: 1px solid rgba(109, 124, 255, 0.3);
+        font-size: 13px;
+        white-space: pre-wrap;
+      }
+      .empty {
+        text-align: center;
+        padding: 46px 16px;
+        color: var(--muted);
+      }
+      .toast {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        background: var(--panel-2);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 50;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <div class="logo">SG</div>
+          <div>
+            <h1>SpriteGuard</h1>
+            <p>Zero-Trust Autonomous PR Security Engineer · Fly Sprites + Claude Opus + Neon pgvector</p>
+          </div>
+        </div>
+        <div class="controls">
+          <span class="pill" id="mode-pill"><span class="dot" id="mode-dot"></span><span id="mode-text">Connecting…</span></span>
+          <span class="pill" id="refresh-pill">Auto-refresh 5s</span>
+          <button id="toggle-auto">Pause</button>
+          <button id="refresh-now">Refresh</button>
+        </div>
+      </header>
+
+      <section class="demo-bar" id="demo-bar">
+        <div class="left">
+          <strong>Local Sandbox Mode active:</strong> trigger realistic PR audits against the isolated Sprite pipeline without real GitHub tokens.
+        </div>
+        <div class="controls">
+          <select id="demo-kind">
+            <option value="vulnerable">Vulnerable PR (Stripe/AWS/.env Leaks + Canary Exfil)</option>
+            <option value="clean">Clean PR (Safe Input Validation)</option>
+          </select>
+          <button class="primary" id="run-demo-btn">Run Demo PR Audit</button>
+        </div>
+      </section>
+
+      <section class="kpis">
+        <div class="card">
+          <div class="kpi-label">PRs Audited</div>
+          <div class="kpi-value" id="kpi-prs">0</div>
+          <div class="kpi-sub" id="kpi-pushed">0 patches pushed</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Secrets &amp; Leaks Blocked</div>
+          <div class="kpi-value" id="kpi-secrets">0</div>
+          <div class="kpi-sub" id="kpi-awaiting">0 awaiting approval</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Average Risk Score</div>
+          <div class="kpi-value" id="kpi-risk">0</div>
+          <div class="kpi-sub">0 (safe) – 100 (critical)</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Active / Sleeping Sprites</div>
+          <div class="kpi-value" id="kpi-sprites">0 / 0</div>
+          <div class="kpi-sub" id="kpi-backend">Store: —</div>
+        </div>
+      </section>
+
+      <section class="table-card">
+        <div class="table-head">
+          <h2>Live Audit Feed</h2>
+          <span class="muted mono" id="last-updated">—</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Repository</th>
+              <th>PR</th>
+              <th>Risk Score</th>
+              <th>Findings</th>
+              <th>Egress Flagged</th>
+              <th>Patch Status</th>
+              <th>Sprite</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="feed-body">
+            <tr><td colspan="8" class="empty">Loading audit telemetry…</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const state = {
+        auto: true,
+        timer: null,
+        expandedId: null,
+        activeTab: 'evidence',
+        qaReplies: {},
+        mode: 'production',
+        scans: [],
+      };
+
+      function esc(val) {
+        return String(val ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.style.display = 'block';
+        clearTimeout(el._t);
+        el._t = setTimeout(() => { el.style.display = 'none'; }, 3800);
+      }
+
+      function authHeaders() {
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token') || localStorage.getItem('sg_dashboard_token');
+        return token ? { Authorization: 'Bearer ' + token } : {};
+      }
+
+      function patchStatusLabel(scan) {
+        if (scan.status === 'awaiting_approval') return 'Awaiting Approval';
+        if (scan.status === 'pushed') return 'Approved & Pushed';
+        if (scan.status === 'clean') return 'Clean';
+        if (scan.status === 'needs_review') return 'Needs Review';
+        if (scan.status === 'running') return 'Auditing…';
+        if (scan.status === 'queued') return 'Queued';
+        if (scan.status === 'failed' || scan.status === 'publish_failed') return 'Failed';
+        if (scan.status === 'superseded') return 'Superseded';
+        if (scan.status === 'closed') return 'Closed';
+        return scan.status;
+      }
+
+      async function fetchScans() {
+        try {
+          const res = await fetch('/api/scans', { headers: authHeaders() });
+          if (res.status === 401) {
+            const entered = prompt('Enter SpriteGuard DASHBOARD_TOKEN:');
+            if (entered) {
+              localStorage.setItem('sg_dashboard_token', entered.trim());
+              return fetchScans();
+            }
+            return;
+          }
+          const data = await res.json();
+          state.mode = data.mode;
+          state.scans = data.scans || [];
+          render(data);
+        } catch (err) {
+          document.getElementById('mode-text').textContent = 'Disconnected';
+          document.getElementById('mode-dot').classList.add('warn');
+        }
+      }
+
+      function render(data) {
+        const isLocal = data.mode === 'local-sandbox';
+        document.getElementById('mode-text').textContent = isLocal ? 'Local Sandbox Mode' : 'Production (Fly Sprites)';
+        document.getElementById('mode-dot').classList.toggle('warn', isLocal);
+        document.getElementById('demo-bar').classList.toggle('visible', isLocal);
+
+        const s = data.stats || {};
+        document.getElementById('kpi-prs').textContent = String(s.prsAudited ?? 0);
+        document.getElementById('kpi-pushed').textContent = (s.patchesPushed ?? 0) + ' patches pushed';
+        document.getElementById('kpi-secrets').textContent = String(s.secretsBlocked ?? 0);
+        document.getElementById('kpi-awaiting').textContent = (s.awaitingApproval ?? 0) + ' awaiting approval';
+        document.getElementById('kpi-risk').textContent = String(s.averageRiskScore ?? 0);
+        document.getElementById('kpi-sprites').textContent = (s.activeSprites ?? 0) + ' / ' + (s.sleepingSprites ?? 0);
+        document.getElementById('kpi-backend').textContent = 'Store: ' + (data.storeBackend || '—') + ' · Model: ' + (data.model || '—');
+        document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+        const tbody = document.getElementById('feed-body');
+        if (!state.scans.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="empty">No Pull Requests audited yet. ' +
+            (isLocal ? 'Click "Run Demo PR Audit" above to test the full pipeline.' : 'Waiting for GitHub webhook events on POST /webhook.') +
+            '</td></tr>';
+          return;
+        }
+
+        const rows = [];
+        for (const item of state.scans) {
+          const sev = item.severity || 'Low';
+          const score = item.riskScore === null || item.riskScore === undefined ? '—' : item.riskScore;
+          const isOpen = state.expandedId === item.id;
+          const flagged = (item.egressDomains || []).filter((d) => d.flagged);
+
+          rows.push(
+            '<tr class="scan-row" data-id="' + esc(item.id) + '">' +
+              '<td><div style="font-weight:600">' + esc(item.repoFullName) + '</div><div class="muted" style="font-size:12px">' + esc(item.prTitle) + '</div></td>' +
+              '<td class="mono">#' + esc(item.prNumber) + '<div class="muted">' + esc((item.headSha || '').slice(0, 7)) + '</div></td>' +
+              '<td><span class="badge sev-' + esc(sev) + '">' + esc(score) + ' · ' + esc(sev) + '</span></td>' +
+              '<td><strong>' + esc(item.findingsCount) + '</strong> <span class="muted">(' + esc(item.secretsCount) + ' secrets)</span></td>' +
+              '<td>' + (flagged.length ? '<span class="badge sev-High">' + flagged.length + ' flagged</span>' : '<span class="muted">0</span>') + '</td>' +
+              '<td><span class="badge status-' + esc(item.status) + '">' + esc(patchStatusLabel(item)) + '</span></td>' +
+              '<td class="mono muted">' + esc(item.spriteState) + '</td>' +
+              '<td>' +
+                (isLocal && item.status === 'awaiting_approval'
+                  ? '<button class="approve" data-approve="' + esc(item.id) + '">Approve Patch</button> '
+                  : '') +
+                '<button data-toggle="' + esc(item.id) + '">' + (isOpen ? 'Hide' : 'Inspect') + '</button>' +
+              '</td>' +
+            '</tr>'
+          );
+
+          if (isOpen) {
+            rows.push(renderDetailRow(item, isLocal));
+          }
+        }
+        tbody.innerHTML = rows.join('');
+
+        tbody.querySelectorAll('tr.scan-row').forEach((tr) => {
+          tr.addEventListener('click', (ev) => {
+            if (ev.target.closest('button')) return;
+            const id = tr.getAttribute('data-id');
+            state.expandedId = state.expandedId === id ? null : id;
+            render(data);
+          });
+        });
+        tbody.querySelectorAll('button[data-toggle]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-toggle');
+            state.expandedId = state.expandedId === id ? null : id;
+            render(data);
+          });
+        });
+        tbody.querySelectorAll('button[data-approve]').forEach((btn) => {
+          btn.addEventListener('click', () => approveDemoScan(btn.getAttribute('data-approve')));
+        });
+        tbody.querySelectorAll('button[data-tab]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            state.activeTab = btn.getAttribute('data-tab');
+            render(data);
+          });
+        });
+        tbody.querySelectorAll('form[data-ask-form]').forEach((form) => {
+          form.addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            const scanId = form.getAttribute('data-ask-form');
+            const input = form.querySelector('input');
+            if (input && input.value.trim()) askDemoQuestion(scanId, input.value.trim());
+          });
+        });
+      }
+
+      function renderDetailRow(item, isLocal) {
+        const rep = item.report;
+        const patch = item.patch;
+        let body = '';
+
+        if (state.activeTab === 'markdown') {
+          body = '<pre>' + esc(item.reportMarkdown || 'Report markdown not generated yet.') + '</pre>';
+        } else if (state.activeTab === 'json') {
+          body = '<pre>' + esc(JSON.stringify({ scan: item, patch: patch || null }, null, 2)) + '</pre>';
+        } else {
+          const findingsHtml = (rep && rep.audit && rep.audit.findings && rep.audit.findings.length)
+            ? rep.audit.findings.map((f) =>
+                '<div class="finding-card">' +
+                  '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">' +
+                    '<strong>' + esc(f.title) + '</strong>' +
+                    '<span class="badge sev-' + esc(cap(f.severity)) + '">' + esc(f.severity.toUpperCase()) + '</span>' +
+                  '</div>' +
+                  '<div class="mono muted" style="margin:4px 0">' + esc(f.file) + ':' + esc(f.line) + ' · ' + esc(f.category) + ' · source=' + esc(f.source) + '</div>' +
+                  '<div style="font-size:12px"><strong>Evidence:</strong> <span class="mono">' + esc(f.evidence) + '</span></div>' +
+                  '<div style="font-size:12px;margin-top:4px"><strong>Exploitability:</strong> ' + esc(f.exploitability) + '</div>' +
+                  '<div style="font-size:12px;margin-top:4px"><strong>Remediation:</strong> ' + esc(f.remediation) + '</div>' +
+                '</div>'
+              ).join('')
+            : '<div class="muted" style="margin-bottom:10px">No findings recorded.</div>';
+
+          const egressList = (item.egressDomains || []).length
+            ? '<div style="margin:12px 0"><strong>Outbound Egress Domains:</strong> ' +
+              item.egressDomains.map((d) =>
+                '<span class="badge ' + (d.flagged ? 'sev-High' : 'sev-Low') + '" style="margin-right:6px">' +
+                esc(d.host) + ' (' + esc(d.hits) + ' hits)</span>'
+              ).join('') + '</div>'
+            : '';
+
+          const diffHtml = patch
+            ? '<div style="margin-top:12px"><div style="margin-bottom:6px"><strong>Verified Patch Diff</strong> · status=<span class="mono">' + esc(patch.status) + '</span> · tests=<span class="mono">' + esc(patch.verification?.testsAfter?.summary || '—') + '</span></div><pre>' + esc(patch.diff) + '</pre></div>'
+            : '';
+
+          body = findingsHtml + egressList + diffHtml;
+        }
+
+        const qaHtml = isLocal
+          ? '<form class="qa-box" data-ask-form="' + esc(item.id) + '">' +
+              '<input type="text" placeholder="Ask @spriteguard a question about this PR (e.g., Why was egress flagged?)" />' +
+              '<button type="submit">Ask @spriteguard</button>' +
+            '</form>' +
+            (state.qaReplies[item.id] ? '<div class="qa-answer">' + esc(state.qaReplies[item.id]) + '</div>' : '')
+          : '';
+
+        return (
+          '<tr class="detail-row"><td colspan="8">' +
+            '<div class="tabs">' +
+              '<button class="tab-btn ' + (state.activeTab === 'evidence' ? 'active' : '') + '" data-tab="evidence">Findings, Egress &amp; Patch</button>' +
+              '<button class="tab-btn ' + (state.activeTab === 'markdown' ? 'active' : '') + '" data-tab="markdown">PR Markdown Report</button>' +
+              '<button class="tab-btn ' + (state.activeTab === 'json' ? 'active' : '') + '" data-tab="json">Raw JSON</button>' +
+              '<span class="mono muted" style="margin-left:auto">Sprite: ' + esc(item.spriteName || 'none') + (item.checkpointId ? ' · checkpoint ' + esc(item.checkpointId) : '') + '</span>' +
+            '</div>' +
+            body +
+            qaHtml +
+          '</td></tr>'
+        );
+      }
+
+      function cap(s) {
+        return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Low';
+      }
+
+      async function runDemo() {
+        const btn = document.getElementById('run-demo-btn');
+        const kind = document.getElementById('demo-kind').value;
+        btn.disabled = true;
+        btn.textContent = 'Running Sprite Audit…';
+        try {
+          const res = await fetch('/api/demo/trigger', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ kind }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Demo audit failed');
+          state.expandedId = data.scan.id;
+          toast('Audited ' + data.scan.repoFullName + '#' + data.scan.prNumber + ' (Risk ' + data.scan.riskScore + '/100)');
+          await fetchScans();
+        } catch (err) {
+          toast('Error: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Run Demo PR Audit';
+        }
+      }
+
+      async function approveDemoScan(scanId) {
+        try {
+          const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ approver: 'alice-maintainer' }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.reason || data.error || 'Approval rejected');
+          toast('Approved & committed fix: ' + (data.commitSha || '').slice(0, 7));
+          await fetchScans();
+        } catch (err) {
+          toast('Approval failed: ' + err.message);
+        }
+      }
+
+      async function askDemoQuestion(scanId, question) {
+        try {
+          state.qaReplies[scanId] = 'Querying SpriteGuard…';
+          await fetchScans();
+          const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ asker: 'alice-maintainer', question }),
+          });
+          const data = await res.json();
+          state.qaReplies[scanId] = data.answer || data.error || 'No response';
+          await fetchScans();
+        } catch (err) {
+          state.qaReplies[scanId] = 'Error: ' + err.message;
+          await fetchScans();
+        }
+      }
+
+      function setupRefresh() {
+        clearInterval(state.timer);
+        if (state.auto) {
+          state.timer = setInterval(fetchScans, 5000);
+        }
+        document.getElementById('toggle-auto').textContent = state.auto ? 'Pause' : 'Resume';
+        document.getElementById('refresh-pill').textContent = state.auto ? 'Auto-refresh 5s' : 'Auto-refresh paused';
+      }
+
+      document.getElementById('toggle-auto').addEventListener('click', () => {
+        state.auto = !state.auto;
+        setupRefresh();
+      });
+      document.getElementById('refresh-now').addEventListener('click', fetchScans);
+      document.getElementById('run-demo-btn').addEventListener('click', runDemo);
+
+      fetchScans();
+      setupRefresh();
+    </script>
+  </body>
+</html>
