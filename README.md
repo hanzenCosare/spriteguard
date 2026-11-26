@@ -1,6 +1,10 @@
-# 🛡️ SpriteGuard
+<p align="center">
+  <img src="assets/spriteguard-logo.svg" alt="SpriteGuard Logo" width="84" height="84" />
+</p>
 
-**SpriteGuard** is an autonomous, zero-trust Pull Request security engineer built for the **Fly.io Hacksgiving 2026** hackathon. It executes untrusted PR dependencies, builds, and test suites inside hardware-isolated **Fly.io Sprites**, runs a **3-Layer Dynamic Security Audit** backed by **Claude Opus** and **Neon pgvector** semantic memory, autonomously generates and verifies remediation patches inside the Sprite, hibernates the Sprite at zero compute cost while awaiting human approval, and commits verified fixes strictly through a separated **GitHub Write Connector**.
+<h1 align="center">SpriteGuard</h1>
+
+**SpriteGuard** is an autonomous, zero-trust Pull Request security engineer built for the **Fly.io Hacksgiving 2026** hackathon. It executes untrusted PR dependencies, builds, and test suites inside hardware-isolated **Fly.io Sprites**, runs a **3-Layer Dynamic Security Audit** backed by **Claude Opus** (or any OpenAI-compatible LLM) and **Neon pgvector** semantic memory, autonomously generates and verifies remediation patches inside the Sprite, hibernates the Sprite at zero compute cost while awaiting human approval, and commits verified fixes strictly through a separated **GitHub Write Connector**.
 
 ---
 
