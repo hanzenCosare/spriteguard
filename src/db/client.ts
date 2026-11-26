@@ -2,6 +2,10 @@ import { createHash, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+import { neonConfig, Pool as NeonPool } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 import pgvector from 'pgvector/pg';
 import type { AppConfig } from '../config.js';
 import type { Logger } from '../logger.js';
@@ -340,13 +344,15 @@ export class PostgresStore implements Store {
     ssl: boolean,
     private readonly log: Logger,
   ) {
-    this.pool = new Pool({
-      connectionString,
-      ssl: ssl ? { rejectUnauthorized: false } : undefined,
-      max: 10,
-      idleTimeoutMillis: 30_000,
-      connectionTimeoutMillis: 15_000,
-    });
+    this.pool = connectionString.includes("neon.tech")
+      ? (new NeonPool({ connectionString }) as unknown as pg.Pool)
+      : new Pool({
+          connectionString,
+          ssl: ssl ? { rejectUnauthorized: false } : undefined,
+          max: 10,
+          idleTimeoutMillis: 30_000,
+          connectionTimeoutMillis: 30_000,
+        });
     this.pool.on('error', (err) => {
       this.log.error({ err }, 'Postgres pool background error');
     });
