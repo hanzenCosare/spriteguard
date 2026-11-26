@@ -4,8 +4,16 @@ import { fileURLToPath } from 'node:url';
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import { loadConfig, type AppConfig } from './config.js';
 import { createStore, type Store } from './db/client.js';
-import { createCleanPrFixture, createVulnerablePrFixture } from './demoFixtures.js';
-import { createGitHubConnectors, type GitHubConnectors } from './fly/githubConnector.js';
+import { createCleanPrFixture, createVulnerablePrFixture, registerDemoMaintainers } from './demoFixtures.js';
+import {
+  buildGitDiff,
+  createGitHubConnectors,
+  fakeSha,
+  LocalGitHubSimulator,
+  LocalReadOnlyConnector,
+  LocalWriteConnector,
+  type GitHubConnectors,
+} from './fly/githubConnector.js';
 import { createSpriteManager, type SpriteManager } from './fly/spriteManager.js';
 import { WebhookHandler } from './github/webhookHandler.js';
 import { createLogger, type Logger } from './logger.js';
@@ -78,6 +86,10 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     orchestrator,
     log.child({ module: 'webhook' }),
   );
+
+  const playgroundEnabled =
+    config.localSandboxMode ||
+    ['1', 'true', 'yes', 'on'].includes((process.env.ENABLE_PUBLIC_PLAYGROUND ?? '').trim().toLowerCase());
 
   const app = Fastify({
     logger: false,
@@ -171,6 +183,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
 
     return reply.send({
       mode: config.localSandboxMode ? 'local-sandbox' : 'production',
+      playgroundEnabled,
       storeBackend: store.backend,
       spriteDriver: spriteManager.driver.kind,
       provider: auditor.provider,
@@ -192,9 +205,21 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     return reply.send({ scan, patch, timeline });
   });
 
-  // Local Sandbox interactive demo endpoints (disabled in production mode)
-  if (config.localSandboxMode && connectors.simulator) {
-    const sim = connectors.simulator;
+  // Local Sandbox / Public Playground interactive endpoints
+  if (playgroundEnabled) {
+    const sim = connectors.simulator ?? new LocalGitHubSimulator(config.github.botLogin);
+    const playgroundOrchestrator = connectors.simulator
+      ? orchestrator
+      : new AuditOrchestrator(
+          config,
+          store,
+          embeddings,
+          spriteManager,
+          new LocalReadOnlyConnector(sim),
+          new TrustedPublisher(new LocalWriteConnector(sim)),
+          auditor,
+          log.child({ module: 'playground-orchestrator' }),
+        );
 
     app.post('/api/demo/trigger', async (req, reply) => {
       if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
@@ -205,9 +230,125 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
           ? createCleanPrFixture(sim, { ...(body.repoFullName ? { repoFullName: body.repoFullName } : {}) })
           : createVulnerablePrFixture(sim, { ...(body.repoFullName ? { repoFullName: body.repoFullName } : {}) });
 
-      const scan = await orchestrator.runPullRequestAudit(pr.repoFullName, pr.number);
+      const scan = await playgroundOrchestrator.runPullRequestAudit(pr.repoFullName, pr.number);
       const patch = await store.getPatch(scan.id);
       const timeline = sim.getTimeline(pr.repoFullName, pr.number);
+      return reply.code(201).send({ scan, patch, timeline });
+    });
+
+    app.post('/api/demo/custom', async (req, reply) => {
+      if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+      const body = (req.body ?? {}) as {
+        title?: string;
+        filename?: string;
+        code?: string;
+        repoFullName?: string;
+      };
+
+      const rawCode = typeof body.code === 'string' ? body.code : '';
+      if (!rawCode.trim()) {
+        return reply.code(400).send({ error: 'code snippet is required' });
+      }
+      if (rawCode.length > 100_000) {
+        return reply.code(400).send({ error: 'code snippet exceeds 100KB limit' });
+      }
+
+      const rawFile = (typeof body.filename === 'string' ? body.filename : 'src/submission.mjs')
+        .replace(/^\.\//, '')
+        .replace(/\\/g, '/')
+        .trim();
+      const parts = rawFile.split('/');
+      if (!rawFile || rawFile.startsWith('/') || parts.some((p) => !p || p === '.' || p === '..') || parts[0] === '.git') {
+        return reply.code(400).send({ error: 'filename must be a safe relative repository path' });
+      }
+
+      const repoFullName =
+        typeof body.repoFullName === 'string' && /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(body.repoFullName.trim())
+          ? body.repoFullName.trim()
+          : 'playground/custom-sandbox';
+      const title =
+        (typeof body.title === 'string' && body.title.trim().slice(0, 140)) ||
+        `audit(${rawFile}): custom sandbox submission`;
+
+      // If user pasted a unified diff, extract added/context lines as the file body
+      const isDiffInput = /^diff --git /m.test(rawCode) || /^@@ -\d+/m.test(rawCode);
+      const fileContent = isDiffInput
+        ? rawCode
+            .split(/\r?\n/)
+            .filter((l) => !l.startsWith('diff --git ') && !l.startsWith('--- ') && !l.startsWith('+++ ') && !l.startsWith('@@') && !l.startsWith('-'))
+            .map((l) => (l.startsWith('+') || l.startsWith(' ') ? l.slice(1) : l))
+            .join('\n')
+        : rawCode;
+
+      registerDemoMaintainers(sim, repoFullName);
+      const number = sim.nextPrNumber(repoFullName);
+      const isRunnableJs = /\.(?:mjs|js)$/.test(rawFile);
+
+      const baseFiles: Record<string, string> = {
+        'package.json': JSON.stringify(
+          {
+            name: 'custom-sandbox',
+            version: '1.0.0',
+            type: 'module',
+            scripts: isRunnableJs ? { test: 'node --test test/smoke.test.mjs' } : {},
+          },
+          null,
+          2,
+        ),
+        '.gitignore': 'node_modules/\n',
+      };
+
+      const headFiles: Record<string, string> = {
+        ...baseFiles,
+        [rawFile]: fileContent.endsWith('\n') ? fileContent : `${fileContent}\n`,
+      };
+
+      if (isRunnableJs) {
+        headFiles['test/smoke.test.mjs'] = [
+          'import test from "node:test";',
+          'import assert from "node:assert/strict";',
+          'test("loads custom module without fatal crash", async () => {',
+          '  try {',
+          `    const mod = await import(${JSON.stringify(`../${rawFile}`)});`,
+          '    for (const val of Object.values(mod)) {',
+          '      if (typeof val === "function" && val.length === 0) {',
+          '        await Promise.resolve(val()).catch(() => {});',
+          '      }',
+          '    }',
+          '  } catch {}',
+          '  assert.ok(true);',
+          '});',
+          '',
+        ].join('\n');
+      }
+
+      const headSha = fakeSha(`${repoFullName}#${number}:${rawFile}:${Date.now()}`);
+      const diffText = buildGitDiff(baseFiles, headFiles);
+      sim.upsertPullRequest({
+        repoFullName,
+        number,
+        title,
+        body: `Custom code audit submitted from SpriteGuard Playground for \`${rawFile}\`.`,
+        author: 'sandbox-user',
+        baseRef: 'main',
+        headRef: `sandbox/custom-${number}`,
+        headSha,
+        baseFiles,
+        headFiles,
+        commits: [
+          {
+            sha: headSha,
+            message: title,
+            author: 'sandbox-user',
+            files: [{ filename: rawFile, patch: diffText }],
+          },
+        ],
+        state: 'open',
+      });
+
+      const scan = await playgroundOrchestrator.runPullRequestAudit(repoFullName, number);
+      const patch = await store.getPatch(scan.id);
+      const timeline = sim.getTimeline(repoFullName, number);
       return reply.code(201).send({ scan, patch, timeline });
     });
 
@@ -218,7 +359,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       const scan = await store.getScan(id);
       if (!scan) return reply.code(404).send({ error: 'Scan not found' });
       const approver = body.approver?.trim() || 'alice-maintainer';
-      const outcome = await orchestrator.handleApproval(scan.repoFullName, scan.prNumber, approver);
+      const outcome = await playgroundOrchestrator.handleApproval(scan.repoFullName, scan.prNumber, approver);
       return reply.code(outcome.ok ? 200 : 400).send(outcome);
     });
 
@@ -230,7 +371,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       if (!scan) return reply.code(404).send({ error: 'Scan not found' });
       const question = body.question?.trim();
       if (!question) return reply.code(400).send({ error: 'question is required' });
-      const outcome = await orchestrator.handleQuestion(
+      const outcome = await playgroundOrchestrator.handleQuestion(
         scan.repoFullName,
         scan.prNumber,
         body.asker?.trim() || 'alice-maintainer',

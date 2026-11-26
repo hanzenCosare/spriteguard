@@ -261,10 +261,34 @@ test('End-to-end zero-trust audit -> patch -> verify -> sleep -> Q&A -> approve 
     const apiScans = await sg.app.inject({ method: 'GET', url: '/api/scans' });
     assert.equal(apiScans.statusCode, 200);
     const apiJson = apiScans.json();
+    assert.equal(apiJson.playgroundEnabled, true);
     assert.equal(apiJson.stats.prsAudited, 3);
     assert.equal(apiJson.stats.patchesPushed, 1);
     assert.equal(apiJson.stats.awaitingApproval, 1);
     assert.equal(apiJson.scans.length, 3);
+
+    // 10. Custom code playground endpoint (POST /api/demo/custom)
+    const badPath = await sg.app.inject({
+      method: 'POST',
+      url: '/api/demo/custom',
+      payload: { filename: '../etc/passwd', code: 'x=1' },
+    });
+    assert.equal(badPath.statusCode, 400);
+
+    const customRes = await sg.app.inject({
+      method: 'POST',
+      url: '/api/demo/custom',
+      payload: {
+        title: 'feat(custom): test leaked key detection',
+        filename: 'src/customSecret.mjs',
+        code: "export const AWS_KEY = 'AKIAIOSFODNN7EXAMPL9';\n",
+      },
+    });
+    assert.equal(customRes.statusCode, 201);
+    const customJson = customRes.json();
+    assert.equal(customJson.scan.status, 'awaiting_approval');
+    assert.ok(customJson.scan.secretsCount >= 1);
+    assert.ok(customJson.patch);
   } finally {
     await sg.close();
   }

