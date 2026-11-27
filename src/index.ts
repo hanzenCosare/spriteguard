@@ -330,22 +330,47 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     return reply.code(result.statusCode).send(result);
   });
 
+  const STALE_RUNNING_SCAN_MS = 3 * 60_000;
+
+  async function reconcileStaleScan(scan: ScanRecord): Promise<ScanRecord> {
+    if (scan.status !== 'running' && scan.status !== 'queued') return scan;
+    const refMs = Date.parse(scan.updatedAt || scan.createdAt);
+    if (!Number.isFinite(refMs) || Date.now() - refMs <= STALE_RUNNING_SCAN_MS) return scan;
+
+    const completedAt = new Date().toISOString();
+    const updated = await store.updateScan(scan.id, {
+      status: 'failed',
+      spriteState: 'destroyed',
+      error: 'Audit timed out before completion',
+      completedAt,
+    });
+    return (
+      updated ?? {
+        ...scan,
+        status: 'failed',
+        spriteState: 'destroyed',
+        error: 'Audit timed out before completion',
+        completedAt,
+      }
+    );
+  }
+
   app.get('/api/scans', async (req, reply) => {
     if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
     const q = req.query as { limit?: string; repo?: string; status?: ScanStatus } | undefined;
     const limit = q?.limit ? Math.min(200, Math.max(1, Number.parseInt(q.limit, 10) || 50)) : 50;
 
-    const [stats, rawScans] = await Promise.all([
-      store.getStats(),
-      store.listScans({
-        limit,
-        ...(q?.repo ? { repo: q.repo } : {}),
-        ...(q?.status ? { status: q.status } : {}),
-      }),
-    ]);
+    const rawScans = await store.listScans({
+      limit,
+      ...(q?.repo ? { repo: q.repo } : {}),
+      ...(q?.status ? { status: q.status } : {}),
+    });
+
+    const reconciledScans = await Promise.all(rawScans.map((scan) => reconcileStaleScan(scan)));
+    const stats = await store.getStats();
 
     const scans: Array<ScanRecord & { patch: Omit<PatchRecord, 'files'> | null }> = await Promise.all(
-      rawScans.map(async (scan) => {
+      reconciledScans.map(async (scan) => {
         const patch = await store.getPatch(scan.id);
         if (!patch) return { ...scan, patch: null };
         const { files: _files, ...publicPatch } = patch;
@@ -368,8 +393,9 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
   app.get('/api/scans/:id', async (req, reply) => {
     if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
     const { id } = req.params as { id: string };
-    const scan = await store.getScan(id);
-    if (!scan) return reply.code(404).send({ error: 'Scan not found' });
+    const existing = await store.getScan(id);
+    if (!existing) return reply.code(404).send({ error: 'Scan not found' });
+    const scan = await reconcileStaleScan(existing);
     const patch = await store.getPatch(scan.id);
     const timeline = connectors.simulator
       ? connectors.simulator.getTimeline(scan.repoFullName, scan.prNumber)

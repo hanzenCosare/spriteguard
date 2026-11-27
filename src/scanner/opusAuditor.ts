@@ -1778,20 +1778,77 @@ export function deterministicAnswer(question: string, audit: QaAuditContext): st
       );
     }
   } else {
-    if (findings.length === 0) {
-      lines.push('- **Findings:** No security findings were recorded for this revision.');
-    } else {
-      lines.push(`- **Findings (${findings.length}):**`);
-      for (const f of findings.slice(0, 8)) {
-        lines.push(`  - **[${f.severity.toUpperCase()}] ${f.title}** (\`${f.file}:${f.line}\`): ${f.exploitability}`);
-      }
+    if (findings.length === 0 && flagged.length === 0 && !hasSecrets) {
+      return [
+        `PR **${scan.repoFullName}#${scan.prNumber}** (\`${sha7}\`) passed with a **${riskScore}/100** (${severity}) risk score.`,
+        'No exposed credentials, code vulnerabilities, or unauthorized outbound egress were detected in this revision.',
+      ].join(' ');
+    }
+
+    const summarySentences: string[] = [];
+    const reasons: string[] = [];
+    if (hasSecrets) {
+      const secretCount = Math.max(scan.secretsCount, staticLeaks.length, findings.filter((f) => f.category === 'secret_leak').length);
+      reasons.push(`${secretCount} exposed credential${secretCount === 1 ? '' : 's'}`);
     }
     if (flagged.length > 0) {
-      lines.push(`- **Flagged Egress:** ${flagged.map((d) => `\`${d.host}\``).join(', ')}`);
+      reasons.push(`unauthorized outbound traffic to ${flagged.map((d) => `\`${d.host}\``).join(', ')}`);
     }
+    const otherCount = findings.filter((f) => f.category !== 'secret_leak' && f.category !== 'malicious_egress').length;
+    if (otherCount > 0) {
+      reasons.push(`${otherCount} code security issue${otherCount === 1 ? '' : 's'}`);
+    }
+
+    summarySentences.push(
+      `PR **${scan.repoFullName}#${scan.prNumber}** (\`${sha7}\`) was flagged at **${riskScore}/100** (${severity}) due to ${
+        reasons.length > 0 ? reasons.join(' and ') : `${findings.length} security finding${findings.length === 1 ? '' : 's'}`
+      }.`,
+    );
+
     if (patch) {
-      lines.push(`- **Remediation Patch:** \`${patch.status}\` (${patch.verification?.testsAfter.summary ?? 'unverified'}).`);
+      summarySentences.push(
+        `A remediation patch is \`${patch.status}\` (${patch.verification?.testsAfter.summary ?? 'unverified'}).`,
+      );
     }
+    if (hasSecrets) {
+      summarySentences.push(
+        'Revoke and rotate the exposed credentials at the provider before merging, since code patches do not invalidate leaked keys.',
+      );
+    }
+
+    const out: string[] = [summarySentences.join(' ')];
+
+    if (findings.length > 0) {
+      out.push('');
+      out.push('<details>');
+      out.push(`<summary>Show all ${findings.length} finding${findings.length === 1 ? '' : 's'}</summary>`);
+      out.push('');
+      for (const f of findings) {
+        out.push(`- **[${f.severity.toUpperCase()}] ${f.title}** (\`${f.file}:${f.line}\`): ${f.exploitability}`);
+      }
+      if (flagged.length > 0) {
+        out.push(`- **Flagged Egress:** ${flagged.map((d) => `\`${d.host}\``).join(', ')}`);
+      }
+      if (relatedIncidents.length > 0) {
+        out.push(
+          `- **Related Past Incidents:** ${relatedIncidents
+            .slice(0, 3)
+            .map((p) => `PR #${p.prNumber} (${p.title}, ${(p.similarity * 100).toFixed(0)}% match)`)
+            .join('; ')}`,
+        );
+      }
+      out.push('</details>');
+    } else if (relatedIncidents.length > 0) {
+      out.push('');
+      out.push(
+        `- **Related Past Incidents (pgvector):** ${relatedIncidents
+          .slice(0, 3)
+          .map((p) => `PR #${p.prNumber} (${p.title}, similarity ${(p.similarity * 100).toFixed(0)}%)`)
+          .join('; ')}`,
+      );
+    }
+
+    return out.join('\n');
   }
 
   if (relatedIncidents.length > 0) {

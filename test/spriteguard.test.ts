@@ -918,11 +918,12 @@ test('Q&A layered guard: domain gate, tailored deterministic fallback, zero-LLM 
   assert.match(egressReply, /exfil-collector\.invalid/);
   assert.match(egressReply, /Canary Traps Triggered/i);
 
-  // 4. "Why was this flagged?"
+  // 4. "Why was this flagged?" -> concise 2-3 sentence summary + collapsible <details> block
   assert.equal(classifyQuestion('Why was this flagged?', vulnCtx), 'summary');
   const summaryReply = deterministicAnswer('Why was this flagged?', vulnCtx);
   assert.match(summaryReply, /Hardcoded Stripe Live Key/);
   assert.match(summaryReply, /92\/100/);
+  assert.match(summaryReply, /<details>\n<summary>Show all 2 findings<\/summary>/);
 
   // 5-7. Off-topic & prompt injection refused with exact 1-sentence reply
   for (const offTopicQ of [
@@ -1124,6 +1125,36 @@ test('POST /api/demo/scans/:id/approve grants alice-maintainer maintain permissi
     assert.equal(restartedApprove.json().ok, true);
     assert.ok(restartedApprove.json().commitSha);
     assert.equal((await sg.store.getScan(persisted.id))?.status, 'pushed');
+
+    // 5. Stale running scan (> 3 minutes old) is reconciled to failed by GET /api/scans
+    const stale = await sg.store.createScan({
+      repoFullName: 'acme/stale-demo',
+      prNumber: 99,
+      headSha: 'aaaa1111bbbb2222cccc3333dddd4444eeee5555',
+      headRef: 'feat/stale',
+      headRepoFullName: 'acme/stale-demo',
+      baseRef: 'main',
+      prTitle: 'Stale stuck scan',
+      prAuthor: 'dev',
+    });
+    const fourMinAgo = new Date(Date.now() - 4 * 60_000).toISOString();
+    await sg.store.updateScan(stale.id, { status: 'running', spriteState: 'running' });
+    // Backdate updatedAt on in-memory store record via internal map or verify fresh vs stale
+    const scansBefore = (sg.store as unknown as { scans?: Map<string, { updatedAt: string; createdAt: string }> }).scans;
+    if (scansBefore?.has(stale.id)) {
+      const rec = scansBefore.get(stale.id)!;
+      rec.createdAt = fourMinAgo;
+      rec.updatedAt = fourMinAgo;
+    }
+
+    const listRes = await sg.app.inject({ method: 'GET', url: '/api/scans' });
+    assert.equal(listRes.statusCode, 200);
+    const reconciled = (listRes.json().scans as Array<{ id: string; status: string; spriteState: string; error: string | null }>).find(
+      (s) => s.id === stale.id,
+    );
+    assert.equal(reconciled?.status, 'failed');
+    assert.equal(reconciled?.spriteState, 'destroyed');
+    assert.equal(reconciled?.error, 'Audit timed out before completion');
   } finally {
     await sg.close();
   }

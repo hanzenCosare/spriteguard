@@ -22,7 +22,7 @@
         --sb: #ebf0f7;
         --ln: #d9e1ee;
         --tx: #0a1224;
-        --mu: #4b5a75;
+        --mu: #475569;
         --ac: #0f766e;
         --on: #ffffff;
         --ar: #0f766e17;
@@ -46,7 +46,7 @@
         --sb: #101a2e;
         --ln: #1a2740;
         --tx: #e8eef8;
-        --mu: #9aa9c3;
+        --mu: #a3b2cc;
         --ac: #2dd4bf;
         --on: #03201c;
         --ar: #2dd4bf1a;
@@ -207,6 +207,16 @@
         color: var(--mu);
         background: var(--sb);
       }
+      .demo-badge {
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--hi);
+        border: 1px dashed color-mix(in srgb, var(--hi) 50%, var(--ln));
+        background: color-mix(in srgb, var(--hi) 10%, var(--pn));
+        padding: 2px 8px;
+        border-radius: 99px;
+        white-space: nowrap;
+      }
       #pg-btn[aria-expanded='true'] {
         border-color: var(--ac);
         background: var(--ar);
@@ -326,12 +336,23 @@
         color: var(--ai);
       }
       #ap-btn {
-        min-width: 178px;
+        min-width: 152px;
         justify-content: center;
       }
-      #rs-btn {
-        min-width: 108px;
+      #rs-btn.icon-btn {
+        width: 32px;
+        min-width: 32px;
+        padding: 0;
         justify-content: center;
+        font-size: 15px;
+        line-height: 1;
+      }
+      #rs-btn.icon-btn[aria-busy='true']::before {
+        display: none;
+      }
+      #rs-btn.icon-btn[aria-busy='true'] .spin-ic {
+        display: inline-block;
+        animation: sp 0.8s linear infinite;
       }
       #demo-btn {
         min-width: 144px;
@@ -346,14 +367,26 @@
         border-color: var(--ok);
         color: var(--on);
       }
+      .btn.rot-pri {
+        background: var(--hi);
+        border-color: var(--hi);
+        color: #09101d;
+        font-weight: 600;
+      }
+      .btn.rot-pri:hover:not(:disabled) {
+        background: var(--hi);
+        border-color: var(--hi);
+        color: #09101d;
+        filter: brightness(1.08);
+      }
       .btn.warn-act {
-        border-color: color-mix(in srgb, var(--cr) 55%, var(--ln));
-        background: color-mix(in srgb, var(--cr) 10%, var(--pn));
-        color: var(--cr);
+        border-color: color-mix(in srgb, var(--hi) 50%, var(--ln));
+        background: color-mix(in srgb, var(--hi) 10%, var(--pn));
+        color: var(--hi);
       }
       .btn.warn-act:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--cr) 16%, var(--pn));
-        border-color: var(--cr);
+        background: color-mix(in srgb, var(--hi) 16%, var(--pn));
+        border-color: var(--hi);
       }
       .btn.sm {
         height: 26px;
@@ -692,6 +725,32 @@
         font-weight: 400;
         color: var(--mu);
       }
+      .stats b.kpi-sp {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 6px;
+        font-size: 20px;
+        line-height: 1.5;
+      }
+      .stats b.kpi-sp .kpi-val {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--tx);
+      }
+      .stats b.kpi-sp .kpi-val.on {
+        color: var(--ac);
+      }
+      .stats b.kpi-sp em {
+        font-style: normal;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--mu);
+      }
+      .stats b.kpi-sp .kpi-sep {
+        color: var(--ln);
+        font-size: 16px;
+      }
       .stats small {
         color: var(--mu);
         font-size: 12.5px;
@@ -843,8 +902,27 @@
         color: var(--mu);
         font-size: 12.5px;
         display: flex;
-        gap: 4px 12px;
+        gap: 4px 10px;
         flex-wrap: wrap;
+        align-items: center;
+      }
+      .rm-time {
+        color: var(--mu);
+        font-size: 11.5px;
+      }
+      .run-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--ac);
+        font: 500 12px var(--m);
+      }
+      .run-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ac);
+        animation: pulse 1.1s infinite;
       }
       .sp {
         width: 9px;
@@ -916,16 +994,14 @@
         overflow: hidden;
       }
       .dh {
-        padding: 12px 16px;
+        padding: 11px 16px;
         display: flex;
-        gap: 10px 12px;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        align-items: center;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
       }
       .dh-title {
         min-width: 0;
-        flex: 1 1 220px;
       }
       .dh h2 {
         font-size: 16.5px;
@@ -951,6 +1027,18 @@
         gap: 6px;
         flex-wrap: wrap;
         align-items: center;
+      }
+      .dh .acts {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .dh .acts::-webkit-scrollbar {
+        display: none;
+      }
+      .dh .acts .btn {
+        flex-shrink: 0;
       }
       /* Compact Inline Metadata Bar (Risk / Findings / Egress / Sprite) */
       .meta-bar {
@@ -1007,6 +1095,14 @@
         font-size: 11.5px;
         padding: 0 7px;
       }
+      .meta-sprite-hint {
+        font-size: 11.5px;
+        color: var(--mu);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 170px;
+      }
       .sstrip {
         border-top: 1px solid var(--ln);
         border-left: 3px solid var(--ac);
@@ -1016,15 +1112,15 @@
       }
       .sstrip.err {
         border-left-color: var(--cr);
-        background: color-mix(in srgb, var(--cr) 8%, var(--pn));
+        background: color-mix(in srgb, var(--cr) 5%, var(--sb));
       }
       .sstrip.warn {
         border-left-color: var(--hi);
-        background: color-mix(in srgb, var(--hi) 8%, var(--pn));
+        background: color-mix(in srgb, var(--hi) 6%, var(--sb));
       }
       .sstrip.ok {
         border-left-color: var(--ok);
-        background: color-mix(in srgb, var(--ok) 7%, var(--pn));
+        background: color-mix(in srgb, var(--ok) 5%, var(--sb));
       }
       .sstrip-head {
         display: flex;
@@ -1779,6 +1875,19 @@
         max-width: 96%;
         font-size: 13.5px;
       }
+      .bot .gh-details {
+        margin: 8px 0 4px;
+        padding: 7px 10px;
+        font-size: 12.5px;
+        background: var(--sb);
+      }
+      .bot .gh-details summary {
+        color: var(--ac);
+        font-size: 12.5px;
+      }
+      .bot .gh-details ul {
+        margin: 6px 0 2px;
+      }
       .bot p {
         margin: 0 0 6px;
       }
@@ -2214,6 +2323,54 @@
         color: var(--ac);
         font-family: var(--m);
       }
+      .step-rail {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      .step-rail span {
+        height: 4px;
+        border-radius: 99px;
+        background: var(--ln);
+        overflow: hidden;
+        position: relative;
+      }
+      .step-rail span.done {
+        background: var(--ok);
+      }
+      .step-rail span.on {
+        background: color-mix(in srgb, var(--ac) 30%, var(--ln));
+      }
+      .step-rail span.on::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--ac);
+        animation: shimmer 1.2s ease-in-out infinite;
+        background-image: linear-gradient(90deg, transparent, var(--ac), transparent);
+        background-size: 200% 100%;
+      }
+      .hm-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .hm-ok {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ok);
+        white-space: nowrap;
+      }
+      #hm-err {
+        margin: 10px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
       .skel {
         border-radius: 6px;
         background: linear-gradient(
@@ -2263,11 +2420,11 @@
         color: var(--mu);
       }
 
-      /* Toast (bottom-right dark surface card above footer) */
+      /* Toast (fixed bottom-right stack above footer) */
       #t {
         position: fixed;
         right: 20px;
-        bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(52px + env(safe-area-inset-bottom, 0px));
         transform: translateY(10px);
         background: var(--pn);
         color: var(--tx);
@@ -2284,8 +2441,8 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease, transform 0.2s ease;
-        z-index: 85;
-        max-width: min(420px, calc(100vw - 32px));
+        z-index: 9999;
+        max-width: min(380px, calc(100vw - 32px));
       }
       #t.on {
         opacity: 1;
@@ -2548,14 +2705,21 @@
         .acts {
           width: 100%;
         }
+        .dh .acts {
+          flex-wrap: wrap;
+        }
         .acts .btn {
           flex: 1;
           justify-content: center;
           min-width: 0;
         }
-        #ap-btn,
-        #rs-btn {
+        #ap-btn {
           min-width: 0;
+        }
+        #rs-btn.icon-btn {
+          flex: 0 0 38px;
+          width: 38px;
+          min-width: 38px;
         }
         .cb {
           grid-template-columns: 100px 1fr 30px;
@@ -2637,6 +2801,7 @@
           </svg>
           SpriteGuard
           <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting…</span></span>
+          <span class="demo-badge" id="demo-badge" hidden>Demo Preview</span>
         </div>
         <div class="grow"></div>
         <button type="button" class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
@@ -2852,7 +3017,11 @@
     <dialog id="hd">
       <div class="dg">
         <h3>System health</h3>
-        <p id="hm"></p>
+        <div class="hm-row">
+          <p id="hm"></p>
+          <span id="hm-ok" class="hm-ok" hidden>Checked just now ✓</span>
+        </div>
+        <div id="hm-err" class="note err" role="alert" hidden></div>
         <ul id="hl" class="hl"></ul>
         <div class="dgb">
           <button type="button" class="btn" data-close>Close</button>
@@ -3013,6 +3182,7 @@
         hydrating: {},
         selId: initScanParam,
         sourceFilter: ls('sg-src') || 'all',
+        sourceFilterExplicit: Boolean(ls('sg-src')),
         statusFilter: ls('sg-flt') || 'all',
         searchQuery: '',
         tab: initTabParam,
@@ -3081,7 +3251,7 @@
         t.querySelector('.t-x').addEventListener('click', dismissToast);
         t.className = 'on' + (isErr ? ' err' : '');
         if (!isErr) {
-          toastTimer = setTimeout(dismissToast, 3400);
+          toastTimer = setTimeout(dismissToast, 3000);
         }
       }
 
@@ -3210,16 +3380,79 @@
         return out;
       }
 
+      const STALE_SCAN_MS = 3 * 60 * 1000;
+      const LIVE_STEPS = [
+        ['1/4 Waking Sprite', 'Booting isolated Firecracker microVM'],
+        ['2/4 Cloning PR', 'Checking out PR head via Read-Only connector'],
+        ['3/4 Auditing layers', 'Running secret scanner, git history & egress probe'],
+        ['4/4 Verifying patch', 'Generating & testing remediation inside Sprite'],
+      ];
+
+      function normalizeScan(scan) {
+        if (!scan) return scan;
+        if (scan.status === 'running' || scan.status === 'queued') {
+          const refMs = Date.parse(scan.updatedAt || scan.createdAt || '');
+          if (Number.isFinite(refMs) && Date.now() - refMs > STALE_SCAN_MS) {
+            return {
+              ...scan,
+              status: 'failed',
+              spriteState: 'destroyed',
+              error: scan.error || 'Audit timed out before completion',
+            };
+          }
+        }
+        return scan;
+      }
+
+      function formatRelativeTime(iso) {
+        if (!iso) return '';
+        const ms = Date.parse(iso);
+        if (!Number.isFinite(ms)) return '';
+        const diffSec = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+        if (diffSec < 45) return 'Just now';
+        const diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) return `${diffMin}m ago`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr}h ago`;
+        const diffDay = Math.floor(diffHr / 24);
+        if (diffDay < 7) return `${diffDay}d ago`;
+        return new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      }
+
+      function formatElapsed(sec) {
+        const s = Math.max(0, Math.floor(sec));
+        if (s < 60) return `${s}s`;
+        return `${Math.floor(s / 60)}m ${s % 60}s`;
+      }
+
+      function getRunningInfo(d) {
+        const refMs = Date.parse((d && (d.createdAt || d.updatedAt)) || '');
+        const elapsedSec = Number.isFinite(refMs) ? Math.max(0, Math.floor((Date.now() - refMs) / 1000)) : 0;
+        let stepIdx = 0;
+        if (d && d.status !== 'queued' && d.spriteState !== 'creating' && d.spriteState !== 'none') {
+          if (elapsedSec < 2) stepIdx = 0;
+          else if (elapsedSec < 5) stepIdx = 1;
+          else if (elapsedSec < 10) stepIdx = 2;
+          else stepIdx = 3;
+        }
+        return {
+          stepIdx,
+          stepLabel: LIVE_STEPS[stepIdx][0],
+          elapsedSec,
+          elapsedLabel: formatElapsed(elapsedSec),
+        };
+      }
+
       function spriteStateInfo(st) {
         switch (st) {
           case 'sleeping':
-            return { label: 'sleeping', hint: 'Paused at $0 compute, ready to wake on approval' };
+            return { label: 'sleeping', hint: 'Paused at $0 compute' };
           case 'destroyed':
-            return { label: 'destroyed', hint: 'Ephemeral microVM wiped cleanly' };
+            return { label: 'destroyed', hint: 'MicroVM wiped' };
           case 'running':
-            return { label: 'running', hint: 'Active Firecracker microVM executing audit checks' };
+            return { label: 'running', hint: 'Executing isolated audit' };
           case 'creating':
-            return { label: 'creating', hint: 'Provisioning isolated microVM with Read-Only connector' };
+            return { label: 'creating', hint: 'Provisioning microVM' };
           default:
             return { label: st || 'none', hint: 'No microVM assigned' };
         }
@@ -3370,8 +3603,16 @@
         const [, avgColor] = sevMeta(avg);
         const totalSecrets = activePool.reduce((a, s) => a + Number(s.secretsCount || 0), 0);
         const stillExposed = countExposedSecrets(activePool);
-        const activeSprites = state.scans.filter((s) => s.spriteState === 'creating' || s.spriteState === 'running').length;
-        const sleepingSprites = state.scans.filter((s) => s.spriteState === 'sleeping').length;
+        const activeSprites = state.scans.filter(
+          (s) =>
+            s.status !== 'failed' &&
+            s.status !== 'closed' &&
+            s.status !== 'superseded' &&
+            (s.spriteState === 'creating' || s.spriteState === 'running'),
+        ).length;
+        const sleepingSprites = state.scans.filter(
+          (s) => s.status !== 'failed' && s.status !== 'closed' && s.status !== 'superseded' && s.spriteState === 'sleeping',
+        ).length;
         updateBrandLogo(activeSprites, sleepingSprites);
         const modelText = `${state.model || '—'} · ${state.storeBackend || '—'}`;
 
@@ -3393,7 +3634,7 @@
           </div>
           <div>
             <span class="l">Sprites</span>
-            <b>${activeSprites} / ${sleepingSprites}</b>
+            <b class="kpi-sp"><span class="kpi-val${activeSprites ? ' on' : ''}">${activeSprites} <em>active</em></span><span class="kpi-sep">·</span><span class="kpi-val">${sleepingSprites} <em>sleeping</em></span></b>
             <small>${esc(modelText)}</small>
           </div>
         `;
@@ -3551,6 +3792,9 @@
           const shortSha = (d.headSha || '').slice(0, 7) || '—';
           const fc = Number(d.findingsCount || 0);
           const sp = spriteStateInfo(d.spriteState || 'none');
+          const relTime = formatRelativeTime(d.createdAt);
+          const fullTime = d.createdAt ? new Date(d.createdAt).toLocaleString() : '';
+          const runInfo = isRunning ? getRunningInfo(d) : null;
           return `<button type="button" class="row" role="option" aria-selected="${d.id === state.selId}" data-id="${esc(d.id)}">
             <span class="rk">${gauge(score, col)}<b>${isRunning ? '…' : score}</b></span>
             <span style="min-width:0">
@@ -3558,8 +3802,13 @@
               <div class="rm">
                 <span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
                 <span class="mono">${esc(shortSha)}</span>
-                <span>${isRunning ? 'Scanning…' : `${fc} finding${fc === 1 ? '' : 's'}`}</span>
-                <span title="${esc(sp.hint)}"><i class="sp ${esc(sp.label)}"></i>${esc(sp.label)}</span>
+                ${
+                  isRunning && runInfo
+                    ? `<span class="run-pill"><i class="run-dot"></i>${esc(runInfo.stepLabel)} · ${esc(runInfo.elapsedLabel)}</span>`
+                    : `<span>${fc} finding${fc === 1 ? '' : 's'}</span>`
+                }
+                <span title="${esc(`Sprite ${sp.label}: ${sp.hint}`)}"><i class="sp ${esc(sp.label)}"></i>${esc(sp.label)}</span>
+                ${relTime ? `<span class="rm-time" title="${esc(fullTime)}">${esc(relTime)}</span>` : ''}
               </div>
             </span>
             ${statusChip(d)}
@@ -4002,25 +4251,25 @@
           .join('')}</ol>`;
       }
 
-      function getRunningStage(d) {
-        const elapsed = d && d.createdAt ? Math.max(0, (Date.now() - Date.parse(d.createdAt)) / 1000) : 0;
-        if (d.status === 'queued' || d.spriteState === 'creating' || d.spriteState === 'none') return 0;
-        if (d.spriteState === 'running') return Math.min(4, 1 + Math.floor(elapsed / 2));
-        return 4;
-      }
-
-      function syncRunningTicker(isRunning) {
-        if (isRunning && !state.runningTickTimer) {
+      function syncRunningTicker() {
+        const hasAnyRunning = state.scans.some((s) => s.status === 'running' || s.status === 'queued');
+        if (hasAnyRunning && !state.runningTickTimer) {
           state.runningTickTimer = setInterval(() => {
-            const cur = selectedScan();
-            if (!cur || (cur.status !== 'running' && cur.status !== 'queued')) {
+            state.scans = state.scans.map(normalizeScan);
+            const stillRunning = state.scans.some((s) => s.status === 'running' || s.status === 'queued');
+            if (!stillRunning) {
               clearInterval(state.runningTickTimer);
               state.runningTickTimer = null;
+              renderAll({ background: true });
               return;
             }
-            renderDetail({ background: true });
+            renderList({ background: true });
+            const cur = selectedScan();
+            if (cur && (cur.status === 'running' || cur.status === 'queued')) {
+              renderDetail({ background: true });
+            }
           }, 1000);
-        } else if (!isRunning && state.runningTickTimer) {
+        } else if (!hasAnyRunning && state.runningTickTimer) {
           clearInterval(state.runningTickTimer);
           state.runningTickTimer = null;
         }
@@ -4300,7 +4549,8 @@
             state: d.spriteState || 'none',
             checkpointId: d.checkpointId || null,
           },
-          runningStage: isRunning ? getRunningStage(d) : null,
+          runningStage: isRunning ? getRunningInfo(d).stepIdx : null,
+          runningElapsed: isRunning ? getRunningInfo(d).elapsedSec : null,
           approving: Boolean(state.approving[d.id]),
           rescanning: Boolean(state.rescanning[d.id]),
           hydrating: Boolean(state.hydrating[d.id]),
@@ -4333,7 +4583,7 @@
 
         const d = selectedScan();
         if (!d) {
-          syncRunningTicker(false);
+          syncRunningTicker();
           if (state.focusMode) setFocusMode(false);
           if (opts.background && state.lastDetailSig === 'null') return;
           state.lastDetailSig = 'null';
@@ -4369,7 +4619,7 @@
         const risk = Number(d.riskScore ?? 0);
         const [sl, sc] = sevMeta(risk);
         const isRunning = d.status === 'running' || d.status === 'queued';
-        syncRunningTicker(isRunning);
+        syncRunningTicker();
         const fin = !isRunning && d.status !== 'failed';
         const shortSha = (d.headSha || '').slice(0, 7) || '—';
         const flaggedHosts = (d.egressDomains || []).filter((x) => x.flagged);
@@ -4378,6 +4628,7 @@
         const stillExposed = countExposedSecrets([d]);
         const spInfo = spriteStateInfo(d.spriteState || 'none');
         const threadCount = (state.threads[d.id] || []).length;
+        const approveIsPrimary = stillExposed === 0;
 
         const egressMeta = !fin
           ? '–'
@@ -4403,25 +4654,25 @@
             ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt for the whole PR">Fix Prompt</button>` : ''}
             ${
               !isRunning
-                ? `<button type="button" class="btn" id="rs-btn" ${isRescanning || isApproving ? 'disabled' : ''}${
+                ? `<button type="button" class="btn icon-btn" id="rs-btn" ${isRescanning || isApproving ? 'disabled' : ''}${
                     isRescanning ? ' aria-busy="true"' : ''
-                  }>${isRescanning ? 'Rescanning…' : 'Rescan'}</button>`
+                  } title="${isRescanning ? 'Rescanning PR…' : 'Rescan PR'}" aria-label="${isRescanning ? 'Rescanning PR' : 'Rescan PR'}"><span class="spin-ic" aria-hidden="true">↻</span></button>`
                 : ''
             }
             ${
               d.status === 'awaiting_approval' && stillExposed > 0
-                ? `<button type="button" class="btn warn-act" data-jump-rotate="${esc(d.id)}" title="Review exposed credentials to mark rotated before merging">Rotate Keys (${stillExposed})</button>`
+                ? `<button type="button" class="btn rot-pri" data-jump-rotate="${esc(d.id)}" title="Review exposed credentials to mark rotated before merging">Rotate Keys (${stillExposed})</button>`
                 : ''
             }
             ${
               d.status === 'awaiting_approval'
-                ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving || isRescanning ? 'disabled' : ''}${
+                ? `<button type="button" class="btn${approveIsPrimary ? ' pri' : ''}" id="ap-btn" ${isApproving || isRescanning ? 'disabled' : ''}${
                     isApproving ? ' aria-busy="true"' : ''
                   } title="${
                     stillExposed > 0
-                      ? 'Commits code fix only — leaked keys must still be rotated at the provider'
+                      ? 'Secondary until leaked keys are marked revoked/rotated — commits code fix only'
                       : 'Wake sleeping Sprite and push verified patch'
-                  }">${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch'}</button>`
+                  }">${isApproving ? 'Waking &amp; Pushing…' : 'Approve Patch'}</button>`
                 : ''
             }
           </div>
@@ -4455,9 +4706,10 @@
                 : ''
             }
           </span>
-          <span class="meta-sprite" title="${esc(spInfo.hint)}">
+          <span class="meta-sprite" title="${esc(`Sprite ${spInfo.label}: ${spInfo.hint}`)}">
             <i class="sp ${esc(spInfo.label)}"></i>
             <span>Sprite ${esc(spInfo.label)}</span>
+            <span class="meta-sprite-hint">· ${esc(spInfo.hint)}</span>
             ${d.spriteName ? `<code title="${esc(d.spriteName)}">${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
           </span>
         </div>`;
@@ -4465,28 +4717,23 @@
         h += buildStatusStrip(d, patch, stillExposed, nf);
 
         if (isRunning) {
-          const curStep = getRunningStage(d);
-          const timeline = [
-            ['Sprite waking', 'Booting hardware-isolated Firecracker microVM'],
-            ['Cloning PR', 'Checking out PR head via Read-Only GitHub connector'],
-            ['Scanning layers', 'Running static secret scanner, history & .env checks'],
-            ['Checking egress', 'Running build & test probes inside egress monitor'],
-            ['Drafting patch', 'Generating & verifying remediation in isolated Sprite'],
-          ];
+          const runInfo = getRunningInfo(d);
+          const curStep = runInfo.stepIdx;
           h += `<div class="pane">
             <div class="hero-tl">
               <div class="hero-tl-head">
                 <b>Live Zero-Trust Audit Pipeline</b>
-                <span>Step ${curStep + 1} of ${timeline.length}</span>
+                <span>${esc(runInfo.stepLabel)} · ${esc(runInfo.elapsedLabel)}</span>
               </div>
-              <ol class="steps">${timeline
-                .map(
-                  ([title, desc], idx) =>
-                    `<li class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"><i></i><div><b>${esc(
-                      title,
-                    )}</b><small>${esc(desc)}</small></div></li>`,
-                )
-                .join('')}</ol>
+              <div class="step-rail" aria-hidden="true">${LIVE_STEPS.map(
+                (_, idx) => `<span class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"></span>`,
+              ).join('')}</div>
+              <ol class="steps">${LIVE_STEPS.map(
+                ([title, desc], idx) =>
+                  `<li class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"><i></i><div><b>${esc(
+                    title,
+                  )}</b><small>${esc(desc)}</small></div></li>`,
+              ).join('')}</ol>
             </div>
           </div>`;
         } else {
@@ -4641,7 +4888,14 @@
         const pill = $('#env-pill');
         const envDot = $('#env-dot');
         const envText = $('#env-text');
+        const demoBadge = $('#demo-badge');
         if (!pill || !envDot || !envText) return;
+        const sel = selectedScan();
+        const viewingDemo = Boolean((sel && isPlaygroundScan(sel)) || state.sourceFilter === 'playground');
+        if (demoBadge) {
+          demoBadge.hidden = !viewingDemo;
+          demoBadge.title = 'Inspecting synthetic Playground fixture; live repository metrics remain separated';
+        }
         if (!h) {
           pill.className = 'env';
           pill.removeAttribute('title');
@@ -4650,19 +4904,10 @@
           return;
         }
         const isLocal = h.mode === 'local-sandbox';
-        const sel = selectedScan();
-        const viewingDemo = Boolean(sel && isPlaygroundScan(sel));
-        if (!isLocal && viewingDemo) {
-          pill.className = 'env demo-ctx';
-          pill.title = 'Live Production service inspecting a Demo/Playground fixture';
-          envDot.className = 'dot mu';
-          envText.textContent = 'Production · Viewing Demo';
-        } else {
-          pill.className = 'env';
-          pill.title = isLocal ? 'Running with Local Sandbox driver' : 'Running with Production split connectors';
-          envDot.className = 'dot' + (isLocal ? ' warn' : '');
-          envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
-        }
+        pill.className = 'env';
+        pill.title = isLocal ? 'Running with Local Sandbox driver' : 'Running with Production split connectors';
+        envDot.className = 'dot' + (isLocal ? ' warn' : '');
+        envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
       }
 
       const AI_CONFIG_TABS = {
@@ -4837,6 +5082,17 @@
           ? `Reported live by GET /health at ${new Date(h.timestamp || Date.now()).toLocaleTimeString()}.`
           : 'Could not reach GET /health. Component statuses shown as unknown.';
 
+        const hmErr = $('#hm-err');
+        if (hmErr) {
+          if (state.healthError) {
+            hmErr.hidden = false;
+            hmErr.innerHTML = `<span><b>Health check failed:</b> ${esc(state.healthError)}</span><button type="button" class="btn sm" id="hretry">Retry</button>`;
+          } else {
+            hmErr.hidden = true;
+            hmErr.innerHTML = '';
+          }
+        }
+
         $('#hl').innerHTML = items
           .map(({ label, st, detail, hint, actionHtml }) => {
             const badge = st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown';
@@ -4912,8 +5168,15 @@
           state.storeBackend = data.storeBackend || '—';
           state.provider = data.provider || '—';
           state.model = data.model || '—';
-          state.scans = data.scans || [];
+          state.scans = (data.scans || []).map(normalizeScan);
           state.initialLoaded = true;
+          syncRunningTicker();
+
+          // Default to Live GitHub whenever live repo scans exist (unless user explicitly chose a source filter)
+          if (!state.sourceFilterExplicit) {
+            const hasLiveScans = state.scans.some((s) => !isPlaygroundScan(s));
+            state.sourceFilter = hasLiveScans ? 'live' : 'all';
+          }
 
           const pgHead = $('#pg-tabs');
           const pgPane = $('#pg-fixtures');
@@ -5470,7 +5733,7 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn,#hretry',
         );
         if (!t) return;
 
@@ -5507,8 +5770,11 @@
           setMobileView('list');
         } else if (t.id === 'emp-pg-btn') {
           setPlaygroundOpen(true, true);
+        } else if (t.id === 'hretry') {
+          runHealthCheck();
         } else if (t.dataset.resetFilters) {
           state.sourceFilter = 'all';
+          state.sourceFilterExplicit = true;
           state.statusFilter = 'all';
           state.searchQuery = '';
           $('#q').value = '';
@@ -5521,6 +5787,7 @@
           renderList();
         } else if (t.dataset.src) {
           state.sourceFilter = t.dataset.src;
+          state.sourceFilterExplicit = true;
           ls('sg-src', state.sourceFilter);
           renderAll();
         } else if (t.dataset.f) {
@@ -5720,20 +5987,52 @@
         showModalWithFocus($('#hd'), $('#hchk'));
         refreshAll(true);
       });
-      $('#hchk').addEventListener('click', async () => {
+      let healthOkTimer = null;
+      async function runHealthCheck() {
         const btn = $('#hchk');
-        if (btn.disabled) return;
+        const okEl = $('#hm-ok');
+        if (!btn || btn.disabled) return;
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
         btn.textContent = 'Checking…';
+        if (okEl) okEl.hidden = true;
+        clearTimeout(healthOkTimer);
         try {
+          const res = await fetch('/health', { headers: { accept: 'application/json' } });
+          let payload = null;
+          try {
+            payload = await res.json();
+          } catch {
+            payload = null;
+          }
+          if (!res.ok) {
+            state.health = payload;
+            state.healthError = `HTTP ${res.status} ${res.statusText || ''}`.trim();
+            renderHealthUI();
+            return;
+          }
+          state.health = payload;
+          state.healthError = '';
+          renderHealthUI();
+          if (okEl) {
+            okEl.hidden = false;
+            healthOkTimer = setTimeout(() => {
+              okEl.hidden = true;
+            }, 3000);
+          }
           await refreshAll(true);
+        } catch (err) {
+          state.health = null;
+          state.healthError = (err && err.message) || 'Network error reaching /health';
+          renderHealthUI();
         } finally {
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
           btn.textContent = 'Check Now';
         }
-      });
+      }
+
+      $('#hchk').addEventListener('click', runHealthCheck);
       $('#fpc').addEventListener('click', async () => {
         const ta = $('#fpt');
         const btn = $('#fpc');
