@@ -68,19 +68,37 @@
       [hidden] {
         display: none !important;
       }
-      html.theme-switching body,
-      html.theme-switching .card,
-      html.theme-switching .top,
-      html.theme-switching .top-bar,
-      html.theme-switching .btn,
-      html.theme-switching .stats,
-      html.theme-switching .row,
-      html.theme-switching .ask,
-      html.theme-switching dialog,
-      html.theme-switching input,
-      html.theme-switching textarea,
-      html.theme-switching select {
-        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      ::selection {
+        background: var(--ar);
+        color: var(--tx);
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--mu) 35%, transparent) transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--mu) 30%, transparent);
+        border-radius: 99px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in srgb, var(--mu) 52%, transparent);
+      }
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 180ms;
+        animation-timing-function: ease-out;
+      }
+      html.no-theme-transitions *,
+      html.no-theme-transitions *::before,
+      html.no-theme-transitions *::after {
+        transition: none !important;
       }
       html {
         scroll-padding-top: env(safe-area-inset-top, 0px);
@@ -184,6 +202,16 @@
         font-weight: 400;
         background: var(--pn);
       }
+      .env.demo-ctx {
+        border-style: dashed;
+        color: var(--mu);
+        background: var(--sb);
+      }
+      #pg-btn[aria-expanded='true'] {
+        border-color: var(--ac);
+        background: var(--ar);
+        color: var(--tx);
+      }
       .grow {
         flex: 1;
       }
@@ -268,6 +296,30 @@
         border-color: var(--ai);
         color: var(--on);
         filter: brightness(1.08);
+      }
+      .btn.copied {
+        border-color: var(--ok);
+        color: var(--ok);
+      }
+      .btn.pri.copied {
+        background: var(--ok);
+        border-color: var(--ok);
+        color: var(--on);
+      }
+      .btn.warn-act {
+        border-color: color-mix(in srgb, var(--cr) 55%, var(--ln));
+        background: color-mix(in srgb, var(--cr) 10%, var(--pn));
+        color: var(--cr);
+      }
+      .btn.warn-act:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--cr) 16%, var(--pn));
+        border-color: var(--cr);
+      }
+      .btn.sm {
+        height: 26px;
+        min-height: 26px;
+        padding: 0 9px;
+        font-size: 12px;
       }
       .btn[aria-busy='true']::before {
         content: '';
@@ -560,7 +612,7 @@
       .stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        margin: 18px 0;
+        margin: 16px 0;
         border: 1px solid var(--ln);
         border-radius: var(--R);
         background: var(--pn);
@@ -679,6 +731,37 @@
         background: var(--ar);
         box-shadow: inset 2px 0 var(--ac);
       }
+      .sup-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px 6px 76px;
+        font-size: 12px;
+        color: var(--mu);
+        background: color-mix(in srgb, var(--sb) 55%, transparent);
+        border-top: 1px dashed var(--ln);
+        text-align: left;
+        transition: color 0.15s, background 0.15s;
+      }
+      .sup-toggle:hover {
+        color: var(--tx);
+        background: var(--sb);
+      }
+      .sup-toggle:focus-visible {
+        outline-offset: -2px;
+      }
+      .sup-group {
+        border-top: 1px solid var(--ln);
+        background: color-mix(in srgb, var(--sb) 38%, transparent);
+      }
+      .sup-group .row {
+        padding-left: 24px;
+        opacity: 0.85;
+      }
+      .sup-group .row[aria-selected='true'] {
+        opacity: 1;
+      }
       .rk {
         display: flex;
         flex-direction: column;
@@ -764,9 +847,15 @@
       .dt {
         position: sticky;
         top: 74px;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - 88px);
+      }
+      .dt > * {
+        flex-shrink: 0;
       }
       .dh {
-        padding: 18px 20px;
+        padding: 14px 18px;
         display: flex;
         gap: 14px;
         justify-content: space-between;
@@ -794,7 +883,7 @@
         border-top: 1px solid var(--ln);
       }
       .facts > div {
-        padding: 12px 20px;
+        padding: 10px 16px;
         border-left: 1px solid var(--ln);
       }
       .facts > div:first-child {
@@ -821,7 +910,7 @@
         display: flex;
         gap: 8px;
         align-items: center;
-        padding: 8px 20px;
+        padding: 8px 18px;
         border-top: 1px solid var(--ln);
         font-size: 12px;
         color: var(--mu);
@@ -832,29 +921,80 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .sid-hint {
+        color: var(--mu);
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .sid .btn {
         height: 24px;
         min-height: 24px;
         font-size: 12px;
         padding: 0 8px;
       }
-      .bn {
-        padding: 9px 20px;
+      .sstrip {
         border-top: 1px solid var(--ln);
-        border-left: 3px solid var(--hi);
-        background: color-mix(in srgb, var(--hi) 8%, transparent);
-        font-size: 13px;
-        color: var(--mu);
-      }
-      .bn.e {
-        border-left-color: var(--cr);
-        background: color-mix(in srgb, var(--cr) 8%, transparent);
-      }
-      .bn.d {
-        border-left-color: var(--mu);
+        border-left: 3px solid var(--ac);
         background: var(--sb);
+        font-size: 13px;
+        color: var(--tx);
       }
-      .bn b {
+      .sstrip.err {
+        border-left-color: var(--cr);
+        background: color-mix(in srgb, var(--cr) 8%, var(--pn));
+      }
+      .sstrip.warn {
+        border-left-color: var(--hi);
+        background: color-mix(in srgb, var(--hi) 8%, var(--pn));
+      }
+      .sstrip.ok {
+        border-left-color: var(--ok);
+        background: color-mix(in srgb, var(--ok) 7%, var(--pn));
+      }
+      .sstrip-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 9px 18px;
+        list-style: none;
+        cursor: pointer;
+      }
+      .sstrip-head:focus-visible {
+        outline-offset: -2px;
+      }
+      div.sstrip .sstrip-head {
+        cursor: default;
+      }
+      .sstrip-head::-webkit-details-marker {
+        display: none;
+      }
+      .sstrip-msg {
+        flex: 1 1 240px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .sstrip-tags {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .sstrip-more {
+        font-size: 12px;
+        color: var(--mu);
+        margin-left: 2px;
+      }
+      .sstrip-body {
+        padding: 0 18px 10px;
+        font-size: 12.5px;
+        color: var(--mu);
+        display: grid;
+        gap: 5px;
+      }
+      .sstrip-body b {
         color: var(--tx);
         font-weight: 500;
         margin-right: 6px;
@@ -888,10 +1028,30 @@
         border-color: var(--ac);
         font-weight: 500;
       }
+      .tabs button kbd {
+        margin-left: 5px;
+        font-size: 10px;
+        opacity: 0.7;
+      }
       .pane {
         padding: 16px 20px;
-        max-height: min(50vh, 520px);
+        flex: 1 1 auto;
+        flex-shrink: 1;
+        min-height: 200px;
         overflow: auto;
+      }
+      .pane-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: var(--mu);
+      }
+      .pane-bar .acts {
+        gap: 6px;
       }
 
       /* Overview & Guided Finding Cards */
@@ -1415,7 +1575,7 @@
         display: grid;
         gap: 10px;
         margin-bottom: 10px;
-        max-height: 230px;
+        max-height: 170px;
         overflow: auto;
       }
       .me {
@@ -1730,6 +1890,82 @@
       .steps li.done i {
         background: currentColor;
       }
+      .steps small {
+        display: block;
+        font-size: 12px;
+        color: var(--mu);
+      }
+      .hero-tl {
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--sb);
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+      .hero-tl-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .hero-tl-head b {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .hero-tl-head span {
+        font-size: 12px;
+        color: var(--ac);
+        font-family: var(--m);
+      }
+      .skel {
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--sb) 25%,
+          color-mix(in srgb, var(--ln) 65%, var(--sb)) 50%,
+          var(--sb) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s ease-in-out infinite;
+      }
+      @keyframes shimmer {
+        to {
+          background-position: -200% 0;
+        }
+      }
+      .emp-card {
+        padding: 36px 24px;
+        text-align: center;
+        display: grid;
+        justify-items: center;
+        gap: 10px;
+        color: var(--mu);
+      }
+      .emp-card b {
+        color: var(--tx);
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .emp-card p {
+        max-width: 380px;
+        font-size: 13px;
+      }
+      .emp-card .acts {
+        justify-content: center;
+        margin-top: 4px;
+      }
+      .mob-back {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--ln);
+        background: var(--sb);
+        font-size: 12.5px;
+        color: var(--mu);
+      }
 
       /* Toast */
       #t {
@@ -1771,7 +2007,8 @@
         }
         .seg button,
         .chips button,
-        .preset-chip {
+        .preset-chip,
+        .sup-toggle {
           min-height: 36px;
         }
         .af input {
@@ -1792,12 +2029,29 @@
         .grid {
           grid-template-columns: minmax(0, 1fr);
         }
+        .grid:not(.mobile-detail) #detail {
+          display: none;
+        }
+        .grid.mobile-detail #list-card {
+          display: none;
+        }
+        .grid.mobile-detail .mob-back {
+          display: flex;
+        }
         .dt {
           position: static;
+          max-height: none;
         }
         .pane {
           max-height: none;
+          min-height: 0;
           overflow: visible;
+        }
+      }
+      @media (max-height: 700px) {
+        .dt {
+          position: static;
+          max-height: none;
         }
       }
       @media (max-width: 800px) {
@@ -1890,9 +2144,13 @@
         .pane,
         .sid,
         .ask,
-        .bn {
+        .sstrip-head,
+        .sstrip-body {
           padding-left: 16px;
           padding-right: 16px;
+        }
+        .sup-toggle {
+          padding-left: 68px;
         }
         .acts {
           width: 100%;
@@ -1960,7 +2218,9 @@
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        * {
+        *,
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
           animation: none !important;
           transition: none !important;
         }
@@ -2001,6 +2261,7 @@
         <button type="button" class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
           <i class="dot"></i><span>Live</span>
         </button>
+        <button type="button" class="btn" id="pg-btn" aria-expanded="false" aria-controls="playground-card">Playground / Scan URL</button>
         <button type="button" class="btn" id="cbtn">Connect Repo</button>
         <button type="button" class="btn" id="kbtn" title="Search audits and run actions (Ctrl or ⌘ K)">
           Search <kbd>⌘K</kbd>
@@ -2017,7 +2278,7 @@
 
     <main class="wrap">
       <!-- Dismissible Getting Started Card -->
-      <section class="gs card" id="gs" aria-label="Get started">
+      <section class="gs card" id="gs" aria-label="Get started" hidden>
         <div class="gh">
           <b>Get started with SpriteGuard</b>
           <button type="button" class="btn" id="gsx">Hide</button>
@@ -2026,15 +2287,18 @@
       </section>
 
       <!-- Demo Playground + Public GitHub PR Scanner -->
-      <section class="demo card" id="playground-card" aria-label="Playground and PR scanner">
+      <section class="demo card" id="playground-card" aria-label="Playground and PR scanner" hidden>
         <div class="demo-head">
           <div>
             <b>Playground &amp; On-Demand PR Scanner</b>
             <p id="scnd">Run an isolated Sprite audit against demo fixtures, custom code, or any public GitHub PR.</p>
           </div>
-          <div class="seg" id="pg-tabs" role="tablist" aria-label="Playground mode">
-            <button type="button" role="tab" aria-selected="true" aria-controls="pg-fixtures" data-pg-tab="fixtures">Demo Fixtures</button>
-            <button type="button" role="tab" aria-selected="false" aria-controls="custom-form" data-pg-tab="custom">Audit Custom Code / Diff</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div class="seg" id="pg-tabs" role="tablist" aria-label="Playground mode">
+              <button type="button" role="tab" aria-selected="true" aria-controls="pg-fixtures" data-pg-tab="fixtures">Demo Fixtures</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="custom-form" data-pg-tab="custom">Audit Custom Code / Diff</button>
+            </div>
+            <button type="button" class="btn sm" id="pg-close" aria-label="Hide Playground">Hide</button>
           </div>
         </div>
 
@@ -2089,8 +2353,8 @@
       <section class="stats" id="stats" aria-label="Summary"></section>
 
       <!-- Master-Detail Workspace -->
-      <div class="grid">
-        <section class="card" aria-label="Audits">
+      <div class="grid" id="workspace-grid">
+        <section class="card" id="list-card" aria-label="Audits">
           <div class="tb">
             <div class="tb-row">
               <div class="seg" id="src-seg" aria-label="Source filter"></div>
@@ -2111,7 +2375,7 @@
         <i class="dot mu"></i><span>System health: checking…</span>
       </button>
       <span class="grow"></span>
-      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
+      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>1</kbd>–<kbd>4</kbd> tabs <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
     </footer>
 
     <!-- Approve Confirmation Dialog -->
@@ -2310,9 +2574,19 @@
         rotated: ['Rotation reported', 'ok'],
       };
 
+      const TAB_SLUGS = { f: 'findings', p: 'patch', m: 'report', r: 'json' };
+      const SLUG_TO_TAB = { findings: 'f', patch: 'p', report: 'm', json: 'r', f: 'f', p: 'p', m: 'm', r: 'r' };
+      const initParams = new URLSearchParams(location.search);
+      const initScanParam = initParams.get('scan') || null;
+      const initTabParam = SLUG_TO_TAB[(initParams.get('tab') || '').toLowerCase()] || 'f';
+
       const state = {
         live: true,
         pollTimer: null,
+        runningTickTimer: null,
+        initialLoaded: false,
+        pgOpen: false,
+        pgUserToggled: false,
         health: null,
         healthError: '',
         mode: 'production',
@@ -2322,12 +2596,16 @@
         model: '—',
         scans: [],
         detailsCache: {},
-        selId: null,
+        hydrating: {},
+        selId: initScanParam,
         sourceFilter: ls('sg-src') || 'all',
         statusFilter: ls('sg-flt') || 'all',
         searchQuery: '',
-        tab: 'f',
+        tab: initTabParam,
+        mobileView: initScanParam && innerWidth <= 1000 ? 'detail' : 'list',
         openFindingKey: '',
+        expandedGroups: {},
+        revealSecrets: false,
         threads: {},
         qaLoading: {},
         qaDrafts: {},
@@ -2400,16 +2678,8 @@
       const THEME_ICON_MOON =
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 
-      let themeSwitchTimer = null;
-      function applyTheme(theme, animate = false) {
+      function applyTheme(theme) {
         const t = theme === 'light' ? 'light' : 'dark';
-        if (animate) {
-          document.documentElement.classList.add('theme-switching');
-          clearTimeout(themeSwitchTimer);
-          themeSwitchTimer = setTimeout(() => {
-            document.documentElement.classList.remove('theme-switching');
-          }, 220);
-        }
         document.documentElement.setAttribute('data-theme', t);
         ls('sg-theme', t);
         const btn = $('#theme-btn');
@@ -2421,7 +2691,112 @@
           btn.setAttribute('aria-label', label);
         }
       }
-      applyTheme(ls('sg-theme') || 'dark', false);
+      function switchTheme(nextTheme) {
+        const t = nextTheme === 'light' ? 'light' : 'dark';
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (typeof document.startViewTransition === 'function' && !reduce) {
+          document.startViewTransition(() => applyTheme(t));
+          return;
+        }
+        const root = document.documentElement;
+        root.classList.add('no-theme-transitions');
+        applyTheme(t);
+        void root.offsetHeight;
+        requestAnimationFrame(() => {
+          root.classList.remove('no-theme-transitions');
+        });
+      }
+      applyTheme(ls('sg-theme') || 'dark');
+
+      function syncUrlState() {
+        try {
+          const u = new URL(window.location.href);
+          if (state.selId) u.searchParams.set('scan', state.selId);
+          else u.searchParams.delete('scan');
+          if (state.selId && state.tab) u.searchParams.set('tab', TAB_SLUGS[state.tab] || 'findings');
+          else u.searchParams.delete('tab');
+          const next = u.pathname + u.search + u.hash;
+          if (next !== location.pathname + location.search + location.hash) {
+            history.replaceState(null, '', next);
+          }
+        } catch {}
+      }
+
+      function setMobileView(view) {
+        state.mobileView = view === 'detail' ? 'detail' : 'list';
+        const grid = $('#workspace-grid');
+        if (grid) grid.classList.toggle('mobile-detail', state.mobileView === 'detail');
+      }
+      setMobileView(state.mobileView);
+
+      function setPlaygroundOpen(open, userTriggered = false) {
+        state.pgOpen = Boolean(open);
+        if (userTriggered) state.pgUserToggled = true;
+        const card = $('#playground-card');
+        if (card) card.hidden = !state.pgOpen;
+        const btn = $('#pg-btn');
+        if (btn) {
+          btn.setAttribute('aria-expanded', String(state.pgOpen));
+          btn.textContent = state.playgroundEnabled ? 'Playground / Scan URL' : 'Scan Public PR';
+        }
+        if (userTriggered && state.pgOpen) {
+          const first = state.pgTab === 'custom' ? $('#custom-title') : $('#scn');
+          if (first) requestAnimationFrame(() => first.focus());
+        }
+      }
+
+      const copyTimers = new WeakMap();
+      function flashCopied(btn) {
+        if (!btn) return;
+        if (!btn.dataset.origLabel) btn.dataset.origLabel = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('copied');
+        clearTimeout(copyTimers.get(btn));
+        const timer = setTimeout(() => {
+          btn.textContent = btn.dataset.origLabel || 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+        copyTimers.set(btn, timer);
+      }
+
+      function cleanDashboardReply(text) {
+        return String(text || '').replace(/^\s*@dashboard-user\b[\s,:-]*/i, '');
+      }
+
+      function maskSecretText(text) {
+        if (!text) return '';
+        let out = String(text);
+        out = out.replace(/(-----BEGIN [A-Z ]*PRIVATE KEY-----)[\s\S]*?(-----END [A-Z ]*PRIVATE KEY-----)/g, '$1\n[MASKED KEY MATERIAL]\n$2');
+        out = out.replace(/\b(AKIA[0-9A-Z]{4})[0-9A-Z]{12}\b/g, '$1••••••••••••');
+        out = out.replace(/\b(sk_(?:live|test)_)[0-9A-Za-z]{8,}\b/g, '$1••••••••');
+        out = out.replace(/\b(gh[pousr]_)[A-Za-z0-9]{10,}\b/g, '$1••••••••');
+        out = out.replace(/\b(github_pat_)[A-Za-z0-9_]{12,}\b/g, '$1••••••••');
+        out = out.replace(/\b(xox[baprs]-)[A-Za-z0-9-]{10,}\b/g, '$1••••••••');
+        out = out.replace(/\b(AIza)[0-9A-Za-z_-]{16,}\b/g, '$1••••••••');
+        out = out.replace(/\b(sk-(?:ant-|proj-)?)[A-Za-z0-9_-]{16,}\b/g, '$1••••••••');
+        out = out.replace(/\b(postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/([^:\s/]+):([^@\s]+)@/gi, '$1://$2:••••••••@');
+        out = out.replace(/\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g, 'eyJ••••.eyJ••••.••••');
+        out = out.replace(
+          /(\b[A-Z0-9_]*(?:API_KEY|SECRET|SECRET_KEY|ACCESS_KEY|AUTH_TOKEN|PASSWORD|PRIVATE_KEY)\b\s*[:=]\s*['"])([^'"\n]{6,})(['"])/gi,
+          (m, pre, val, suf) => (val.startsWith('[REDACTED') || val.includes('••••') ? m : `${pre}••••••••${suf}`),
+        );
+        return out;
+      }
+
+      function spriteStateInfo(st) {
+        switch (st) {
+          case 'sleeping':
+            return { label: 'sleeping', hint: 'Paused at $0 compute, ready to wake on approval' };
+          case 'destroyed':
+            return { label: 'destroyed', hint: 'Ephemeral microVM wiped cleanly' };
+          case 'running':
+            return { label: 'running', hint: 'Active Firecracker microVM executing audit checks' };
+          case 'creating':
+            return { label: 'creating', hint: 'Provisioning isolated microVM with Read-Only connector' };
+          default:
+            return { label: st || 'none', hint: 'No microVM assigned' };
+        }
+      }
 
       function setActivePreset(presetKey) {
         state.activePreset = presetKey || null;
@@ -2534,19 +2909,28 @@
       }
 
       function renderStats() {
+        if (!state.initialLoaded) {
+          $('#stats').innerHTML = [0, 1, 2, 3]
+            .map(
+              () => `<div>
+                <div class="skel" style="height:12px;width:54%;margin-bottom:10px"></div>
+                <div class="skel" style="height:26px;width:38%;margin-bottom:8px"></div>
+                <div class="skel" style="height:12px;width:72%"></div>
+              </div>`,
+            )
+            .join('');
+          return;
+        }
+
         const liveScans = state.scans.filter((s) => !isPlaygroundScan(s));
+        const pgScans = state.scans.filter((s) => isPlaygroundScan(s));
         let target = state.scans;
-        let scopeLabel = 'All';
+        let scopeLabel = 'All Sources';
         if (state.sourceFilter === 'live') {
           target = liveScans;
-          scopeLabel = 'Live repos';
+          scopeLabel = 'Live GitHub';
         } else if (state.sourceFilter === 'playground') {
-          target = state.scans.filter((s) => isPlaygroundScan(s));
-          scopeLabel = 'Playground';
-        } else if (liveScans.length > 0) {
-          target = liveScans;
-          scopeLabel = 'Live repos';
-        } else if (state.scans.length > 0) {
+          target = pgScans;
           scopeLabel = 'Playground';
         }
 
@@ -2589,6 +2973,10 @@
       }
 
       function renderGettingStarted() {
+        if (!state.initialLoaded) {
+          $('#gs').hidden = true;
+          return;
+        }
         const liveScans = state.scans.filter((s) => !isPlaygroundScan(s));
         const hasLive = liveScans.length > 0;
         const repoCount = new Set(liveScans.map((s) => s.repoFullName)).size;
@@ -2657,7 +3045,26 @@
           .join('');
 
         const pref = ls('sg-gs');
-        $('#gs').hidden = pref === '0' || (steps.every((s) => s[1] !== 0) && pref !== '1');
+        $('#gs').hidden = !(pref === '1' || (state.scans.length === 0 && pref !== '0'));
+      }
+
+      function groupVisibleScans(vis) {
+        const byKey = new Map();
+        for (const d of vis) {
+          const key = `${d.repoFullName}#${d.prNumber}`;
+          if (!byKey.has(key)) byKey.set(key, []);
+          byKey.get(key).push(d);
+        }
+        const groups = [];
+        for (const [key, items] of byKey.entries()) {
+          const nonSup = items.filter((x) => x.status !== 'superseded');
+          const primary = nonSup[0] || items[0];
+          const superseded = items.filter((x) => x !== primary && x.status === 'superseded');
+          const extras = items.filter((x) => x !== primary && x.status !== 'superseded');
+          groups.push({ key, primary, superseded });
+          for (const ex of extras) groups.push({ key: `${key}:${ex.id}`, primary: ex, superseded: [] });
+        }
+        return groups;
       }
 
       function renderList(opts = {}) {
@@ -2692,6 +3099,23 @@
           state.lastSegHtml = segHtml;
         }
 
+        const rowsEl = $('#rows');
+        if (!state.initialLoaded) {
+          rowsEl.innerHTML = [0, 1, 2, 3]
+            .map(
+              () => `<div class="row" aria-hidden="true">
+                <div class="skel" style="height:24px;width:48px"></div>
+                <div style="display:grid;gap:6px">
+                  <div class="skel" style="height:14px;width:72%"></div>
+                  <div class="skel" style="height:12px;width:54%"></div>
+                </div>
+                <div class="skel" style="height:20px;width:74px;border-radius:99px"></div>
+              </div>`,
+            )
+            .join('');
+          return;
+        }
+
         const rowHtml = (d) => {
           const score = d.riskScore ?? 0;
           const [, col] = sevMeta(score);
@@ -2699,6 +3123,7 @@
           const isRunning = d.status === 'running' || d.status === 'queued';
           const shortSha = (d.headSha || '').slice(0, 7) || '—';
           const fc = Number(d.findingsCount || 0);
+          const sp = spriteStateInfo(d.spriteState || 'none');
           return `<button type="button" class="row" role="option" aria-selected="${d.id === state.selId}" data-id="${esc(d.id)}">
             <span class="rk">${gauge(score, col)}<b>${isRunning ? '…' : score}</b></span>
             <span style="min-width:0">
@@ -2707,23 +3132,54 @@
                 <span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
                 <span class="mono">${esc(shortSha)}</span>
                 <span>${isRunning ? 'Scanning…' : `${fc} finding${fc === 1 ? '' : 's'}`}</span>
-                <span><i class="sp ${esc(d.spriteState || 'none')}"></i>${esc(d.spriteState || 'none')}</span>
+                <span title="${esc(sp.hint)}"><i class="sp ${esc(sp.label)}"></i>${esc(sp.label)}</span>
               </div>
             </span>
             ${statusChip(d)}
           </button>`;
         };
 
-        const vis = visibleScans();
-        const attn = vis.filter(needsAttention);
-        const rest = vis.filter((d) => !needsAttention(d));
-        const rowsHtml =
-          (attn.length ? `<div class="gl" style="border:0">Needs your attention</div>` + attn.map(rowHtml).join('') : '') +
-            (rest.length
-              ? `<div class="gl">${attn.length ? 'Earlier audits' : 'Audits'}</div>` + rest.map(rowHtml).join('')
-              : '') || `<div class="emp">No audits match this filter.</div>`;
+        const groupHtml = (g) => {
+          const hasSelectedSup = g.superseded.some((s) => s.id === state.selId);
+          if (hasSelectedSup) state.expandedGroups[g.key] = true;
+          const isExp = Boolean(state.expandedGroups[g.key]);
+          let out = rowHtml(g.primary);
+          if (g.superseded.length > 0) {
+            const n = g.superseded.length;
+            out += `<button type="button" class="sup-toggle" data-toggle-group="${esc(g.key)}" aria-expanded="${isExp}">${
+              isExp ? `− Hide ${n} earlier scan${n === 1 ? '' : 's'}` : `+ ${n} earlier scan${n === 1 ? '' : 's'}`
+            }</button>`;
+            if (isExp) {
+              out += `<div class="sup-group">${g.superseded.map(rowHtml).join('')}</div>`;
+            }
+          }
+          return out;
+        };
 
-        const rowsEl = $('#rows');
+        const vis = visibleScans();
+        const groups = groupVisibleScans(vis);
+        const attn = groups.filter((g) => needsAttention(g.primary));
+        const rest = groups.filter((g) => !needsAttention(g.primary));
+        const rowsHtml =
+          (attn.length ? `<div class="gl" style="border:0">Needs your attention</div>` + attn.map(groupHtml).join('') : '') +
+            (rest.length
+              ? `<div class="gl">${attn.length ? 'Earlier audits' : 'Audits'}</div>` + rest.map(groupHtml).join('')
+              : '') ||
+          (state.scans.length === 0
+            ? `<div class="emp-card">
+                <b>No audits recorded yet</b>
+                <p>Trigger an isolated Sprite audit from the Playground or scan any public GitHub PR.</p>
+                <div class="acts">
+                  <button type="button" class="btn pri" id="emp-pg-btn">${state.playgroundEnabled ? 'Open Playground' : 'Scan Public PR'}</button>
+                  <button type="button" class="btn" data-open="cn">Connect Repo</button>
+                </div>
+              </div>`
+            : `<div class="emp-card">
+                <b>No audits match this filter</b>
+                <p>Try widening the source or status filter, or clearing the search box.</p>
+                <div class="acts"><button type="button" class="btn" data-reset-filters="1">Reset Filters</button></div>
+              </div>`);
+
         if (!opts.background || rowsHtml !== state.lastRowsHtml) {
           const prevRowsScrollTop = rowsEl.scrollTop;
           const prevCardScrollTop = rowsEl.parentElement ? rowsEl.parentElement.scrollTop : 0;
@@ -3119,11 +3575,107 @@
           .join('')}</ol>`;
       }
 
+      function getRunningStage(d) {
+        const elapsed = d && d.createdAt ? Math.max(0, (Date.now() - Date.parse(d.createdAt)) / 1000) : 0;
+        if (d.status === 'queued' || d.spriteState === 'creating' || d.spriteState === 'none') return 0;
+        if (d.spriteState === 'running') return Math.min(4, 1 + Math.floor(elapsed / 2));
+        return 4;
+      }
+
+      function syncRunningTicker(isRunning) {
+        if (isRunning && !state.runningTickTimer) {
+          state.runningTickTimer = setInterval(() => {
+            const cur = selectedScan();
+            if (!cur || (cur.status !== 'running' && cur.status !== 'queued')) {
+              clearInterval(state.runningTickTimer);
+              state.runningTickTimer = null;
+              return;
+            }
+            renderDetail({ background: true });
+          }, 1000);
+        } else if (!isRunning && state.runningTickTimer) {
+          clearInterval(state.runningTickTimer);
+          state.runningTickTimer = null;
+        }
+      }
+
+      function buildStatusStrip(d, patch, stillExposed, nf) {
+        const isDemo = isPlaygroundScan(d);
+        const isRunning = d.status === 'running' || d.status === 'queued';
+        const vStatus = patch && patch.verification && patch.verification.status;
+        const hasWarn = vStatus === 'verified_with_warnings' && d.status === 'awaiting_approval';
+
+        let tone = '';
+        let summary = '';
+        if (isRunning) {
+          summary = 'SpriteGuard is auditing this PR inside a hardware-isolated microVM…';
+        } else if (d.status === 'failed' || d.status === 'publish_failed') {
+          tone = 'err';
+          summary = 'This audit stopped before completing — inspect the error below or retry a rescan.';
+        } else if (d.status === 'awaiting_approval' && stillExposed > 0) {
+          tone = 'err';
+          summary = `${stillExposed} live key${stillExposed === 1 ? ' was' : 's were'} committed. Rotate ${
+            stillExposed === 1 ? 'it' : 'them'
+          } at the provider, then approve the fix.`;
+        } else if (d.status === 'pushed' && stillExposed > 0) {
+          tone = 'err';
+          summary = `Code patch pushed — ${stillExposed} leaked key${stillExposed === 1 ? '' : 's'} still valid until rotated at the provider.`;
+        } else if (d.status === 'awaiting_approval') {
+          tone = hasWarn ? 'warn' : '';
+          summary = nf
+            ? 'Verified remediation patch is ready inside the sleeping Sprite for maintainer approval.'
+            : 'Scan finished cleanly and awaits maintainer acknowledgement.';
+        } else if (d.status === 'pushed') {
+          tone = 'ok';
+          summary = 'Verified fix committed to the PR branch; no unrevoked credentials remain.';
+        } else {
+          tone = 'ok';
+          summary = 'No leaked secrets, injection vulnerabilities, or unexpected outbound traffic found.';
+        }
+
+        const tags = [
+          isDemo ? '<span class="dm" style="margin:0">Demo fixture</span>' : '',
+          hasWarn ? '<span class="chip" style="color:var(--hi)">Verified with warnings</span>' : '',
+          stillExposed > 0 ? `<span class="chip" style="color:var(--cr)">${stillExposed} unrevoked</span>` : '',
+        ].filter(Boolean);
+
+        const extraRows = [];
+        if (isDemo) {
+          extraRows.push('<div><b>Demo fixture</b>Synthetic sandbox run; connected repositories are untouched.</div>');
+        }
+        if (hasWarn) {
+          const noteTxt = (patch.verification.notes || []).join(' ') || patch.verification.testsAfter.summary;
+          extraRows.push(`<div><b>Verified with warnings</b>${esc(noteTxt)}</div>`);
+        }
+        if ((d.status === 'awaiting_approval' || d.status === 'pushed') && stillExposed > 0) {
+          extraRows.push(
+            `<div><b>Credential rotation required</b>${
+              d.status === 'pushed'
+                ? 'Code fix is merged, but leaked keys stay active until revoked at the provider.'
+                : 'Approving/pushing a code patch removes secrets from code only — revoke and rotate them at the provider.'
+            }</div>`,
+          );
+        }
+
+        const headHtml = `<span class="sstrip-msg">${esc(summary)}</span>${
+          tags.length ? `<span class="sstrip-tags">${tags.join('')}</span>` : ''
+        }`;
+
+        if (!extraRows.length) {
+          return `<div class="sstrip ${tone}"><div class="sstrip-head">${headHtml}</div></div>`;
+        }
+        return `<details class="sstrip ${tone}">
+          <summary class="sstrip-head">${headHtml}<span class="sstrip-more">Details</span></summary>
+          <div class="sstrip-body">${extraRows.join('')}</div>
+        </details>`;
+      }
+
       function serializeDetailState(d) {
         if (!d) return 'null';
         const cached = state.detailsCache[d.id];
         const patch = d.patch || (cached && cached.patch) || null;
         const findings = getFindings(d);
+        const isRunning = d.status === 'running' || d.status === 'queued';
         const credPrefix = `${d.id}:`;
         const credEntries = Object.entries(state.credState)
           .filter(([k]) => k.startsWith(credPrefix))
@@ -3150,9 +3702,12 @@
             state: d.spriteState || 'none',
             checkpointId: d.checkpointId || null,
           },
+          runningStage: isRunning ? getRunningStage(d) : null,
           approving: Boolean(state.approving[d.id]),
           rescanning: Boolean(state.rescanning[d.id]),
           asking: Boolean(state.qaLoading[d.id]),
+          hydrating: Boolean(state.hydrating[d.id]),
+          revealSecrets: state.revealSecrets,
           threads: state.threads[d.id] || [],
           credEntries,
           hasCachedRaw: state.tab === 'r' ? Boolean(cached) : false,
@@ -3160,14 +3715,42 @@
       }
 
       function renderDetail(opts = {}) {
-        const d = selectedScan();
         const el = $('#detail');
+        if (!state.initialLoaded) {
+          el.innerHTML = `<div class="dh" aria-hidden="true">
+            <div style="flex:1;display:grid;gap:8px">
+              <div class="skel" style="height:12px;width:36%"></div>
+              <div class="skel" style="height:22px;width:72%"></div>
+            </div>
+            <div class="skel" style="height:32px;width:120px"></div>
+          </div>
+          <div class="facts" aria-hidden="true">
+            <div><div class="skel" style="height:12px;width:45%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:65%"></div></div>
+            <div><div class="skel" style="height:12px;width:55%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:45%"></div></div>
+            <div><div class="skel" style="height:12px;width:45%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:60%"></div></div>
+          </div>
+          <div class="pane" aria-hidden="true" style="display:grid;gap:10px">
+            <div class="skel" style="height:74px;width:100%"></div>
+            <div class="skel" style="height:46px;width:100%"></div>
+            <div class="skel" style="height:46px;width:100%"></div>
+          </div>`;
+          return;
+        }
+
+        const d = selectedScan();
         if (!d) {
+          syncRunningTicker(false);
           if (opts.background && state.lastDetailSig === 'null') return;
           state.lastDetailSig = 'null';
           state.lastDetailScanId = null;
           state.lastDetailTab = null;
-          el.innerHTML = `<div class="emp">Select an audit from the feed, or run a demo / public GitHub PR scan above.</div>`;
+          el.innerHTML = `<div class="emp-card">
+            <b>Select an audit to inspect</b>
+            <p>Choose any PR on the left, or launch an isolated Sandbox run from the header.</p>
+            <div class="acts">
+              <button type="button" class="btn pri" id="emp-pg-btn">${state.playgroundEnabled ? 'Open Playground' : 'Scan Public PR'}</button>
+            </div>
+          </div>`;
           return;
         }
 
@@ -3194,14 +3777,20 @@
         const risk = Number(d.riskScore ?? 0);
         const [sl, sc] = sevMeta(risk);
         const isRunning = d.status === 'running' || d.status === 'queued';
+        syncRunningTicker(isRunning);
         const fin = !isRunning && d.status !== 'failed';
-        const isDemo = isPlaygroundScan(d);
         const shortSha = (d.headSha || '').slice(0, 7) || '—';
         const flaggedHosts = (d.egressDomains || []).filter((x) => x.flagged);
         const isApproving = Boolean(state.approving[d.id]);
         const isRescanning = Boolean(state.rescanning[d.id]);
+        const stillExposed = countExposedSecrets([d]);
+        const spInfo = spriteStateInfo(d.spriteState || 'none');
 
-        let h = `<div class="dh">
+        let h = `<div class="mob-back">
+          <button type="button" class="btn sm" id="mob-back-btn">← Back to audits</button>
+          <span class="mono">${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
+        </div>
+        <div class="dh">
           <div style="min-width:0">
             <div class="crumb">${esc(d.repoFullName)}#${esc(d.prNumber)} <span class="mono">${esc(shortSha)}</span></div>
             <h2>${esc(d.prTitle)}</h2>
@@ -3216,10 +3805,19 @@
                 : ''
             }
             ${
+              d.status === 'awaiting_approval' && stillExposed > 0
+                ? `<button type="button" class="btn warn-act" data-jump-rotate="${esc(d.id)}" title="Review exposed credentials to mark rotated before merging">Rotate Keys (${stillExposed})</button>`
+                : ''
+            }
+            ${
               d.status === 'awaiting_approval'
                 ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving || isRescanning ? 'disabled' : ''}${
                     isApproving ? ' aria-busy="true"' : ''
-                  }>${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch'}</button>`
+                  } title="${
+                    stillExposed > 0
+                      ? 'Commits code fix only — leaked keys must still be rotated at the provider'
+                      : 'Wake sleeping Sprite and push verified patch'
+                  }">${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch'}</button>`
                 : ''
             }
           </div>
@@ -3249,52 +3847,64 @@
             }</small>
           </div>
         </div>
-        <div class="sid">
-          <i class="sp ${esc(d.spriteState || 'none')}"></i>
-          <span>Sprite ${esc(d.spriteState || 'none')}</span>
-          ${d.spriteName ? `<code>${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : '<span>No sprite assigned</span>'}
+        <div class="sid" title="${esc(spInfo.hint)}">
+          <i class="sp ${esc(spInfo.label)}"></i>
+          <span>Sprite ${esc(spInfo.label)}</span>
+          ${d.spriteName ? `<code>${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
+          <span class="sid-hint">· ${esc(spInfo.hint)}</span>
         </div>`;
 
-        if (isDemo) {
-          h += `<div class="bn d"><b>Demo fixture</b>Synthetic data; does not touch connected repositories.</div>`;
-        }
-        const vStatus = patch && patch.verification && patch.verification.status;
-        if (vStatus === 'verified_with_warnings' && d.status === 'awaiting_approval') {
-          const noteTxt = (patch.verification.notes || []).join(' ') || patch.verification.testsAfter.summary;
-          h += `<div class="bn"><b>Verified with warnings</b>${esc(noteTxt)}</div>`;
-        }
-        const stillExposed = countExposedSecrets([d]);
-        if ((d.status === 'awaiting_approval' || d.status === 'pushed') && stillExposed > 0) {
-          h += `<div class="bn e"><b>${stillExposed} credential${stillExposed > 1 ? 's' : ''} still exposed</b>${
-            d.status === 'pushed'
-              ? 'Patch pushed, but leaked keys remain valid until rotated.'
-              : 'Approving/pushing a code patch does not revoke leaked keys; revoke and rotate them at the provider.'
-          }</div>`;
-        }
+        h += buildStatusStrip(d, patch, stillExposed, nf);
 
         if (isRunning) {
-          h += `<div class="pane"><ol class="steps">
-            <li class="done"><i></i>Create scan record &amp; provision isolated Sprite</li>
-            <li class="on"><i></i>Run 3-layer security audit &amp; patch verification</li>
-            <li><i></i>Checkpoint &amp; publish security report</li>
-          </ol></div>`;
+          const curStep = getRunningStage(d);
+          const timeline = [
+            ['Sprite waking', 'Booting hardware-isolated Firecracker microVM'],
+            ['Cloning PR', 'Checking out PR head via Read-Only GitHub connector'],
+            ['Scanning layers', 'Running static secret scanner, history & .env checks'],
+            ['Checking egress', 'Running build & test probes inside egress monitor'],
+            ['Drafting patch', 'Generating & verifying remediation in isolated Sprite'],
+          ];
+          h += `<div class="pane">
+            <div class="hero-tl">
+              <div class="hero-tl-head">
+                <b>Live Zero-Trust Audit Pipeline</b>
+                <span>Step ${curStep + 1} of ${timeline.length}</span>
+              </div>
+              <ol class="steps">${timeline
+                .map(
+                  ([title, desc], idx) =>
+                    `<li class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"><i></i><div><b>${esc(
+                      title,
+                    )}</b><small>${esc(desc)}</small></div></li>`,
+                )
+                .join('')}</ol>
+            </div>
+          </div>`;
         } else {
           const tabs = [
-            ['f', 'Findings' + (nf ? ` (${nf})` : '')],
-            ['p', 'Patch'],
-            ['m', 'PR Report'],
-            ['r', 'Raw JSON'],
+            ['f', 'Findings' + (nf ? ` (${nf})` : ''), '1'],
+            ['p', 'Patch', '2'],
+            ['m', 'PR Report', '3'],
+            ['r', 'Raw JSON', '4'],
           ];
           h += `<div class="tabs" role="tablist">${tabs
             .map(
-              ([k, label]) =>
-                `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}">${label}</button>`,
+              ([k, label, hk]) =>
+                `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}" title="Shortcut: ${hk}">${label}<kbd>${hk}</kbd></button>`,
             )
             .join('')}</div><div class="pane">`;
 
           if (state.tab === 'f') {
             if (d.status === 'failed' || d.status === 'publish_failed') {
-              h += `<div class="note err" role="alert"><b>Audit error.</b> ${esc(d.error || 'The audit failed before completing.')}</div>`;
+              h += `<div class="note err" role="alert">
+                <b>Audit error.</b> ${esc(d.error || 'The audit failed before completing.')}
+                <div class="acts" style="margin-top:10px">
+                  <button type="button" class="btn" id="rs-err-btn" ${isRescanning ? 'disabled aria-busy="true"' : ''}>${
+                    isRescanning ? 'Rescanning…' : 'Retry Rescan'
+                  }</button>
+                </div>
+              </div>`;
             } else if (findings.length > 0) {
               h += renderOverview(d, findings);
               h += findings
@@ -3331,15 +3941,25 @@
             }
           } else if (state.tab === 'p') {
             if (patch) {
+              const rawDiff = patch.diff || '';
+              const shownDiff = state.revealSecrets ? rawDiff : maskSecretText(rawDiff);
               h += renderPatchPipeline(d, patch);
-              h += renderUnifiedDiff(patch.diff || '');
+              h += `<div class="pane-bar">
+                <span>${state.revealSecrets ? 'Raw diff literals revealed' : 'Secret-like literals masked by default'}</span>
+                <div class="acts">
+                  <button type="button" class="btn sm" id="toggle-mask-btn" aria-pressed="${state.revealSecrets}">${
+                    state.revealSecrets ? 'Mask Secrets' : 'Reveal'
+                  }</button>
+                </div>
+              </div>`;
+              h += renderUnifiedDiff(shownDiff);
               if (patch.postMergeActions && patch.postMergeActions.length) {
                 h += `<div class="note" style="margin:12px 0 0"><b>Post-merge actions:</b><ul style="margin:6px 0 0;padding-left:18px">${patch.postMergeActions
                   .map((a) => `<li>${esc(a)}</li>`)
                   .join('')}</ul></div>`;
               }
             } else {
-              h += `<div class="note ok"><b>No patch for this audit.</b></div>`;
+              h += `<div class="note ok"><b>No patch needed for this audit.</b></div>`;
             }
           } else if (state.tab === 'm') {
             const md = d.reportMarkdown || '';
@@ -3356,10 +3976,24 @@
             </div>`;
           } else if (state.tab === 'r') {
             const rawPayload = cached ? { scan: cached.scan, patch: cached.patch } : { scan: d, patch };
-            h += `<div style="display:flex;justify-content:flex-end;margin-bottom:8px">
-                <button type="button" class="btn" id="copy-json-btn">Copy JSON</button>
+            const rawJsonStr = JSON.stringify(rawPayload, null, 2);
+            const shownJson = state.revealSecrets ? rawJsonStr : maskSecretText(rawJsonStr);
+            h += `<div class="pane-bar">
+                <span>${
+                  state.hydrating[d.id]
+                    ? 'Hydrating full scan details…'
+                    : state.revealSecrets
+                      ? 'Secret values revealed'
+                      : 'Secret-like tokens masked by default'
+                }</span>
+                <div class="acts">
+                  <button type="button" class="btn sm" id="toggle-mask-btn" aria-pressed="${state.revealSecrets}">${
+                    state.revealSecrets ? 'Mask Secrets' : 'Reveal'
+                  }</button>
+                  <button type="button" class="btn sm" id="copy-json-btn">Copy JSON</button>
+                </div>
               </div>
-              <pre class="raw">${esc(JSON.stringify(rawPayload, null, 2))}</pre>`;
+              <pre class="raw">${esc(shownJson)}</pre>`;
           }
           h += `</div>`;
         }
@@ -3374,8 +4008,9 @@
                 ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
                 : 'Answered by deterministic analyzer grounded in this scan'
               : 'Reading the audit…';
+            const cleanAnswer = m.a ? cleanDashboardReply(m.a) : '';
             return `<div class="me">${esc(m.q)}</div>
-              <div class="bot">${m.a ? renderMarkdownBlocks(m.a) : ''}<small>${esc(prov)}</small></div>`;
+              <div class="bot">${cleanAnswer ? renderMarkdownBlocks(cleanAnswer) : ''}<small>${esc(prov)}</small></div>`;
           })
           .join('');
 
@@ -3421,6 +4056,7 @@
         const selStart = wasAsking ? activeEl.selectionStart : null;
         const selEnd = wasAsking ? activeEl.selectionEnd : null;
 
+        updateEnvPill();
         renderGettingStarted();
         renderStats();
         renderList(opts);
@@ -3439,23 +4075,46 @@
         }
       }
 
-      function renderHealthUI() {
+      function updateEnvPill() {
         const h = state.health;
+        const pill = $('#env-pill');
         const envDot = $('#env-dot');
         const envText = $('#env-text');
-        const btn = $('#hbtn');
-
+        if (!pill || !envDot || !envText) return;
         if (!h) {
+          pill.className = 'env';
+          pill.removeAttribute('title');
           envDot.className = 'dot err';
           envText.textContent = 'Offline';
+          return;
+        }
+        const isLocal = h.mode === 'local-sandbox';
+        const sel = selectedScan();
+        const viewingDemo = Boolean(sel && isPlaygroundScan(sel));
+        if (!isLocal && viewingDemo) {
+          pill.className = 'env demo-ctx';
+          pill.title = 'Live Production service inspecting a Demo/Playground fixture';
+          envDot.className = 'dot mu';
+          envText.textContent = 'Production · Viewing Demo';
+        } else {
+          pill.className = 'env';
+          pill.title = isLocal ? 'Running with Local Sandbox driver' : 'Running with Production split connectors';
+          envDot.className = 'dot' + (isLocal ? ' warn' : '');
+          envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
+        }
+      }
+
+      function renderHealthUI() {
+        const h = state.health;
+        const btn = $('#hbtn');
+        updateEnvPill();
+
+        if (!h) {
           btn.querySelector('.dot').className = 'dot err';
           btn.querySelector('span').textContent = state.healthError
             ? `System health: unreachable (${state.healthError})`
             : 'System health: disconnected';
         } else {
-          const isLocal = h.mode === 'local-sandbox';
-          envDot.className = 'dot' + (isLocal ? ' warn' : '');
-          envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
           const degraded = h.status !== 'ok' || !h.dbHealthy;
           btn.querySelector('.dot').className = 'dot' + (degraded ? ' warn' : '');
           btn.querySelector('span').textContent = degraded
@@ -3528,13 +4187,22 @@
       }
 
       async function fetchScanDetail(scanId) {
+        if (state.hydrating[scanId]) return;
+        state.hydrating[scanId] = true;
         try {
           const res = await fetch('/api/scans/' + encodeURIComponent(scanId), { headers: authHeaders() });
           if (!res.ok) return;
           const data = await res.json();
           state.detailsCache[scanId] = data;
-          if (state.selId === scanId) renderDetail();
+          if (data.scan) {
+            const idx = state.scans.findIndex((s) => s.id === scanId);
+            if (idx >= 0) state.scans[idx] = { ...state.scans[idx], ...data.scan, patch: data.patch || state.scans[idx].patch };
+          }
         } catch {}
+        finally {
+          delete state.hydrating[scanId];
+          if (state.selId === scanId) renderDetail();
+        }
       }
 
       async function refreshAll(force = false) {
@@ -3584,6 +4252,7 @@
           state.provider = data.provider || '—';
           state.model = data.model || '—';
           state.scans = data.scans || [];
+          state.initialLoaded = true;
 
           const pgHead = $('#pg-tabs');
           const pgPane = $('#pg-fixtures');
@@ -3598,14 +4267,30 @@
             customPane.hidden = state.pgTab !== 'custom';
           }
 
+          if (!state.pgUserToggled) {
+            setPlaygroundOpen(state.scans.length === 0, false);
+          } else {
+            const btn = $('#pg-btn');
+            if (btn) btn.textContent = state.playgroundEnabled ? 'Playground / Scan URL' : 'Scan Public PR';
+          }
+
           if (!state.selId || !state.scans.some((s) => s.id === state.selId)) {
             const vis = visibleScans();
             state.selId = (vis[0] || state.scans[0] || {}).id || null;
           }
+          syncUrlState();
 
           renderAll({ background: !force });
+          if (state.tab === 'r' && state.selId && !state.detailsCache[state.selId]) {
+            fetchScanDetail(state.selId);
+          }
         } catch (err) {
-          renderHealthUI();
+          if (!state.initialLoaded) {
+            state.initialLoaded = true;
+            renderAll();
+          } else {
+            renderHealthUI();
+          }
         }
       }
 
@@ -3631,6 +4316,10 @@
           state.selId = data.scan.id;
           state.detailsCache[data.scan.id] = data;
           state.tab = 'f';
+          state.revealSecrets = false;
+          setPlaygroundOpen(false, false);
+          setMobileView('detail');
+          syncUrlState();
           await refreshAll(true);
           toast(`Demo audit complete: ${data.scan.findingsCount} finding(s), risk ${data.scan.riskScore}/100`);
         } catch (err) {
@@ -3675,6 +4364,10 @@
           state.selId = data.scan.id;
           state.detailsCache[data.scan.id] = data;
           state.tab = 'f';
+          state.revealSecrets = false;
+          setPlaygroundOpen(false, false);
+          setMobileView('detail');
+          syncUrlState();
           await refreshAll(true);
           toast(`Custom PR #${data.scan.prNumber} audited: risk ${data.scan.riskScore}/100`);
         } catch (err) {
@@ -3717,6 +4410,10 @@
           state.selId = data.scan.id;
           state.detailsCache[data.scan.id] = data;
           state.tab = 'f';
+          state.revealSecrets = false;
+          setPlaygroundOpen(false, false);
+          setMobileView('detail');
+          syncUrlState();
           await refreshAll(true);
           toast(`Scanned ${data.scan.repoFullName}#${data.scan.prNumber} (Risk ${data.scan.riskScore}/100)`);
         } catch (err) {
@@ -3761,7 +4458,7 @@
           $('#dlg-gh-link').href = prUrl || 'https://github.com';
           $('#dlg-gh-link').hidden = false;
         }
-        $('#dlg').showModal();
+        showModalWithFocus($('#dlg'), isDemo ? $('#dlg-ok') : $('#dlg-gh-link'));
       }
 
       $('#dlg-gh-link').addEventListener('click', () => {
@@ -3783,8 +4480,10 @@
           return;
         }
 
+        const prevSpriteState = d.spriteState;
+        d.spriteState = 'running';
         state.approving[d.id] = true;
-        renderDetail();
+        renderAll();
         try {
           const res = await fetch('/api/demo/scans/' + encodeURIComponent(d.id) + '/approve', {
             method: 'POST',
@@ -3802,18 +4501,21 @@
               : `Patch pushed (${(out.commitSha || '').slice(0, 7)})`,
           );
         } catch (err) {
+          d.spriteState = prevSpriteState;
           toast('Approval failed: ' + err.message, true);
         } finally {
           delete state.approving[d.id];
-          renderDetail();
+          renderAll();
         }
       });
 
       async function rescanSelected() {
         const d = selectedScan();
         if (!d || state.rescanning[d.id]) return;
+        const prevSpriteState = d.spriteState;
+        d.spriteState = 'running';
         state.rescanning[d.id] = true;
-        renderDetail();
+        renderAll();
         try {
           const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/rescan', {
             method: 'POST',
@@ -3824,6 +4526,7 @@
           if (data.scan) {
             state.selId = data.scan.id;
             state.detailsCache[data.scan.id] = data;
+            syncUrlState();
             await refreshAll(true);
             toast(`Rescan complete: ${data.scan.repoFullName}#${data.scan.prNumber}`);
           } else {
@@ -3831,10 +4534,11 @@
             await refreshAll(true);
           }
         } catch (err) {
+          d.spriteState = prevSpriteState;
           toast('Rescan failed: ' + err.message, true);
         } finally {
           delete state.rescanning[d.id];
-          renderDetail();
+          renderAll();
         }
       }
 
@@ -3913,28 +4617,128 @@
         $('#fpt').value = promptText;
         $('#fpd-title').textContent =
           picked.length > 1 ? `Fix prompt for whole PR (${picked.length} findings)` : 'Fix prompt for one finding';
-        $('#fpd').showModal();
+        showModalWithFocus($('#fpd'), $('#fpc'));
+      }
+
+      let modalReturnEl = null;
+      function showModalWithFocus(dlg, focusEl) {
+        if (!dlg || dlg.open) return;
+        modalReturnEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        dlg.showModal();
+        if (focusEl && typeof focusEl.focus === 'function') requestAnimationFrame(() => focusEl.focus());
       }
 
       function openConnectModal() {
         const whUrl = window.location.origin + '/webhook';
         $('#wh-url').textContent = whUrl;
         $('#wh-copy').dataset.copy = whUrl;
-        $('#cn').showModal();
+        showModalWithFocus($('#cn'), $('#wh-copy'));
       }
+
+      document.addEventListener(
+        'close',
+        (e) => {
+          if (e.target && e.target.tagName === 'DIALOG' && modalReturnEl && document.contains(modalReturnEl)) {
+            const ret = modalReturnEl;
+            modalReturnEl = null;
+            requestAnimationFrame(() => ret.focus());
+          }
+        },
+        true,
+      );
+
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.tagName === 'DIALOG' && e.target.open) {
+          e.target.close();
+        }
+      });
 
       function buildPaletteItems() {
         const query = ($('#pq').value || '').toLowerCase();
-        const actions = [
+        const cur = selectedScan();
+        const curLabel = cur ? `${cur.repoFullName}#${cur.prNumber}` : '';
+        const curExposed = cur ? countExposedSecrets([cur]) : 0;
+        const curFindings = cur ? getFindings(cur).length : 0;
+
+        const prActions = cur
+          ? [
+              ...(curFindings
+                ? [[`Copy Fix Prompt (${curLabel})`, 'Selected PR', () => openFixPrompt(cur.id, 'all')]]
+                : []),
+              ...(cur.status === 'awaiting_approval' && !state.approving[cur.id]
+                ? [[`Approve Patch (${curLabel})`, 'Selected PR', promptApprove]]
+                : []),
+              ...(curExposed > 0
+                ? [
+                    [
+                      `Rotate Exposed Keys (${curLabel})`,
+                      'Selected PR',
+                      () => {
+                        state.tab = 'f';
+                        renderDetail();
+                        syncUrlState();
+                        const firstExp = getFindings(cur).findIndex((f, i) => isSecretFinding(f) && getCredStatus(cur, f, i) === 'exposed');
+                        if (firstExp >= 0) {
+                          const key = findingCredKey(cur, getFindings(cur)[firstExp], firstExp);
+                          state.openFindingKey = key;
+                          const det = document.querySelector(`details.f[data-fkey="${CSS.escape(key)}"]`);
+                          if (det) {
+                            det.open = true;
+                            det.scrollIntoView({ block: 'nearest' });
+                          }
+                        }
+                      },
+                    ],
+                  ]
+                : []),
+              ...(cur.status !== 'running' && cur.status !== 'queued'
+                ? [[`Rescan PR (${curLabel})`, 'Selected PR', rescanSelected]]
+                : []),
+              ...(!isPlaygroundScan(cur)
+                ? [
+                    [
+                      `Open PR on GitHub (${curLabel})`,
+                      'Selected PR',
+                      () => {
+                        const url = resolvePrUrl(cur);
+                        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                      },
+                    ],
+                  ]
+                : []),
+            ]
+          : [];
+
+        const workspaceActions = [
+          [
+            state.pgOpen
+              ? 'Hide Playground / Scan URL'
+              : state.playgroundEnabled
+                ? 'Open Playground / Scan URL'
+                : 'Scan Public PR URL',
+            'Workspace',
+            () => setPlaygroundOpen(!state.pgOpen, true),
+          ],
           ...(state.playgroundEnabled ? [['Run Demo Audit', 'Playground', runDemoAudit]] : []),
           ['Connect Repo', 'Setup', openConnectModal],
-          ['Copy Fix Prompt for Selected Audit', 'Selected audit', () => state.selId && openFixPrompt(state.selId, 'all')],
-          ['Check System Health', 'Diagnostics', () => { renderHealthUI(); $('#hd').showModal(); }],
+          [
+            document.documentElement.getAttribute('data-theme') === 'light'
+              ? 'Switch to Dark Mode'
+              : 'Switch to Light Mode',
+            'Appearance',
+            () => {
+              const c = document.documentElement.getAttribute('data-theme') || 'dark';
+              switchTheme(c === 'dark' ? 'light' : 'dark');
+            },
+          ],
+          ['Check System Health', 'Diagnostics', () => { renderHealthUI(); showModalWithFocus($('#hd'), $('#hchk')); }],
           ['Show Getting Started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
           ['Filter: Needs Review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
           ['Filter: All Audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); renderList(); }],
-        ]
-          .filter(([title]) => title.toLowerCase().includes(query))
+        ];
+
+        const actions = [...prActions, ...workspaceActions]
+          .filter(([title, group]) => `${title} ${group}`.toLowerCase().includes(query))
           .map(([t, h, f]) => ({ t, h, f }));
 
         const scans = state.scans
@@ -3945,11 +4749,15 @@
             f: () => {
               state.selId = s.id;
               state.tab = 'f';
+              state.revealSecrets = false;
+              setMobileView('detail');
+              syncUrlState();
               renderAll();
+              if (!state.detailsCache[s.id]) fetchScanDetail(s.id);
             },
           }));
 
-        state.palItems = [...actions, ...scans].slice(0, 10);
+        state.palItems = [...actions, ...scans].slice(0, 12);
         state.palIdx = Math.min(state.palIdx, Math.max(state.palItems.length - 1, 0));
         $('#pk').innerHTML =
           state.palItems
@@ -3965,8 +4773,7 @@
         $('#pq').value = '';
         state.palIdx = 0;
         buildPaletteItems();
-        $('#pal').showModal();
-        $('#pq').focus();
+        showModalWithFocus($('#pal'), $('#pq'));
       }
 
       function runPaletteItem(idx) {
@@ -3990,21 +4797,40 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],#ap-btn,#rs-btn,#copy-md-btn,#copy-json-btn',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn',
         );
         if (!t) return;
 
         if (t.dataset.id) {
           state.selId = t.dataset.id;
           state.tab = 'f';
+          state.revealSecrets = false;
+          setMobileView('detail');
+          syncUrlState();
           renderAll();
           if (!state.detailsCache[state.selId]) fetchScanDetail(state.selId);
           if (innerWidth <= 1000) {
-            $('#detail').scrollIntoView({
-              block: 'start',
+            window.scrollTo({
+              top: 0,
               behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
             });
           }
+        } else if (t.id === 'mob-back-btn') {
+          setMobileView('list');
+        } else if (t.id === 'emp-pg-btn') {
+          setPlaygroundOpen(true, true);
+        } else if (t.dataset.resetFilters) {
+          state.sourceFilter = 'all';
+          state.statusFilter = 'all';
+          state.searchQuery = '';
+          $('#q').value = '';
+          ls('sg-src', 'all');
+          ls('sg-flt', 'all');
+          renderAll();
+        } else if (t.dataset.toggleGroup) {
+          const gKey = t.dataset.toggleGroup;
+          state.expandedGroups[gKey] = !state.expandedGroups[gKey];
+          renderList();
         } else if (t.dataset.src) {
           state.sourceFilter = t.dataset.src;
           ls('sg-src', state.sourceFilter);
@@ -4015,10 +4841,36 @@
           renderList();
         } else if (t.dataset.t) {
           state.tab = t.dataset.t;
+          syncUrlState();
           if (state.tab === 'r' && state.selId && !state.detailsCache[state.selId]) {
             fetchScanDetail(state.selId);
           }
           renderDetail();
+        } else if (t.id === 'toggle-mask-btn') {
+          state.revealSecrets = !state.revealSecrets;
+          renderDetail();
+        } else if (t.dataset.jumpRotate) {
+          const scan = state.scans.find((s) => s.id === t.dataset.jumpRotate);
+          if (scan) {
+            state.tab = 'f';
+            const findings = getFindings(scan);
+            const firstExp = findings.findIndex((f, i) => isSecretFinding(f) && getCredStatus(scan, f, i) === 'exposed');
+            const fKey = firstExp >= 0 ? findingCredKey(scan, findings[firstExp], firstExp) : '';
+            if (fKey) state.openFindingKey = fKey;
+            syncUrlState();
+            renderDetail();
+            if (fKey) {
+              requestAnimationFrame(() => {
+                const det = document.querySelector(`details.f[data-fkey="${CSS.escape(fKey)}"]`);
+                if (det) {
+                  det.open = true;
+                  const rotBtn = det.querySelector('[data-rot]');
+                  det.scrollIntoView({ block: 'nearest' });
+                  if (rotBtn) rotBtn.focus();
+                }
+              });
+            }
+          }
         } else if (t.hasAttribute('data-close')) {
           t.closest('dialog').close();
         } else if (t.dataset.fp) {
@@ -4027,7 +4879,7 @@
         } else if (t.dataset.open === 'cn') {
           openConnectModal();
         } else if (t.dataset.open) {
-          $('#' + t.dataset.open).showModal();
+          showModalWithFocus($('#' + t.dataset.open));
         } else if (t.dataset.pi !== undefined) {
           runPaletteItem(Number(t.dataset.pi));
         } else if (t.dataset.rot) {
@@ -4062,13 +4914,14 @@
           applyAttackPreset(t.dataset.preset);
         } else if (t.id === 'ap-btn') {
           promptApprove();
-        } else if (t.id === 'rs-btn') {
+        } else if (t.id === 'rs-btn' || t.id === 'rs-err-btn') {
           rescanSelected();
         } else if (t.id === 'copy-md-btn') {
           const d = selectedScan();
           if (d && d.reportMarkdown) {
             try {
               await navigator.clipboard.writeText(d.reportMarkdown);
+              flashCopied(t);
               toast('Copied PR Markdown report');
             } catch {
               toast('Clipboard blocked', true);
@@ -4079,8 +4932,10 @@
           const payload = d && (state.detailsCache[d.id] || { scan: d, patch: d.patch || null });
           if (payload) {
             try {
-              await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-              toast('Copied Raw JSON');
+              const rawJson = JSON.stringify(payload, null, 2);
+              await navigator.clipboard.writeText(state.revealSecrets ? rawJson : maskSecretText(rawJson));
+              flashCopied(t);
+              toast(state.revealSecrets ? 'Copied Raw JSON' : 'Copied masked Raw JSON');
             } catch {
               toast('Clipboard blocked', true);
             }
@@ -4088,6 +4943,7 @@
         } else if (t.dataset.copy) {
           try {
             await navigator.clipboard.writeText(t.dataset.copy);
+            flashCopied(t);
             toast('Copied');
           } catch {
             toast('Select text to copy', true);
@@ -4154,11 +5010,18 @@
         renderGettingStarted();
         toast('Hidden. Reopen from ⌘K menu.');
       });
+      $('#pg-btn').addEventListener('click', () => {
+        setPlaygroundOpen(!state.pgOpen, true);
+      });
+      $('#pg-close').addEventListener('click', () => {
+        setPlaygroundOpen(false, true);
+        $('#pg-btn').focus();
+      });
       $('#cbtn').addEventListener('click', openConnectModal);
       $('#kbtn').addEventListener('click', openPalette);
       $('#theme-btn').addEventListener('click', () => {
         const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-        applyTheme(cur === 'dark' ? 'light' : 'dark', true);
+        switchTheme(cur === 'dark' ? 'light' : 'dark');
       });
       $('#live').addEventListener('click', () => {
         state.live = !state.live;
@@ -4166,7 +5029,7 @@
       });
       $('#hbtn').addEventListener('click', () => {
         renderHealthUI();
-        $('#hd').showModal();
+        showModalWithFocus($('#hd'), $('#hchk'));
         refreshAll(true);
       });
       $('#hchk').addEventListener('click', async () => {
@@ -4185,8 +5048,10 @@
       });
       $('#fpc').addEventListener('click', async () => {
         const ta = $('#fpt');
+        const btn = $('#fpc');
         try {
           await navigator.clipboard.writeText(ta.value);
+          flashCopied(btn);
           toast('Fix prompt copied');
         } catch {
           ta.select();
@@ -4213,6 +5078,26 @@
       });
 
       document.addEventListener('keydown', (e) => {
+        const openDlg = document.querySelector('dialog[open]');
+        if (openDlg && e.key === 'Tab') {
+          const focusables = [
+            ...openDlg.querySelectorAll(
+              'a[href],button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex]:not([tabindex="-1"])',
+            ),
+          ].filter((el) => !el.closest('[hidden]') && el.getClientRects().length > 0);
+          if (focusables.length) {
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && (document.activeElement === first || !openDlg.contains(document.activeElement))) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+          return;
+        }
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
           e.preventDefault();
           openPalette();
@@ -4220,21 +5105,41 @@
         }
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const tag = e.target.tagName;
-        if (e.key === 'Escape' && (tag === 'INPUT' || tag === 'TEXTAREA')) {
-          e.target.blur();
+        if (e.key === 'Escape') {
+          if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            e.target.blur();
+            return;
+          }
+          if (!openDlg && state.pgOpen) {
+            setPlaygroundOpen(false, true);
+            $('#pg-btn').focus();
+            return;
+          }
+        }
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || openDlg) {
           return;
         }
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.querySelector('dialog[open]')) {
-          return;
-        }
-        const vis = visibleScans();
-        const idx = vis.findIndex((s) => s.id === state.selId);
         if (e.key === 'j' || e.key === 'k') {
-          const next = vis[Math.max(0, Math.min(vis.length - 1, idx + (e.key === 'j' ? 1 : -1)))];
-          if (next) {
-            state.selId = next.id;
+          const renderedIds = [...document.querySelectorAll('#rows .row[data-id]')].map((r) => r.dataset.id);
+          const navIds = renderedIds.length ? renderedIds : visibleScans().map((s) => s.id);
+          const idx = navIds.indexOf(state.selId);
+          const nextId = navIds[Math.max(0, Math.min(navIds.length - 1, idx + (e.key === 'j' ? 1 : -1)))];
+          if (nextId) {
+            state.selId = nextId;
             state.tab = 'f';
+            state.revealSecrets = false;
+            syncUrlState();
             renderAll();
+            if (!state.detailsCache[nextId]) fetchScanDetail(nextId);
+          }
+        } else if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+          const sel = selectedScan();
+          if (sel && sel.status !== 'running' && sel.status !== 'queued') {
+            const tabMap = { '1': 'f', '2': 'p', '3': 'm', '4': 'r' };
+            state.tab = tabMap[e.key];
+            syncUrlState();
+            if (state.tab === 'r' && !state.detailsCache[sel.id]) fetchScanDetail(sel.id);
+            renderDetail();
           }
         } else if (e.key === '/') {
           e.preventDefault();
@@ -4243,6 +5148,7 @@
       });
 
       applyAttackPreset('leaked-keys');
+      renderAll();
 
       setupPolling();
       refreshAll(true);
