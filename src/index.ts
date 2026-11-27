@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Octokit } from '@octokit/rest';
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import { loadConfig, type AppConfig } from './config.js';
 import { createStore, type Store } from './db/client.js';
@@ -12,14 +13,19 @@ import {
   LocalGitHubSimulator,
   LocalReadOnlyConnector,
   LocalWriteConnector,
+  splitRepo,
   type GitHubConnectors,
+  type GitHubWriteConnector,
+  type ReadOnlyGitHubConnector,
+  type RepoPermission,
+  type SourceDelivery,
 } from './fly/githubConnector.js';
 import { createSpriteManager, type SpriteManager } from './fly/spriteManager.js';
 import { WebhookHandler } from './github/webhookHandler.js';
 import { createLogger, type Logger } from './logger.js';
 import { AuditOrchestrator, TrustedPublisher } from './orchestrator.js';
 import { OpusAuditor } from './scanner/opusAuditor.js';
-import type { PatchRecord, ScanRecord, ScanStatus } from './types.js';
+import type { CommitPatch, PatchRecord, PrContext, ScanRecord, ScanStatus } from './types.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -46,6 +52,163 @@ function checkDashboardAuth(req: FastifyRequest, reply: FastifyReply, token: str
   if (auth === `Bearer ${token}` || queryToken === token) return true;
   void reply.code(401).send({ error: 'Unauthorized: invalid or missing DASHBOARD_TOKEN' });
   return false;
+}
+
+export interface ParsedGitHubPrInput {
+  owner: string;
+  repo: string;
+  repoFullName: string;
+  prNumber?: number;
+}
+
+const VALID_GH_SEGMENT = /^[A-Za-z0-9_.-]+$/;
+
+export function parseGitHubPrUrl(input: string): ParsedGitHubPrInput | null {
+  const trimmed = input.trim();
+  if (!trimmed || trimmed.length > 512 || trimmed.includes('..')) return null;
+
+  const sanitizeRepo = (rawOwner: string, rawRepo: string, pr?: number): ParsedGitHubPrInput | null => {
+    const owner = rawOwner.trim();
+    const repo = rawRepo.trim().replace(/\.git$/i, '');
+    if (!owner || !repo || owner === '.' || repo === '.') return null;
+    if (!VALID_GH_SEGMENT.test(owner) || !VALID_GH_SEGMENT.test(repo)) return null;
+    const out: ParsedGitHubPrInput = { owner, repo, repoFullName: `${owner}/${repo}` };
+    if (pr !== undefined) {
+      if (!Number.isInteger(pr) || pr <= 0) return null;
+      out.prNumber = pr;
+    }
+    return out;
+  };
+
+  if (!trimmed.includes('://') && !trimmed.startsWith('github.com/')) {
+    const parts = trimmed.replace(/^\/+|\/+$/g, '').split('/');
+    if (parts.length === 2 && parts[0] && parts[1]) {
+      return sanitizeRepo(parts[0], parts[1]);
+    }
+    return null;
+  }
+
+  try {
+    const normalized = trimmed.startsWith('github.com/') ? `https://${trimmed}` : trimmed;
+    const u = new URL(normalized);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+    const host = u.hostname.toLowerCase();
+    if (host !== 'github.com' && host !== 'www.github.com') return null;
+    const segs = u.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (segs.length < 2 || !segs[0] || !segs[1]) return null;
+    if (segs.length === 2 || (segs.length === 3 && segs[2] === 'pulls')) {
+      return sanitizeRepo(segs[0], segs[1]);
+    }
+    if (segs.length >= 4 && segs[2] === 'pull' && /^\d+$/.test(segs[3] ?? '')) {
+      return sanitizeRepo(segs[0], segs[1], Number.parseInt(segs[3]!, 10));
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function createPublicReadOnlyConnector(apiUrl: string, token: string | undefined): ReadOnlyGitHubConnector {
+  const gh = new Octokit({
+    ...(token ? { auth: token } : {}),
+    baseUrl: apiUrl,
+    userAgent: 'spriteguard',
+  });
+
+  const httpStatus = (err: unknown): number | undefined =>
+    typeof err === 'object' && err !== null && 'status' in err ? Number((err as { status: unknown }).status) : undefined;
+
+  return {
+    mode: 'token',
+    rememberInstallation(): void {},
+    async getPullRequest(repoFullName: string, prNumber: number): Promise<PrContext> {
+      const { owner, repo } = splitRepo(repoFullName);
+      const { data } = await gh.pulls.get({ owner, repo, pull_number: prNumber });
+      const headRepo = data.head.repo;
+      return {
+        owner,
+        repo,
+        repoFullName,
+        number: data.number,
+        title: data.title,
+        body: data.body ?? '',
+        author: data.user?.login ?? 'unknown',
+        headSha: data.head.sha,
+        headRef: data.head.ref,
+        headRepoFullName: headRepo?.full_name ?? repoFullName,
+        headCloneUrl: headRepo?.clone_url ?? `https://github.com/${repoFullName}.git`,
+        baseRef: data.base.ref,
+        isFork: Boolean(headRepo && headRepo.full_name !== data.base.repo.full_name),
+        isPrivate: data.base.repo.private,
+        maintainerCanModify: data.maintainer_can_modify,
+        state: data.state === 'open' ? 'open' : 'closed',
+      };
+    },
+    async getPullRequestDiff(repoFullName: string, prNumber: number): Promise<string> {
+      const { owner, repo } = splitRepo(repoFullName);
+      try {
+        const res = await gh.pulls.get({ owner, repo, pull_number: prNumber, mediaType: { format: 'diff' } });
+        return res.data as unknown as string;
+      } catch (err) {
+        if (httpStatus(err) !== 406 && httpStatus(err) !== 422) throw err;
+        const files = await gh.paginate(gh.pulls.listFiles, { owner, repo, pull_number: prNumber, per_page: 100 });
+        return files
+          .filter((f) => f.patch)
+          .map((f) => `diff --git a/${f.filename} b/${f.filename}\n--- a/${f.filename}\n+++ b/${f.filename}\n${f.patch}`)
+          .join('\n');
+      }
+    },
+    async listCommitPatches(repoFullName: string, prNumber: number, maxCommits = 30): Promise<CommitPatch[]> {
+      const { owner, repo } = splitRepo(repoFullName);
+      const commits = await gh.paginate(gh.pulls.listCommits, { owner, repo, pull_number: prNumber, per_page: 100 });
+      const recent = commits.slice(-maxCommits);
+      const out: CommitPatch[] = [];
+      for (const c of recent) {
+        const { data } = await gh.repos.getCommit({ owner, repo, ref: c.sha });
+        out.push({
+          sha: c.sha,
+          message: c.commit.message,
+          author: c.author?.login ?? c.commit.author?.name ?? 'unknown',
+          files: (data.files ?? []).map((f) => ({ filename: f.filename, patch: f.patch ?? '' })),
+        });
+      }
+      return out;
+    },
+    async getFileContent(repoFullName: string, path: string, ref: string): Promise<string | null> {
+      const { owner, repo } = splitRepo(repoFullName);
+      try {
+        const { data } = await gh.repos.getContent({ owner, repo, path, ref });
+        if (Array.isArray(data) || data.type !== 'file') return null;
+        if ('content' in data && data.content) return Buffer.from(data.content, 'base64').toString('utf8');
+        const blob = await gh.git.getBlob({ owner, repo, file_sha: data.sha });
+        return Buffer.from(blob.data.content, 'base64').toString('utf8');
+      } catch (err) {
+        if (httpStatus(err) === 404) return null;
+        throw err;
+      }
+    },
+    async getRepoPermission(): Promise<RepoPermission> {
+      return 'read';
+    },
+    async getSourceDelivery(pr: PrContext): Promise<SourceDelivery> {
+      return { kind: 'git', cloneUrl: pr.headCloneUrl, sha: pr.headSha };
+    },
+  };
+}
+
+function createNoopWriteConnector(): GitHubWriteConnector {
+  return {
+    mode: 'token',
+    rememberInstallation(): void {},
+    async postComment(): Promise<number> {
+      return 0;
+    },
+    async updateComment(): Promise<void> {},
+    async addReaction(): Promise<void> {},
+    async commitFiles(): Promise<string> {
+      throw new Error('Ad-hoc public URL scans are read-only and cannot commit to external repositories.');
+    },
+  };
 }
 
 export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardApp> {
@@ -122,13 +285,14 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     return reply.type('text/html; charset=utf-8').send(cachedDashboardHtml);
   });
 
-  app.get('/health', async (_req, reply) => {
+  const healthHandler = async (_req: FastifyRequest, reply: FastifyReply) => {
     const dbHealthy = await store.ping();
     const statusCode = dbHealthy ? 200 : 503;
     return reply.code(statusCode).send({
       status: dbHealthy ? 'ok' : 'degraded',
       service: 'spriteguard',
       mode: config.localSandboxMode ? 'local-sandbox' : 'production',
+      playgroundEnabled,
       store: store.backend,
       dbHealthy,
       spriteDriver: spriteManager.driver.kind,
@@ -138,7 +302,10 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       model: auditor.model,
       timestamp: new Date().toISOString(),
     });
-  });
+  };
+
+  app.get('/health', healthHandler);
+  app.get('/api/health', healthHandler);
 
   app.post('/webhook', async (req, reply) => {
     const event = typeof req.headers['x-github-event'] === 'string' ? req.headers['x-github-event'] : undefined;
@@ -205,21 +372,163 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     return reply.send({ scan, patch, timeline });
   });
 
-  // Local Sandbox / Public Playground interactive endpoints
-  if (playgroundEnabled) {
-    const sim = connectors.simulator ?? new LocalGitHubSimulator(config.github.botLogin);
-    const playgroundOrchestrator = connectors.simulator
+  const publicReadConnector = createPublicReadOnlyConnector(config.github.apiUrl, config.github.readToken);
+  const publicOrchestrator = new AuditOrchestrator(
+    config,
+    store,
+    embeddings,
+    spriteManager,
+    publicReadConnector,
+    new TrustedPublisher(createNoopWriteConnector()),
+    auditor,
+    log.child({ module: 'public-url-orchestrator' }),
+  );
+
+  // @spriteguard Q&A for ANY persisted scan (live GitHub PRs and Playground runs)
+  app.post('/api/scans/:id/ask', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const { id } = req.params as { id: string };
+    const body = (req.body ?? {}) as { asker?: string; question?: string };
+    const scan = await store.getScan(id);
+    if (!scan) return reply.code(404).send({ error: 'Scan not found' });
+
+    const question = typeof body.question === 'string' ? body.question.trim() : '';
+    if (!question) return reply.code(400).send({ error: 'question is required' });
+    if (question.length > 2000) return reply.code(400).send({ error: 'question is too long (max 2000 chars)' });
+
+    const patch = await store.getPatch(scan.id);
+    const qVec = await embeddings.embed(question);
+    const relatedIncidents = await store.searchSimilarFindings(scan.repoFullName, qVec, {
+      limit: 5,
+      excludeScanId: scan.id,
+      minSimilarity: 0.25,
+    });
+
+    const answer = await auditor.answerQuestion({
+      scan,
+      report: scan.report,
+      patch,
+      relatedIncidents,
+      question,
+      asker: body.asker?.trim() || 'dashboard-user',
+    });
+
+    return reply.send({
+      ok: true,
+      answer,
+      provider: auditor.provider,
+      model: auditor.model,
+      usedAi: auditor.hasAi,
+    });
+  });
+
+  // On-demand public GitHub PR / repo scanner
+  app.post('/api/github/audit-url', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const body = (req.body ?? {}) as { url?: string };
+    const parsed = parseGitHubPrUrl(typeof body.url === 'string' ? body.url : '');
+    if (!parsed) {
+      return reply.code(400).send({
+        error: 'Enter a valid GitHub PR URL (https://github.com/owner/repo/pull/123) or repository (owner/repo).',
+      });
+    }
+
+    const gh = new Octokit({
+      ...(config.github.readToken ? { auth: config.github.readToken } : {}),
+      baseUrl: config.github.apiUrl,
+      userAgent: 'spriteguard',
+    });
+
+    try {
+      let prNumber = parsed.prNumber;
+      if (prNumber === undefined) {
+        const { data: openPrs } = await gh.pulls.list({
+          owner: parsed.owner,
+          repo: parsed.repo,
+          state: 'open',
+          sort: 'updated',
+          direction: 'desc',
+          per_page: 1,
+        });
+        const latest = openPrs[0];
+        if (!latest) {
+          return reply.code(404).send({ error: `No open pull requests found in ${parsed.repoFullName}.` });
+        }
+        prNumber = latest.number;
+      }
+
+      const scan = await publicOrchestrator.runPullRequestAudit(parsed.repoFullName, prNumber);
+      const patch = await store.getPatch(scan.id);
+      return reply.code(201).send({ scan, patch });
+    } catch (err) {
+      const status =
+        typeof err === 'object' && err !== null && 'status' in err ? Number((err as { status: unknown }).status) : undefined;
+      const msg = err instanceof Error ? err.message : String(err);
+      if (status === 404) {
+        return reply.code(404).send({ error: `GitHub repository or pull request not found (or private): ${parsed.repoFullName}` });
+      }
+      if (status === 403 || status === 429) {
+        return reply.code(429).send({ error: `GitHub API rate limit or access denied: ${msg}` });
+      }
+      return reply.code(502).send({ error: `Failed to audit GitHub PR: ${msg}` });
+    }
+  });
+
+  const simInstance = playgroundEnabled ? (connectors.simulator ?? new LocalGitHubSimulator(config.github.botLogin)) : null;
+  const playgroundOrchestratorInstance = simInstance
+    ? connectors.simulator
       ? orchestrator
       : new AuditOrchestrator(
           config,
           store,
           embeddings,
           spriteManager,
-          new LocalReadOnlyConnector(sim),
-          new TrustedPublisher(new LocalWriteConnector(sim)),
+          new LocalReadOnlyConnector(simInstance),
+          new TrustedPublisher(new LocalWriteConnector(simInstance)),
           auditor,
           log.child({ module: 'playground-orchestrator' }),
-        );
+        )
+    : null;
+
+  app.post('/api/scans/:id/rescan', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const { id } = req.params as { id: string };
+    const existing = await store.getScan(id);
+    if (!existing) return reply.code(404).send({ error: 'Scan not found' });
+
+    if (simInstance && playgroundOrchestratorInstance) {
+      let inSim = false;
+      try {
+        simInstance.getPullRequest(existing.repoFullName, existing.prNumber);
+        inSim = true;
+      } catch {
+        inSim = false;
+      }
+      if (inSim) {
+        const scan = await playgroundOrchestratorInstance.runPullRequestAudit(existing.repoFullName, existing.prNumber);
+        const patch = await store.getPatch(scan.id);
+        return reply.code(201).send({ scan, patch });
+      }
+    }
+
+    if (connectors.read.mode !== 'local') {
+      const queued = orchestrator.enqueuePullRequestAudit(existing.repoFullName, existing.prNumber);
+      return reply.code(202).send({
+        queued: queued.accepted,
+        repoFullName: existing.repoFullName,
+        prNumber: existing.prNumber,
+      });
+    }
+
+    const scan = await publicOrchestrator.runPullRequestAudit(existing.repoFullName, existing.prNumber);
+    const patch = await store.getPatch(scan.id);
+    return reply.code(201).send({ scan, patch });
+  });
+
+  // Local Sandbox / Public Playground interactive endpoints
+  if (playgroundEnabled && simInstance && playgroundOrchestratorInstance) {
+    const sim = simInstance;
+    const playgroundOrchestrator = playgroundOrchestratorInstance;
 
     app.post('/api/demo/trigger', async (req, reply) => {
       if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
