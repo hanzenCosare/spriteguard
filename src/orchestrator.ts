@@ -99,6 +99,7 @@ export interface ApprovalOutcome {
 export interface QuestionOutcome {
   ok: boolean;
   answer?: string;
+  usedAi?: boolean;
   commentId?: number;
   reason?: string;
 }
@@ -787,7 +788,7 @@ export class AuditOrchestrator {
       minSimilarity: 0.25,
     });
 
-    const answer = await this.auditor.answerQuestion({
+    const { answer, usedAi } = await this.auditor.answerQuestion({
       scan,
       report: scan.report,
       patch,
@@ -801,7 +802,7 @@ export class AuditOrchestrator {
     if (commentId) {
       await this.publisher.addReaction(repoFullName, commentId, '+1').catch(() => {});
     }
-    return { ok: true, answer, commentId: postedId };
+    return { ok: true, answer, usedAi, commentId: postedId };
   }
 
   async handlePullRequestClosed(repoFullName: string, prNumber: number): Promise<void> {

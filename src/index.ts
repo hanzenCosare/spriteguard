@@ -24,7 +24,7 @@ import { createSpriteManager, type SpriteManager } from './fly/spriteManager.js'
 import { WebhookHandler } from './github/webhookHandler.js';
 import { createLogger, type Logger } from './logger.js';
 import { AuditOrchestrator, TrustedPublisher } from './orchestrator.js';
-import { OpusAuditor } from './scanner/opusAuditor.js';
+import { MAX_QA_QUESTION_CHARS, OpusAuditor } from './scanner/opusAuditor.js';
 import type { CommitPatch, PatchRecord, PrContext, ScanRecord, ScanStatus } from './types.js';
 
 declare module 'fastify' {
@@ -384,9 +384,37 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     log.child({ module: 'public-url-orchestrator' }),
   );
 
+  // Lightweight per-IP sliding-window rate limiter for @spriteguard Q&A endpoints (20 req/min)
+  const QA_RATE_LIMIT_MAX = 20;
+  const QA_RATE_LIMIT_WINDOW_MS = 60_000;
+  const qaRateBuckets = new Map<string, number[]>();
+
+  function checkQaRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const cutoff = now - QA_RATE_LIMIT_WINDOW_MS;
+    const recent = (qaRateBuckets.get(ip) ?? []).filter((ts) => ts > cutoff);
+    if (recent.length >= QA_RATE_LIMIT_MAX) {
+      qaRateBuckets.set(ip, recent);
+      return false;
+    }
+    recent.push(now);
+    qaRateBuckets.set(ip, recent);
+    if (qaRateBuckets.size > 1000) {
+      for (const [key, timestamps] of qaRateBuckets) {
+        if (timestamps.every((ts) => ts <= cutoff)) qaRateBuckets.delete(key);
+      }
+    }
+    return true;
+  }
+
   // @spriteguard Q&A for ANY persisted scan (live GitHub PRs and Playground runs)
   app.post('/api/scans/:id/ask', async (req, reply) => {
     if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    if (!checkQaRateLimit(req.ip)) {
+      return reply.code(429).send({
+        error: 'Too many Q&A requests (limit 20 per minute). Please wait a moment and try again.',
+      });
+    }
     const { id } = req.params as { id: string };
     const body = (req.body ?? {}) as { asker?: string; question?: string };
     const scan = await store.getScan(id);
@@ -394,7 +422,9 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
 
     const question = typeof body.question === 'string' ? body.question.trim() : '';
     if (!question) return reply.code(400).send({ error: 'question is required' });
-    if (question.length > 2000) return reply.code(400).send({ error: 'question is too long (max 2000 chars)' });
+    if (question.length > MAX_QA_QUESTION_CHARS) {
+      return reply.code(400).send({ error: `question is too long (max ${MAX_QA_QUESTION_CHARS} chars)` });
+    }
 
     const patch = await store.getPatch(scan.id);
     const qVec = await embeddings.embed(question);
@@ -404,7 +434,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       minSimilarity: 0.25,
     });
 
-    const answer = await auditor.answerQuestion({
+    const { answer, usedAi } = await auditor.answerQuestion({
       scan,
       report: scan.report,
       patch,
@@ -418,7 +448,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       answer,
       provider: auditor.provider,
       model: auditor.model,
-      usedAi: auditor.hasAi,
+      usedAi,
     });
   });
 
@@ -674,12 +704,20 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
 
     app.post('/api/demo/scans/:id/ask', async (req, reply) => {
       if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+      if (!checkQaRateLimit(req.ip)) {
+        return reply.code(429).send({
+          error: 'Too many Q&A requests (limit 20 per minute). Please wait a moment and try again.',
+        });
+      }
       const { id } = req.params as { id: string };
       const body = (req.body ?? {}) as { asker?: string; question?: string };
       const scan = await store.getScan(id);
       if (!scan) return reply.code(404).send({ error: 'Scan not found' });
-      const question = body.question?.trim();
+      const question = typeof body.question === 'string' ? body.question.trim() : '';
       if (!question) return reply.code(400).send({ error: 'question is required' });
+      if (question.length > MAX_QA_QUESTION_CHARS) {
+        return reply.code(400).send({ error: `question is too long (max ${MAX_QA_QUESTION_CHARS} chars)` });
+      }
       const outcome = await playgroundOrchestrator.handleQuestion(
         scan.repoFullName,
         scan.prNumber,

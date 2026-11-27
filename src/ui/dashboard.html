@@ -4023,7 +4023,7 @@
             const prov = m.a
               ? m.usedAi
                 ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
-                : 'Answered by deterministic analyzer grounded in this scan'
+                : 'Answered by deterministic fallback'
               : 'Reading the audit…';
             const cleanAnswer = m.a ? cleanDashboardReply(m.a) : '';
             return `<div class="me">${esc(m.q)}</div>
@@ -4037,7 +4037,7 @@
             .map((qText) => `<button type="button" data-ask="${esc(qText)}" ${isAsking ? 'disabled' : ''}>${esc(qText)}</button>`)
             .join('')}</div>
           <form class="af" id="af">
-            <input id="qi" name="q" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
+            <input id="qi" name="q" maxlength="500" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
             <button type="submit" class="btn ai" ${isAsking ? 'disabled aria-busy="true"' : ''}>${
               isAsking ? 'Querying SpriteGuard…' : 'Ask'
             }</button>
