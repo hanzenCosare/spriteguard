@@ -2322,6 +2322,12 @@
         credTime: {},
         palIdx: 0,
         palItems: [],
+        lastDetailSig: null,
+        lastDetailScanId: null,
+        lastDetailTab: null,
+        lastSrcSegHtml: null,
+        lastSegHtml: null,
+        lastRowsHtml: null,
       };
 
       function authHeaders() {
@@ -2619,12 +2625,12 @@
         $('#gs').hidden = pref === '0' || (steps.every((s) => s[1] !== 0) && pref !== '1');
       }
 
-      function renderList() {
+      function renderList(opts = {}) {
         const allCount = state.scans.length;
         const liveCount = state.scans.filter((s) => !isPlaygroundScan(s)).length;
         const pgCount = state.scans.filter((s) => isPlaygroundScan(s)).length;
 
-        $('#src-seg').innerHTML = [
+        const srcSegHtml = [
           ['all', 'All Sources', allCount],
           ['live', 'Live GitHub', liveCount],
           ['playground', 'Playground', pgCount],
@@ -2634,14 +2640,22 @@
               `<button type="button" aria-pressed="${k === state.sourceFilter}" data-src="${k}">${l}<i>${cnt}</i></button>`,
           )
           .join('');
+        if (!opts.background || srcSegHtml !== state.lastSrcSegHtml) {
+          $('#src-seg').innerHTML = srcSegHtml;
+          state.lastSrcSegHtml = srcSegHtml;
+        }
 
         const srcScans = sourceFilteredScans();
-        $('#seg').innerHTML = Object.entries(FL)
+        const segHtml = Object.entries(FL)
           .map(
             ([k, [l, fn]]) =>
               `<button type="button" aria-pressed="${k === state.statusFilter}" data-f="${k}">${l}<i>${srcScans.filter(fn).length}</i></button>`,
           )
           .join('');
+        if (!opts.background || segHtml !== state.lastSegHtml) {
+          $('#seg').innerHTML = segHtml;
+          state.lastSegHtml = segHtml;
+        }
 
         const rowHtml = (d) => {
           const score = d.riskScore ?? 0;
@@ -2668,11 +2682,21 @@
         const vis = visibleScans();
         const attn = vis.filter(needsAttention);
         const rest = vis.filter((d) => !needsAttention(d));
-        $('#rows').innerHTML =
+        const rowsHtml =
           (attn.length ? `<div class="gl" style="border:0">Needs your attention</div>` + attn.map(rowHtml).join('') : '') +
             (rest.length
               ? `<div class="gl">${attn.length ? 'Earlier audits' : 'Audits'}</div>` + rest.map(rowHtml).join('')
               : '') || `<div class="emp">No audits match this filter.</div>`;
+
+        const rowsEl = $('#rows');
+        if (!opts.background || rowsHtml !== state.lastRowsHtml) {
+          const prevRowsScrollTop = rowsEl.scrollTop;
+          const prevCardScrollTop = rowsEl.parentElement ? rowsEl.parentElement.scrollTop : 0;
+          rowsEl.innerHTML = rowsHtml;
+          rowsEl.scrollTop = prevRowsScrollTop;
+          if (rowsEl.parentElement) rowsEl.parentElement.scrollTop = prevCardScrollTop;
+          state.lastRowsHtml = rowsHtml;
+        }
       }
 
       /* Markdown Rendering (XSS-safe for both @spriteguard Q&A and PR Report Preview) */
@@ -3060,13 +3084,71 @@
           .join('')}</ol>`;
       }
 
-      function renderDetail() {
+      function serializeDetailState(d) {
+        if (!d) return 'null';
+        const cached = state.detailsCache[d.id];
+        const patch = d.patch || (cached && cached.patch) || null;
+        const findings = getFindings(d);
+        const credPrefix = `${d.id}:`;
+        const credEntries = Object.entries(state.credState)
+          .filter(([k]) => k.startsWith(credPrefix))
+          .sort(([a], [b]) => a.localeCompare(b));
+        return JSON.stringify({
+          id: d.id,
+          tab: state.tab,
+          status: d.status,
+          riskScore: d.riskScore,
+          findingsCount: d.findingsCount,
+          secretsCount: d.secretsCount,
+          flaggedEgressCount: d.flaggedEgressCount,
+          error: d.error || null,
+          headSha: d.headSha || null,
+          prTitle: d.prTitle || null,
+          findings,
+          staticLeaks: (d.report && d.report.staticLeaks) || null,
+          egressSkipped: (d.report && d.report.egress && d.report.egress.skipped) || null,
+          egressDomains: d.egressDomains || [],
+          patch,
+          reportMarkdown: d.reportMarkdown || '',
+          sprite: {
+            name: d.spriteName || null,
+            state: d.spriteState || 'none',
+            checkpointId: d.checkpointId || null,
+          },
+          approving: Boolean(state.approving[d.id]),
+          rescanning: Boolean(state.rescanning[d.id]),
+          asking: Boolean(state.qaLoading[d.id]),
+          threads: state.threads[d.id] || [],
+          credEntries,
+          hasCachedRaw: state.tab === 'r' ? Boolean(cached) : false,
+        });
+      }
+
+      function renderDetail(opts = {}) {
         const d = selectedScan();
         const el = $('#detail');
         if (!d) {
+          if (opts.background && state.lastDetailSig === 'null') return;
+          state.lastDetailSig = 'null';
+          state.lastDetailScanId = null;
+          state.lastDetailTab = null;
           el.innerHTML = `<div class="emp">Select an audit from the feed, or run a demo / public GitHub PR scan above.</div>`;
           return;
         }
+
+        const nextSig = serializeDetailState(d);
+        if (opts.background && state.lastDetailSig === nextSig) return;
+
+        const sameView = state.lastDetailScanId === d.id && state.lastDetailTab === state.tab;
+        const prevPane = el.querySelector('.pane');
+        const prevDiff = el.querySelector('.diff');
+        const prevTh = el.querySelector('#th');
+        const paneScrollTop = sameView && prevPane ? prevPane.scrollTop : 0;
+        const paneScrollLeft = sameView && prevPane ? prevPane.scrollLeft : 0;
+        const diffScrollTop = sameView && prevDiff ? prevDiff.scrollTop : 0;
+        const diffScrollLeft = sameView && prevDiff ? prevDiff.scrollLeft : 0;
+        const thScrollTop = sameView && prevTh ? prevTh.scrollTop : 0;
+        const thWasAtBottom = prevTh ? prevTh.scrollHeight - prevTh.scrollTop - prevTh.clientHeight <= 8 : true;
 
         const cached = state.detailsCache[d.id];
         const patch = d.patch || (cached && cached.patch) || null;
@@ -3276,11 +3358,29 @@
         </div>`;
 
         el.innerHTML = h;
+        state.lastDetailSig = nextSig;
+        state.lastDetailScanId = d.id;
+        state.lastDetailTab = state.tab;
+
+        if (sameView) {
+          const nextPane = el.querySelector('.pane');
+          if (nextPane) {
+            nextPane.scrollTop = paneScrollTop;
+            nextPane.scrollLeft = paneScrollLeft;
+          }
+          const nextDiff = el.querySelector('.diff');
+          if (nextDiff) {
+            nextDiff.scrollTop = diffScrollTop;
+            nextDiff.scrollLeft = diffScrollLeft;
+          }
+        }
         const th = $('#th');
-        if (th) th.scrollTop = th.scrollHeight;
+        if (th) {
+          th.scrollTop = opts.scrollThreadToBottom || !sameView || thWasAtBottom ? th.scrollHeight : thScrollTop;
+        }
       }
 
-      function renderAll() {
+      function renderAll(opts = {}) {
         const activeEl = document.activeElement;
         const wasAsking = activeEl && activeEl.id === 'qi';
         const selStart = wasAsking ? activeEl.selectionStart : null;
@@ -3288,8 +3388,8 @@
 
         renderGettingStarted();
         renderStats();
-        renderList();
-        renderDetail();
+        renderList(opts);
+        renderDetail(opts);
 
         if (wasAsking) {
           const qi = $('#qi');
@@ -3468,7 +3568,7 @@
             state.selId = (vis[0] || state.scans[0] || {}).id || null;
           }
 
-          renderAll();
+          renderAll({ background: !force });
         } catch (err) {
           renderHealthUI();
         }
@@ -3689,7 +3789,7 @@
         (state.threads[d.id] = state.threads[d.id] || []).push(entry);
         state.qaLoading[d.id] = true;
         state.qaDrafts[d.id] = '';
-        renderDetail();
+        renderDetail({ scrollThreadToBottom: true });
 
         try {
           const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/ask', {
@@ -3707,7 +3807,7 @@
           entry.a = `Error: ${err.message}`;
         } finally {
           delete state.qaLoading[d.id];
-          renderDetail();
+          renderDetail({ scrollThreadToBottom: true });
         }
       }
 
