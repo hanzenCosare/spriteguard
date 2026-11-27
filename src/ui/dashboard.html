@@ -190,6 +190,12 @@
       .live .dot {
         animation: pulse 2s infinite;
       }
+      #live[aria-pressed='false'] {
+        color: var(--mu);
+      }
+      #theme-btn svg {
+        flex-shrink: 0;
+      }
       @keyframes pulse {
         50% {
           opacity: 0.3;
@@ -210,11 +216,11 @@
         transition: background 0.15s, border-color 0.15s, transform 0.05s, filter 0.15s;
         white-space: nowrap;
       }
-      .btn:hover {
+      .btn:hover:not(:disabled) {
         background: var(--sb);
         border-color: color-mix(in srgb, var(--tx) 24%, var(--ln));
       }
-      .btn:active {
+      .btn:active:not(:disabled) {
         transform: translateY(1px);
       }
       .btn:disabled {
@@ -227,7 +233,7 @@
         border-color: var(--ac);
         color: var(--on);
       }
-      .btn.pri:hover {
+      .btn.pri:hover:not(:disabled) {
         filter: brightness(1.08);
       }
       .btn.ai {
@@ -235,7 +241,7 @@
         border-color: var(--ai);
         color: var(--on);
       }
-      .btn.ai:hover {
+      .btn.ai:hover:not(:disabled) {
         filter: brightness(1.08);
       }
       .btn[aria-busy='true']::before {
@@ -364,10 +370,18 @@
         min-height: 26px;
         transition: background 0.15s, color 0.15s;
       }
-      .seg button[aria-pressed='true'] {
+      .seg button:hover:not([aria-pressed='true']):not([aria-selected='true']):not(:disabled) {
+        color: var(--tx);
+      }
+      .seg button[aria-pressed='true'],
+      .seg button[aria-selected='true'] {
         background: var(--pn);
         color: var(--tx);
         box-shadow: 0 0 0 1px var(--ln);
+      }
+      .seg button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .seg i {
         font-style: normal;
@@ -400,6 +414,16 @@
         padding: 0 10px;
         font: inherit;
         font-size: 13px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .sel select:focus {
+        outline: 0;
+        border-color: var(--ac);
+        box-shadow: 0 0 0 3px var(--ar);
+      }
+      .sel select:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .demo .btn.pri {
         min-height: 36px;
@@ -424,15 +448,29 @@
       }
       .preset-chip {
         font-size: 12px;
+        font-weight: 500;
         border: 1px solid var(--ln);
         background: var(--sb);
         border-radius: 99px;
-        padding: 3px 10px;
+        padding: 4px 11px;
         color: var(--mu);
+        transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.05s;
       }
-      .preset-chip:hover {
+      .preset-chip:hover:not(:disabled) {
         color: var(--tx);
+        border-color: color-mix(in srgb, var(--tx) 28%, var(--ln));
+      }
+      .preset-chip:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      .preset-chip[aria-pressed='true'] {
         border-color: var(--ac);
+        background: var(--ar);
+        color: var(--tx);
+      }
+      .preset-chip:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .custom-fields {
         display: grid;
@@ -448,11 +486,18 @@
         color: var(--tx);
         font: inherit;
         font-size: 13px;
+        transition: border-color 0.15s, box-shadow 0.15s;
       }
       .inp:focus,
       .code-ta:focus {
         outline: 0;
         border-color: var(--ac);
+        box-shadow: 0 0 0 3px var(--ar);
+      }
+      .inp:disabled,
+      .code-ta:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .code-ta {
         width: 100%;
@@ -464,13 +509,15 @@
         color: var(--tx);
         font: 12.5px/1.55 var(--m);
         resize: vertical;
+        transition: border-color 0.15s, box-shadow 0.15s;
       }
       .url-strip {
         display: flex;
         gap: 8px;
         align-items: center;
         flex-wrap: wrap;
-        padding-top: 12px;
+        margin: 2px -18px 0;
+        padding: 14px 18px 0;
         border-top: 1px solid var(--ln);
       }
       .url-strip label {
@@ -568,6 +615,11 @@
       .q:focus {
         outline: 0;
         border-color: var(--ac);
+        box-shadow: 0 0 0 3px var(--ar);
+      }
+      .q:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .gl {
         padding: 10px 14px 4px;
@@ -803,9 +855,13 @@
       .tabs button:hover {
         color: var(--tx);
       }
+      .tabs button:focus-visible {
+        outline-offset: -2px;
+      }
       .tabs button[aria-selected='true'] {
         color: var(--tx);
         border-color: var(--ac);
+        font-weight: 500;
       }
       .pane {
         padding: 16px 20px;
@@ -882,6 +938,13 @@
         cursor: pointer;
         list-style: none;
         align-items: center;
+        transition: background 0.15s;
+      }
+      details.f summary:hover {
+        background: var(--sb);
+      }
+      details.f summary:focus-visible {
+        outline-offset: -2px;
       }
       details.f summary::-webkit-details-marker {
         display: none;
@@ -974,6 +1037,12 @@
         cursor: pointer;
         color: var(--mu);
         font-size: 12.5px;
+      }
+      .adv summary:hover {
+        color: var(--tx);
+      }
+      .adv summary:focus-visible {
+        border-radius: 4px;
       }
       .adv dl {
         display: grid;
@@ -1273,6 +1342,12 @@
         cursor: pointer;
         font-weight: 500;
       }
+      .gh-details summary:hover {
+        color: var(--tx);
+      }
+      .gh-details summary:focus-visible {
+        border-radius: 4px;
+      }
       .gh-details[open] summary {
         margin-bottom: 8px;
       }
@@ -1367,10 +1442,18 @@
         border-radius: 99px;
         padding: 2px 10px;
         color: var(--mu);
-        transition: color 0.15s, border-color 0.15s;
+        transition: color 0.15s, border-color 0.15s, transform 0.05s;
       }
-      .chips button:hover {
+      .chips button:hover:not(:disabled) {
         color: var(--tx);
+        border-color: color-mix(in srgb, var(--ai) 50%, var(--ln));
+      }
+      .chips button:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      .chips button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
       .af {
         display: flex;
@@ -1387,13 +1470,22 @@
         padding: 0 11px;
         color: var(--tx);
         font: inherit;
+        transition: border-color 0.15s, box-shadow 0.15s;
       }
       .af input:focus {
         outline: 0;
         border-color: var(--ai);
+        box-shadow: 0 0 0 3px var(--ais);
       }
       .af input[aria-invalid='true'] {
         border-color: var(--cr);
+      }
+      .af input[aria-invalid='true']:focus {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--cr) 18%, transparent);
+      }
+      .af input:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
 
       /* Footer & Modals */
@@ -1521,6 +1613,10 @@
         border-radius: 6px;
         cursor: pointer;
         font-size: 13.5px;
+        transition: background 0.12s;
+      }
+      #pk li:hover:not([aria-selected='true']) {
+        background: var(--sb);
       }
       #pk li span {
         min-width: 0;
@@ -1534,6 +1630,7 @@
       }
       #pk li[aria-selected='true'] {
         background: var(--ar);
+        box-shadow: inset 2px 0 var(--ac);
       }
       .hl {
         list-style: none;
@@ -1648,8 +1745,9 @@
           min-height: 40px;
         }
         .seg button,
-        .chips button {
-          min-height: 34px;
+        .chips button,
+        .preset-chip {
+          min-height: 36px;
         }
         .af input {
           height: 40px;
@@ -1872,17 +1970,23 @@
             </g>
           </svg>
           SpriteGuard
-          <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting</span></span>
+          <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting…</span></span>
         </div>
         <div class="grow"></div>
         <button class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
           <i class="dot"></i><span>Live</span>
         </button>
-        <button class="btn" id="cbtn">Connect repo</button>
+        <button class="btn" id="cbtn">Connect Repo</button>
         <button class="btn" id="kbtn" title="Search audits and run actions (Ctrl or ⌘ K)">
           Search <kbd>⌘K</kbd>
         </button>
-        <button class="btn" id="theme-btn" title="Toggle Light / Dark theme" aria-label="Toggle theme">Dark</button>
+        <button class="btn" id="theme-btn" title="Switch to light mode" aria-label="Switch to light mode">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+          <span>Light mode</span>
+        </button>
       </header>
     </div>
 
@@ -1904,8 +2008,8 @@
             <p id="scnd">Run an isolated Sprite audit against demo fixtures, custom code, or any public GitHub PR.</p>
           </div>
           <div class="seg" id="pg-tabs" role="tablist" aria-label="Playground mode">
-            <button type="button" role="tab" aria-pressed="true" data-pg-tab="fixtures">Demo Fixtures</button>
-            <button type="button" role="tab" aria-pressed="false" data-pg-tab="custom">Audit Custom Code / Diff</button>
+            <button type="button" role="tab" aria-selected="true" aria-controls="pg-fixtures" data-pg-tab="fixtures">Demo Fixtures</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="custom-form" data-pg-tab="custom">Audit Custom Code / Diff</button>
           </div>
         </div>
 
@@ -1922,24 +2026,24 @@
               <option value="clean">Clean PR: no expected findings</option>
             </select>
           </label>
-          <button class="btn pri" id="demo-btn">Run demo audit</button>
+          <button class="btn pri" id="demo-btn">Run Demo Audit</button>
         </div>
 
         <form class="custom-pane" id="custom-form" hidden>
           <div class="preset-row">
             <span>Attack presets:</span>
-            <button type="button" class="preset-chip" data-preset="leaked-keys">Leaked Cloud Keys</button>
-            <button type="button" class="preset-chip" data-preset="malicious-egress">Malicious Install Egress</button>
-            <button type="button" class="preset-chip" data-preset="cmd-injection">Command Injection</button>
+            <button type="button" class="preset-chip" aria-pressed="false" data-preset="leaked-keys">Leaked Cloud Keys</button>
+            <button type="button" class="preset-chip" aria-pressed="false" data-preset="malicious-egress">Malicious Install Egress</button>
+            <button type="button" class="preset-chip" aria-pressed="false" data-preset="cmd-injection">Command Injection</button>
           </div>
           <div class="custom-fields">
             <input class="inp" id="custom-title" type="text" placeholder="PR title" value="feat(cloud): add storage client config" />
             <input class="inp mono" id="custom-file" type="text" placeholder="src/config.mjs" value="src/config.mjs" />
           </div>
-          <textarea class="code-ta" id="custom-code" placeholder="Paste code, .env content, or a unified git diff to audit inside an isolated Sprite..."></textarea>
+          <textarea class="code-ta" id="custom-code" placeholder="Paste code, .env content, or a unified git diff to audit inside an isolated Sprite…"></textarea>
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--mu)">Executes the full 3-layer audit + patch verifier on a synthetic PR via LocalGitHubSimulator.</span>
-            <button type="submit" class="btn pri" id="custom-btn">Run zero-trust audit</button>
+            <button type="submit" class="btn pri" id="custom-btn">Run Zero-Trust Audit</button>
           </div>
         </form>
 
@@ -1996,7 +2100,7 @@
         </div>
         <div class="dgb">
           <button class="btn" value="x">Cancel</button>
-          <button class="btn pri" id="dlg-ok" value="ok">Approve and push</button>
+          <button class="btn pri" id="dlg-ok" value="ok">Approve and Push</button>
         </div>
       </form>
     </dialog>
@@ -2046,7 +2150,7 @@
         <textarea id="fpt" readonly aria-label="Fix prompt"></textarea>
         <div class="dgb">
           <button type="button" class="btn" data-close>Close</button>
-          <button type="button" class="btn pri" id="fpc">Copy prompt</button>
+          <button type="button" class="btn pri" id="fpc">Copy Prompt</button>
         </div>
       </div>
     </dialog>
@@ -2077,7 +2181,7 @@
         <ul id="hl" class="hl"></ul>
         <div class="dgb">
           <button type="button" class="btn" data-close>Close</button>
-          <button type="button" class="btn pri" id="hchk">Check now</button>
+          <button type="button" class="btn pri" id="hchk">Check Now</button>
         </div>
       </div>
     </dialog>
@@ -2118,7 +2222,7 @@
 
       const FL = {
         all: ['All', () => true],
-        rev: ['Needs review', (d) => d.status === 'awaiting_approval' || d.status === 'needs_review' || d.status === 'running' || d.status === 'queued'],
+        rev: ['Needs Review', (d) => d.status === 'awaiting_approval' || d.status === 'needs_review' || d.status === 'running' || d.status === 'queued'],
         ok: ['Clean', (d) => d.status === 'clean' || d.status === 'pushed'],
         bad: ['Failed', (d) => d.status === 'failed' || d.status === 'publish_failed'],
       };
@@ -2207,6 +2311,7 @@
         runningCustom: false,
         runningUrl: false,
         pgTab: 'fixtures',
+        activePreset: null,
         credState: (() => {
           try {
             return JSON.parse(ls('sg-cred') || '{}') || {};
@@ -2257,14 +2362,41 @@
         }, 5000);
       }
 
+      const THEME_ICON_SUN =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+      const THEME_ICON_MOON =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
       function applyTheme(theme) {
         const t = theme === 'light' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', t);
         ls('sg-theme', t);
         const btn = $('#theme-btn');
-        if (btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+        if (btn) {
+          const toLight = t === 'dark';
+          btn.innerHTML = `${toLight ? THEME_ICON_SUN : THEME_ICON_MOON}<span>${toLight ? 'Light mode' : 'Dark mode'}</span>`;
+          const label = toLight ? 'Switch to light mode' : 'Switch to dark mode';
+          btn.title = label;
+          btn.setAttribute('aria-label', label);
+        }
       }
       applyTheme(ls('sg-theme') || 'dark');
+
+      function setActivePreset(presetKey) {
+        state.activePreset = presetKey || null;
+        document.querySelectorAll('.preset-chip').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.preset === state.activePreset));
+        });
+      }
+
+      function applyAttackPreset(presetKey) {
+        const p = ATTACK_PRESETS[presetKey];
+        if (!p) return;
+        $('#custom-title').value = p.title;
+        $('#custom-file').value = p.filename;
+        $('#custom-code').value = p.code;
+        setActivePreset(presetKey);
+      }
 
       const isPlaygroundScan = (scan) => /^(acme|playground|demo)\//i.test(scan.repoFullName || '');
       const needsAttention = (scan) =>
@@ -2430,7 +2562,7 @@
             hasLive
               ? `Audits received from ${repoCount} repositor${repoCount === 1 ? 'y' : 'ies'}.`
               : 'Add the webhook and grant Read and Write split connectors.',
-            hasLive ? '' : 'Connect repo',
+            hasLive ? '' : 'Connect Repo',
             'cn',
           ],
           [
@@ -2525,7 +2657,7 @@
               <div class="rm">
                 <span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
                 <span class="mono">${esc(shortSha)}</span>
-                <span>${isRunning ? 'Scanning' : `${fc} finding${fc === 1 ? '' : 's'}`}</span>
+                <span>${isRunning ? 'Scanning…' : `${fc} finding${fc === 1 ? '' : 's'}`}</span>
                 <span><i class="sp ${esc(d.spriteState || 'none')}"></i>${esc(d.spriteState || 'none')}</span>
               </div>
             </span>
@@ -2831,7 +2963,7 @@
               ${
                 nextCred
                   ? `<button type="button" class="btn" data-rot="${esc(key)}::${esc(nextCred)}">Report ${
-                      nextCred === 'revoked' ? 'revocation' : 'rotation'
+                      nextCred === 'revoked' ? 'Revocation' : 'Rotation'
                     }</button>`
                   : `<small style="color:var(--ok)">Rotated, nothing left to do</small>`
               }
@@ -2861,7 +2993,7 @@
         return (
           qs.map(([a, b]) => `<p><b>${esc(a)}</b> ${esc(b)}</p>`).join('') +
           trackerHtml +
-          `<div style="margin-top:10px"><button type="button" class="btn" data-fp="${esc(scan.id)}::${idx}">Fix prompt for this finding</button></div>` +
+          `<div style="margin-top:10px"><button type="button" class="btn" data-fp="${esc(scan.id)}::${idx}">Fix Prompt for This Finding</button></div>` +
           `<details class="adv"><summary>Technical details</summary><dl>${techRows
             .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`)
             .join('')}</dl></details>`
@@ -2958,7 +3090,7 @@
             <h2>${esc(d.prTitle)}</h2>
           </div>
           <div class="acts">
-            ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt">Fix prompt for whole PR</button>` : ''}
+            ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt">Fix Prompt for Whole PR</button>` : ''}
             ${
               !isRunning
                 ? `<button type="button" class="btn" id="rs-btn" ${isRescanning || isApproving ? 'disabled' : ''}${
@@ -2968,9 +3100,9 @@
             }
             ${
               d.status === 'awaiting_approval'
-                ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving ? 'disabled aria-busy="true"' : ''}>${
-                    isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve patch <kbd>a</kbd>'
-                  }</button>`
+                ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving || isRescanning ? 'disabled' : ''}${
+                    isApproving ? ' aria-busy="true"' : ''
+                  }>${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch <kbd>a</kbd>'}</button>`
                 : ''
             }
           </div>
@@ -2979,7 +3111,7 @@
           <div>
             <span class="l">Risk</span>
             <b>${fin ? gauge(risk, sc) + risk : '–'}</b>
-            <small>${fin ? esc(sl + (crit ? `, ${crit} critical` : '')) : isRunning ? 'Scanning' : 'No result'}</small>
+            <small>${fin ? esc(sl + (crit ? `, ${crit} critical` : '')) : isRunning ? 'Scanning…' : 'No result'}</small>
           </div>
           <div>
             <span class="l">Findings</span>
@@ -3133,7 +3265,7 @@
         h += `<div class="ask">
           <div class="th" id="th">${threadHtml}</div>
           <div class="chips">${['Why was this flagged?', 'Is it exploitable?', 'Why was egress flagged?']
-            .map((qText) => `<button type="button" data-ask="${esc(qText)}">${esc(qText)}</button>`)
+            .map((qText) => `<button type="button" data-ask="${esc(qText)}" ${isAsking ? 'disabled' : ''}>${esc(qText)}</button>`)
             .join('')}</div>
           <form class="af" id="af">
             <input id="qi" name="q" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
@@ -3349,7 +3481,7 @@
         state.runningDemo = true;
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
-        btn.textContent = 'Running audit…';
+        btn.textContent = 'Running Audit…';
         $('#scn').disabled = true;
         try {
           const res = await fetch('/api/demo/trigger', {
@@ -3371,7 +3503,7 @@
           state.runningDemo = false;
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
-          btn.textContent = 'Run demo audit';
+          btn.textContent = 'Run Demo Audit';
           $('#scn').disabled = false;
         }
       }
@@ -3387,10 +3519,14 @@
           return;
         }
         const btn = $('#custom-btn');
+        const fields = [$('#custom-title'), $('#custom-file'), $('#custom-code'), ...document.querySelectorAll('.preset-chip')];
         state.runningCustom = true;
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
         btn.textContent = 'Auditing…';
+        fields.forEach((el) => {
+          if (el) el.disabled = true;
+        });
         try {
           const res = await fetch('/api/demo/custom', {
             method: 'POST',
@@ -3411,7 +3547,10 @@
           state.runningCustom = false;
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
-          btn.textContent = 'Run zero-trust audit';
+          btn.textContent = 'Run Zero-Trust Audit';
+          fields.forEach((el) => {
+            if (el) el.disabled = false;
+          });
         }
       }
 
@@ -3425,10 +3564,12 @@
           return;
         }
         const btn = $('#url-btn');
+        const inp = $('#gh-url');
         state.runningUrl = true;
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
         btn.textContent = 'Scanning…';
+        inp.disabled = true;
         try {
           const res = await fetch('/api/github/audit-url', {
             method: 'POST',
@@ -3449,6 +3590,7 @@
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
           btn.textContent = 'Scan PR';
+          inp.disabled = false;
         }
       }
 
@@ -3460,7 +3602,7 @@
         if (isDemo) {
           $('#dmsg').textContent = `This will wake Sprite ${d.spriteName || ''}, verify the diff SHA-256, and commit the patch to ${d.repoFullName}#${d.prNumber}. Keys in earlier git history must still be rotated.`;
           $('#dlg-cmd-box').hidden = true;
-          $('#dlg-ok').textContent = 'Approve and push';
+          $('#dlg-ok').textContent = 'Approve and Push';
           $('#dlg-ok').dataset.mode = 'demo';
         } else {
           $('#dmsg').textContent = `For zero-trust split-connector safety, production PR approvals are triggered directly by repository maintainers commenting on ${d.repoFullName}#${d.prNumber}. Copy and post this command on the PR:`;
@@ -3628,13 +3770,13 @@
       function buildPaletteItems() {
         const query = ($('#pq').value || '').toLowerCase();
         const actions = [
-          ...(state.playgroundEnabled ? [['Run demo audit', 'Playground', runDemoAudit]] : []),
-          ['Connect a repository', 'Setup', openConnectModal],
-          ['Copy fix prompt for selected audit', 'Selected audit', () => state.selId && openFixPrompt(state.selId, 'all')],
-          ['Check system health', 'Diagnostics', () => { renderHealthUI(); $('#hd').showModal(); }],
-          ['Show getting started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
-          ['Filter: Needs review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
-          ['Filter: All audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); renderList(); }],
+          ...(state.playgroundEnabled ? [['Run Demo Audit', 'Playground', runDemoAudit]] : []),
+          ['Connect Repo', 'Setup', openConnectModal],
+          ['Copy Fix Prompt for Selected Audit', 'Selected audit', () => state.selId && openFixPrompt(state.selId, 'all')],
+          ['Check System Health', 'Diagnostics', () => { renderHealthUI(); $('#hd').showModal(); }],
+          ['Show Getting Started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
+          ['Filter: Needs Review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
+          ['Filter: All Audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); renderList(); }],
         ]
           .filter(([title]) => title.toLowerCase().includes(query))
           .map(([t, h, f]) => ({ t, h, f }));
@@ -3756,17 +3898,12 @@
         } else if (t.dataset.pgTab) {
           state.pgTab = t.dataset.pgTab;
           document.querySelectorAll('#pg-tabs button').forEach((b) => {
-            b.setAttribute('aria-pressed', String(b.dataset.pgTab === state.pgTab));
+            b.setAttribute('aria-selected', String(b.dataset.pgTab === state.pgTab));
           });
           $('#pg-fixtures').hidden = state.pgTab !== 'fixtures';
           $('#custom-form').hidden = state.pgTab !== 'custom';
         } else if (t.dataset.preset) {
-          const p = ATTACK_PRESETS[t.dataset.preset];
-          if (p) {
-            $('#custom-title').value = p.title;
-            $('#custom-file').value = p.filename;
-            $('#custom-code').value = p.code;
-          }
+          applyAttackPreset(t.dataset.preset);
         } else if (t.id === 'ap-btn') {
           promptApprove();
         } else if (t.id === 'rs-btn') {
@@ -3822,6 +3959,8 @@
           e.target.removeAttribute('aria-invalid');
           const d = selectedScan();
           if (d) state.qaDrafts[d.id] = e.target.value;
+        } else if (e.target.id === 'custom-title' || e.target.id === 'custom-file' || e.target.id === 'custom-code') {
+          if (state.activePreset) setActivePreset(null);
         }
       });
 
@@ -3874,7 +4013,20 @@
         $('#hd').showModal();
         refreshAll(true);
       });
-      $('#hchk').addEventListener('click', () => refreshAll(true));
+      $('#hchk').addEventListener('click', async () => {
+        const btn = $('#hchk');
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = 'Checking…';
+        try {
+          await refreshAll(true);
+        } finally {
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          btn.textContent = 'Check Now';
+        }
+      });
       $('#fpc').addEventListener('click', async () => {
         const ta = $('#fpt');
         try {
@@ -3936,12 +4088,7 @@
         }
       });
 
-      {
-        const p = ATTACK_PRESETS['leaked-keys'];
-        $('#custom-title').value = p.title;
-        $('#custom-file').value = p.filename;
-        $('#custom-code').value = p.code;
-      }
+      applyAttackPreset('leaked-keys');
 
       setupPolling();
       refreshAll(true);
