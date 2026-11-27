@@ -2762,6 +2762,21 @@
           flex: none;
         }
       }
+      .stats b,
+      .stats small,
+      .rk b,
+      .meta-item b,
+      .rm-time,
+      .run-pill,
+      .cb b,
+      .qa-count,
+      .seg i,
+      .fl,
+      .hero-tl-head span,
+      .mono,
+      #hm {
+        font-variant-numeric: tabular-nums;
+      }
       @media (prefers-reduced-motion: reduce) {
         *,
         ::view-transition-old(root),
@@ -3404,9 +3419,9 @@
         return scan;
       }
 
-      function formatRelativeTime(iso) {
-        if (!iso) return '';
-        const ms = Date.parse(iso);
+      function timeAgo(isoString) {
+        if (!isoString) return '';
+        const ms = Date.parse(isoString);
         if (!Number.isFinite(ms)) return '';
         const diffSec = Math.max(0, Math.floor((Date.now() - ms) / 1000));
         if (diffSec < 45) return 'Just now';
@@ -3792,7 +3807,7 @@
           const shortSha = (d.headSha || '').slice(0, 7) || '—';
           const fc = Number(d.findingsCount || 0);
           const sp = spriteStateInfo(d.spriteState || 'none');
-          const relTime = formatRelativeTime(d.createdAt);
+          const relTime = timeAgo(d.createdAt);
           const fullTime = d.createdAt ? new Date(d.createdAt).toLocaleString() : '';
           const runInfo = isRunning ? getRunningInfo(d) : null;
           return `<button type="button" class="row" role="option" aria-selected="${d.id === state.selId}" data-id="${esc(d.id)}">
