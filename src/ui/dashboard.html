@@ -7,7 +7,7 @@
     <link
       rel="icon"
       type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='5' fill='%230b1220'/%3E%3Cpath d='M8 4H4v16h4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Cpath d='M16 4h4v16h-4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Crect x='8.5' y='8.5' width='7' height='7' rx='1.5' fill='%232dd4bf'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='5' fill='%230b1220'/%3E%3Cpath d='M8 4H4v16h4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Cpath d='M16 4h4v16h-4' stroke='%23e8eef8' stroke-width='2' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3Cpath d='M10 8.5H12V15.5H10A1.5 1.5 0 0 1 8.5 14V10A1.5 1.5 0 0 1 10 8.5Z' fill='%232dd4bf'/%3E%3Cpath d='M12 8.5H14A1.5 1.5 0 0 1 15.5 10V14A1.5 1.5 0 0 1 14 15.5H12Z' fill='%23334155'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1840,6 +1840,23 @@
         color: var(--mu);
         margin-top: 4px;
         font-size: 12.5px;
+      }
+      .hl .hl-hint {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px dashed var(--ln);
+        font-size: 12px;
+        color: var(--mu);
+        line-height: 1.55;
+      }
+      .hl .hl-hint code {
+        font-family: var(--m);
+        font-size: 11.5px;
+        color: var(--tx);
+        background: var(--sb);
+        border: 1px solid var(--ln);
+        border-radius: 4px;
+        padding: 0 4px;
       }
       .hs {
         font-style: normal;
@@ -4124,10 +4141,13 @@
               : 'Healthy (deterministic fallback active)';
         }
 
+        const aiConfigHint =
+          'Self-hosting: switch models with <code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>, and <code>LLM_API_KEY</code> (Gemini, Claude, OpenRouter, or local Ollama at <code>http://localhost:11434/v1</code>).';
+
         const items = !h
           ? [
               ['Deterministic scanners', 'unknown', 'Backend /health unreachable'],
-              ['AI engine', 'unknown', state.healthError || 'Health endpoint unreachable'],
+              ['AI engine', 'unknown', state.healthError || 'Health endpoint unreachable', aiConfigHint],
               ['Fallback engine', 'unknown', 'Health endpoint unreachable'],
               ['Neon pgvector store', 'unknown', 'Health endpoint unreachable'],
               ['Split GitHub connectors', 'unknown', 'Health endpoint unreachable'],
@@ -4145,6 +4165,7 @@
                 h.aiEnabled
                   ? `Active provider: ${h.provider} (${h.model}).`
                   : `No external LLM key configured (${h.provider}); deterministic fallback is handling audits.`,
+                aiConfigHint,
               ],
               [
                 'Fallback engine',
@@ -4179,9 +4200,11 @@
           : 'Could not reach GET /health. Component statuses shown as unknown.';
 
         $('#hl').innerHTML = items
-          .map(([label, st, detail]) => {
+          .map(([label, st, detail, hintHtml]) => {
             const badge = st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown';
-            return `<li><div><b>${esc(label)}</b><em class="hs ${esc(st)}">${esc(badge)}</em></div><p>${esc(detail)}</p></li>`;
+            return `<li><div><b>${esc(label)}</b><em class="hs ${esc(st)}">${esc(badge)}</em></div><p>${esc(detail)}</p>${
+              hintHtml ? `<p class="hl-hint">${hintHtml}</p>` : ''
+            }</li>`;
           })
           .join('');
       }
