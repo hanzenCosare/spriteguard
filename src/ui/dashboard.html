@@ -291,11 +291,51 @@
         color: var(--on);
       }
       .btn.ai:hover:not(:disabled),
-      .ask .btn:hover:not(:disabled) {
+      .qa-drawer .btn.ai:hover:not(:disabled) {
         background: var(--ai);
         border-color: var(--ai);
         color: var(--on);
         filter: brightness(1.08);
+      }
+      .btn.ai-ghost {
+        border-color: color-mix(in srgb, var(--ai) 45%, var(--ln));
+        background: var(--ais);
+        color: var(--tx);
+      }
+      .btn.ai-ghost:hover:not(:disabled) {
+        border-color: var(--ai);
+        background: color-mix(in srgb, var(--ai) 18%, var(--pn));
+      }
+      .btn.ai-ghost[aria-expanded='true'] {
+        border-color: var(--ai);
+        background: color-mix(in srgb, var(--ai) 22%, var(--pn));
+      }
+      .ai-sq {
+        width: 7px;
+        height: 7px;
+        border-radius: 2px;
+        background: var(--ai);
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .qa-count {
+        font: 500 11px var(--m);
+        padding: 0 5px;
+        border-radius: 99px;
+        background: color-mix(in srgb, var(--ai) 22%, transparent);
+        color: var(--ai);
+      }
+      #ap-btn {
+        min-width: 178px;
+        justify-content: center;
+      }
+      #rs-btn {
+        min-width: 108px;
+        justify-content: center;
+      }
+      #demo-btn {
+        min-width: 144px;
+        justify-content: center;
       }
       .btn.copied {
         border-color: var(--ok);
@@ -849,96 +889,129 @@
         top: 74px;
         display: flex;
         flex-direction: column;
+        height: calc(100dvh - 88px);
         max-height: calc(100dvh - 88px);
       }
       .dt > * {
         flex-shrink: 0;
       }
+      .dt.focus-mode {
+        position: fixed;
+        inset: 16px;
+        top: 16px;
+        z-index: 60;
+        height: auto;
+        max-height: none;
+        border-radius: var(--R);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+      .focus-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 59;
+        background: rgba(2, 6, 15, 0.72);
+        backdrop-filter: blur(3px);
+      }
+      body.focus-open {
+        overflow: hidden;
+      }
       .dh {
-        padding: 14px 18px;
+        padding: 12px 16px;
         display: flex;
-        gap: 14px;
+        gap: 10px 12px;
         justify-content: space-between;
         flex-wrap: wrap;
-        align-items: flex-start;
+        align-items: center;
+      }
+      .dh-title {
+        min-width: 0;
+        flex: 1 1 220px;
       }
       .dh h2 {
-        font-size: 19px;
+        font-size: 16.5px;
         font-weight: 600;
         letter-spacing: -0.015em;
-        line-height: 1.35;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dt.focus-mode .dh h2 {
+        white-space: normal;
       }
       .crumb {
-        font-size: 12.5px;
+        font-size: 12px;
         color: var(--mu);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
       .acts {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
+        align-items: center;
       }
-      .facts {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+      /* Compact Inline Metadata Bar (Risk / Findings / Egress / Sprite) */
+      .meta-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        padding: 7px 16px;
         border-top: 1px solid var(--ln);
-      }
-      .facts > div {
-        padding: 10px 16px;
-        border-left: 1px solid var(--ln);
-      }
-      .facts > div:first-child {
-        border: 0;
-      }
-      .facts .l {
+        background: color-mix(in srgb, var(--sb) 45%, var(--pn));
         font-size: 12px;
-        font-weight: 500;
         color: var(--mu);
       }
-      .facts b {
-        display: flex;
-        gap: 8px;
+      .meta-item {
+        display: inline-flex;
         align-items: center;
+        gap: 5px;
+        min-width: 0;
+        white-space: nowrap;
+      }
+      .meta-item b {
+        color: var(--tx);
         font-weight: 600;
-        font-size: 16px;
+        font-family: var(--m);
       }
-      .facts small {
+      .meta-item .meta-sub {
         color: var(--mu);
-        font-size: 12.5px;
-        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 165px;
       }
-      .sid {
-        display: flex;
-        gap: 8px;
+      .meta-sep {
+        color: var(--ln);
+        user-select: none;
+      }
+      .meta-sprite {
+        margin-left: auto;
+        display: inline-flex;
         align-items: center;
-        padding: 8px 18px;
-        border-top: 1px solid var(--ln);
-        font-size: 12px;
-        color: var(--mu);
-        overflow: hidden;
+        gap: 6px;
+        min-width: 0;
       }
-      .sid code {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .sid-hint {
-        color: var(--mu);
-        font-size: 12px;
+      .meta-sprite code {
+        font-size: 11.5px;
+        max-width: 145px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        color: var(--mu);
       }
-      .sid .btn {
-        height: 24px;
-        min-height: 24px;
-        font-size: 12px;
-        padding: 0 8px;
+      .meta-sprite .btn {
+        height: 22px;
+        min-height: 22px;
+        font-size: 11.5px;
+        padding: 0 7px;
       }
       .sstrip {
         border-top: 1px solid var(--ln);
         border-left: 3px solid var(--ac);
         background: var(--sb);
-        font-size: 13px;
+        font-size: 12.5px;
         color: var(--tx);
       }
       .sstrip.err {
@@ -958,7 +1031,7 @@
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
-        padding: 9px 18px;
+        padding: 7px 16px;
         list-style: none;
         cursor: pointer;
       }
@@ -972,9 +1045,9 @@
         display: none;
       }
       .sstrip-msg {
-        flex: 1 1 240px;
+        flex: 1 1 220px;
         font-weight: 500;
-        line-height: 1.4;
+        line-height: 1.38;
       }
       .sstrip-tags {
         display: inline-flex;
@@ -988,7 +1061,7 @@
         margin-left: 2px;
       }
       .sstrip-body {
-        padding: 0 18px 10px;
+        padding: 0 16px 9px;
         font-size: 12.5px;
         color: var(--mu);
         display: grid;
@@ -1000,30 +1073,31 @@
         margin-right: 6px;
       }
 
-      /* Tabs */
+      /* Tabs + Focus Expand Toggle */
       .tabs {
         display: flex;
+        align-items: center;
         gap: 10px;
         padding: 0 16px;
         border-top: 1px solid var(--ln);
         border-bottom: 1px solid var(--ln);
         overflow-x: auto;
       }
-      .tabs button {
-        padding: 9px 6px;
+      .tabs button[role='tab'] {
+        padding: 8px 6px;
         color: var(--mu);
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
         white-space: nowrap;
         transition: color 0.15s, border-color 0.15s;
       }
-      .tabs button:hover {
+      .tabs button[role='tab']:hover {
         color: var(--tx);
       }
-      .tabs button:focus-visible {
+      .tabs button[role='tab']:focus-visible {
         outline-offset: -2px;
       }
-      .tabs button[aria-selected='true'] {
+      .tabs button[role='tab'][aria-selected='true'] {
         color: var(--tx);
         border-color: var(--ac);
         font-weight: 500;
@@ -1033,11 +1107,37 @@
         font-size: 10px;
         opacity: 0.7;
       }
+      .tabs .tab-expand {
+        margin-left: auto;
+        flex-shrink: 0;
+        height: 25px;
+        min-height: 25px;
+        padding: 0 8px;
+        font-size: 12px;
+        border: 1px solid var(--ln);
+        border-radius: 6px;
+        background: var(--sb);
+        color: var(--mu);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
+      }
+      .tabs .tab-expand:hover {
+        color: var(--tx);
+        border-color: color-mix(in srgb, var(--tx) 25%, var(--ln));
+      }
+      .tabs .tab-expand[aria-pressed='true'] {
+        border-color: var(--ac);
+        background: var(--ar);
+        color: var(--tx);
+      }
       .pane {
-        padding: 16px 20px;
+        padding: 14px 18px;
         flex: 1 1 auto;
         flex-shrink: 1;
-        min-height: 200px;
+        min-height: 0;
         overflow: auto;
       }
       .pane-bar {
@@ -1562,31 +1662,121 @@
         text-decoration: underline;
       }
 
-      /* @spriteguard Q&A Footer */
-      .ask {
-        border-top: 1px solid var(--ln);
-        padding: 12px 20px 16px;
-        background: var(--sb);
+      /* @spriteguard Slide-Over Drawer (docks as 3rd column on >=1540px) */
+      .qa-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 64;
+        background: rgba(2, 6, 15, 0.56);
+        backdrop-filter: blur(2px);
       }
-      .ask :focus-visible {
+      .qa-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(440px, 100vw);
+        z-index: 65;
+        display: flex;
+        flex-direction: column;
+        background: var(--pn);
+        border: 0;
+        border-left: 1px solid var(--ln);
+        border-radius: 0;
+        box-shadow: -18px 0 48px rgba(0, 0, 0, 0.45);
+        transform: translateX(100%);
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), width 0.2s ease, visibility 0.22s;
+      }
+      .qa-drawer.open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .qa-drawer.wide {
+        width: min(680px, 94vw);
+      }
+      .qa-drawer :focus-visible {
         outline-color: var(--ai);
       }
-      .th {
-        display: grid;
+      .qa-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
-        margin-bottom: 10px;
-        max-height: 170px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--ln);
+        background: var(--sb);
+        flex-shrink: 0;
+      }
+      .qa-head-info {
+        min-width: 0;
+        display: grid;
+        gap: 2px;
+      }
+      .qa-head-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .qa-head-sub {
+        font-size: 12px;
+        color: var(--mu);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .qa-head-acts {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .th {
+        flex: 1 1 auto;
+        min-height: 0;
         overflow: auto;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .qa-empty {
+        margin: auto 0;
+        padding: 18px 14px;
+        border: 1px dashed var(--ln);
+        border-radius: var(--r);
+        background: color-mix(in srgb, var(--sb) 55%, transparent);
+        color: var(--mu);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .qa-empty b {
+        display: block;
+        color: var(--tx);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .qa-foot {
+        border-top: 1px solid var(--ln);
+        padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+        background: var(--sb);
+        flex-shrink: 0;
       }
       .me {
-        justify-self: end;
+        align-self: flex-end;
         background: var(--ais);
-        padding: 5px 11px;
+        padding: 6px 12px;
         border-radius: 12px 12px 3px 12px;
         max-width: 90%;
+        font-size: 13.5px;
       }
       .bot {
-        max-width: 95%;
+        align-self: flex-start;
+        max-width: 96%;
         font-size: 13.5px;
       }
       .bot p {
@@ -1984,37 +2174,114 @@
         color: var(--mu);
       }
 
-      /* Toast */
+      /* Toast (bottom-right dark surface card above footer) */
       #t {
         position: fixed;
-        left: 50%;
-        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-        transform: translateX(-50%);
-        background: var(--tx);
-        color: var(--bg);
-        padding: 8px 14px;
-        border-radius: 8px;
+        right: 20px;
+        bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+        transform: translateY(10px);
+        background: var(--pn);
+        color: var(--tx);
+        border: 1px solid var(--ln);
+        border-left: 3px solid var(--ok);
+        border-radius: var(--r);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.36);
+        padding: 10px 12px 10px 14px;
         font-size: 13px;
+        line-height: 1.45;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.2s;
-        z-index: 80;
-        max-width: calc(100% - 32px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 85;
+        max-width: min(420px, calc(100vw - 32px));
       }
       #t.on {
         opacity: 1;
         pointer-events: auto;
+        transform: translateY(0);
       }
       #t.err {
-        background: var(--cr);
-        color: #fff;
+        background: var(--pn);
+        color: var(--tx);
+        border-left-color: var(--cr);
+      }
+      #t .t-body {
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+      }
+      #t .t-next {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        color: var(--mu);
+      }
+      #t .t-x {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mu);
+        font-size: 16px;
+        line-height: 1;
+        margin: -2px -4px 0 0;
+        transition: background 0.15s, color 0.15s;
+      }
+      #t .t-x:hover {
+        background: var(--sb);
+        color: var(--tx);
       }
       .ub {
         margin-left: 8px;
-        color: inherit;
+        color: var(--ac);
         text-decoration: underline;
         font: inherit;
         cursor: pointer;
+      }
+
+      /* Ultra-wide >= 1540px: dock @spriteguard cleanly as a 3rd column */
+      @media (min-width: 1540px) {
+        .wrap.qa-docked {
+          max-width: 1680px;
+        }
+        .grid.qa-open {
+          grid-template-columns: minmax(320px, 4fr) minmax(0, 6fr) 400px;
+        }
+        .grid.qa-open.qa-wide {
+          grid-template-columns: minmax(300px, 3.6fr) minmax(0, 5.4fr) 520px;
+        }
+        .qa-backdrop {
+          display: none !important;
+        }
+        .qa-drawer {
+          display: none;
+          position: sticky;
+          top: 74px;
+          right: auto;
+          bottom: auto;
+          width: auto;
+          height: calc(100dvh - 88px);
+          max-height: calc(100dvh - 88px);
+          border: 1px solid var(--ln);
+          border-radius: var(--R);
+          box-shadow: none;
+          transform: none;
+          visibility: visible;
+          pointer-events: auto;
+          z-index: 1;
+        }
+        .qa-drawer.open {
+          display: flex;
+        }
+        .qa-drawer.wide {
+          width: auto;
+        }
       }
 
       /* Responsive & Accessibility */
@@ -2057,6 +2324,13 @@
         }
         .dt {
           position: static;
+          height: auto;
+          max-height: none;
+        }
+        .dt.focus-mode {
+          position: fixed;
+          inset: 10px;
+          height: auto;
           max-height: none;
         }
         .pane {
@@ -2064,10 +2338,14 @@
           min-height: 0;
           overflow: visible;
         }
+        .dt.focus-mode .pane {
+          overflow: auto;
+        }
       }
-      @media (max-height: 700px) {
-        .dt {
+      @media (max-height: 520px) {
+        .dt:not(.focus-mode) {
           position: static;
+          height: auto;
           max-height: none;
         }
       }
@@ -2159,12 +2437,21 @@
         }
         .dh,
         .pane,
-        .sid,
-        .ask,
+        .meta-bar,
         .sstrip-head,
         .sstrip-body {
-          padding-left: 16px;
-          padding-right: 16px;
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+        .meta-sprite {
+          margin-left: 0;
+          width: 100%;
+        }
+        #t {
+          right: 16px;
+          left: 16px;
+          max-width: none;
+          bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         }
         .sup-toggle {
           padding-left: 68px;
@@ -2175,23 +2462,11 @@
         .acts .btn {
           flex: 1;
           justify-content: center;
+          min-width: 0;
         }
-        .facts {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .facts > div {
-          padding: 10px 12px;
-          border-top: 0;
-          border-left: 1px solid var(--ln);
-        }
-        .facts > div:first-child {
-          border-left: 0;
-        }
-        .facts b {
-          font-size: 15px;
-        }
-        .facts .gauge {
-          display: none;
+        #ap-btn,
+        #rs-btn {
+          min-width: 0;
         }
         .cb {
           grid-template-columns: 100px 1fr 30px;
@@ -2384,15 +2659,19 @@
           <div id="rows" role="listbox" aria-label="Audit list"></div>
         </section>
         <aside class="card dt" id="detail" aria-live="polite"></aside>
+        <aside class="card qa-drawer" id="qa-drawer" aria-label="Ask SpriteGuard" aria-hidden="true"></aside>
       </div>
     </main>
+
+    <div id="focus-backdrop" class="focus-backdrop" hidden></div>
+    <div id="qa-backdrop" class="qa-backdrop" hidden></div>
 
     <footer class="wrap foot">
       <button type="button" class="btn" id="hbtn" title="Component health and diagnostics">
         <i class="dot mu"></i><span>System health: checking…</span>
       </button>
       <span class="grow"></span>
-      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>1</kbd>–<kbd>4</kbd> tabs <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
+      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>1</kbd>–<kbd>4</kbd> tabs <kbd>f</kbd> focus <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
     </footer>
 
     <!-- Approve Confirmation Dialog -->
@@ -2643,9 +2922,14 @@
         credTime: {},
         palIdx: 0,
         palItems: [],
+        focusMode: false,
+        qaOpen: false,
+        qaWide: ls('sg-qa-wide') === '1',
         lastDetailSig: null,
         lastDetailScanId: null,
         lastDetailTab: null,
+        lastQaSig: null,
+        lastQaScanId: null,
         lastSrcSegHtml: null,
         lastSegHtml: null,
         lastRowsHtml: null,
@@ -2657,37 +2941,45 @@
         return token ? { Authorization: 'Bearer ' + token } : {};
       }
 
-      const toast = (() => {
-        let timer;
-        return (msg, isErr = false) => {
-          const t = $('#t');
-          t.textContent = msg;
-          t.className = 'on' + (isErr ? ' err' : '');
-          clearTimeout(timer);
-          timer = setTimeout(() => {
-            t.className = '';
-          }, 2800);
-        };
-      })();
+      let toastTimer = null;
+      function dismissToast() {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        const t = $('#t');
+        if (t) {
+          t.className = '';
+          t.setAttribute('role', 'status');
+        }
+      }
 
-      let undoTimer;
+      function toast(msg, isErr = false, nextStep = '') {
+        const t = $('#t');
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        t.setAttribute('role', isErr ? 'alert' : 'status');
+        t.innerHTML = `<div class="t-body"><span>${esc(msg)}</span>${
+          nextStep ? `<span class="t-next">${esc(nextStep)}</span>` : ''
+        }</div><button type="button" class="t-x" aria-label="Dismiss notification">×</button>`;
+        t.querySelector('.t-x').addEventListener('click', dismissToast);
+        t.className = 'on' + (isErr ? ' err' : '');
+        if (!isErr) {
+          toastTimer = setTimeout(dismissToast, 3400);
+        }
+      }
+
       function undoToast(msg, undoFn) {
         const t = $('#t');
-        t.className = 'on';
-        t.textContent = msg + ' ';
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'ub';
-        b.textContent = 'Undo';
-        b.onclick = () => {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        t.setAttribute('role', 'status');
+        t.innerHTML = `<div class="t-body"><span>${esc(msg)}</span><button type="button" class="ub">Undo</button></div><button type="button" class="t-x" aria-label="Dismiss notification">×</button>`;
+        t.querySelector('.ub').addEventListener('click', () => {
           undoFn();
-          t.className = '';
-        };
-        t.append(b);
-        clearTimeout(undoTimer);
-        undoTimer = setTimeout(() => {
-          t.className = '';
-        }, 5000);
+          dismissToast();
+        });
+        t.querySelector('.t-x').addEventListener('click', dismissToast);
+        t.className = 'on';
+        toastTimer = setTimeout(dismissToast, 5000);
       }
 
       const THEME_ICON_SUN =
@@ -3687,6 +3979,174 @@
         </details>`;
       }
 
+      const ICON_EXPAND =
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+      const ICON_COMPRESS =
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
+      function setFocusMode(on) {
+        const next = Boolean(on) && Boolean(selectedScan());
+        state.focusMode = next;
+        const det = $('#detail');
+        const bd = $('#focus-backdrop');
+        if (det) det.classList.toggle('focus-mode', next);
+        if (bd) bd.hidden = !next;
+        document.body.classList.toggle('focus-open', next);
+        const btn = $('#focus-btn');
+        if (btn) {
+          btn.setAttribute('aria-pressed', String(next));
+          btn.innerHTML = `${next ? ICON_COMPRESS : ICON_EXPAND}<span>${next ? 'Exit Focus' : 'Expand'}</span><kbd>f</kbd>`;
+          btn.title = next ? 'Exit focus overlay (f or Esc)' : 'Expand reader into full-viewport focus overlay (f)';
+        }
+      }
+
+      function syncQaChrome() {
+        const drawer = $('#qa-drawer');
+        const bd = $('#qa-backdrop');
+        const grid = $('#workspace-grid');
+        const open = Boolean(state.qaOpen && selectedScan());
+        if (drawer) {
+          drawer.classList.toggle('open', open);
+          drawer.classList.toggle('wide', Boolean(state.qaWide));
+          drawer.setAttribute('aria-hidden', String(!open));
+        }
+        if (bd) bd.hidden = !open;
+        if (grid) {
+          grid.classList.toggle('qa-open', open);
+          grid.classList.toggle('qa-wide', Boolean(state.qaWide));
+        }
+        document.querySelectorAll('.wrap').forEach((w) => w.classList.toggle('qa-docked', open));
+        const openBtn = $('#ask-open-btn');
+        if (openBtn) openBtn.setAttribute('aria-expanded', String(open));
+      }
+
+      function setQaOpen(open, opts = {}) {
+        const next = Boolean(open) && Boolean(selectedScan());
+        state.qaOpen = next;
+        syncQaChrome();
+        renderQaDrawer({ scrollThreadToBottom: next });
+        if (next && opts.focusInput) {
+          requestAnimationFrame(() => {
+            const qi = $('#qi');
+            if (qi && !qi.disabled) qi.focus();
+          });
+        }
+      }
+
+      function setQaWide(wide) {
+        state.qaWide = Boolean(wide);
+        ls('sg-qa-wide', state.qaWide ? '1' : '0');
+        syncQaChrome();
+        const wb = $('#qa-wide-btn');
+        if (wb) {
+          wb.setAttribute('aria-pressed', String(state.qaWide));
+          wb.textContent = state.qaWide ? 'Narrower' : 'Wider';
+        }
+      }
+
+      function renderQaDrawer(opts = {}) {
+        const drawer = $('#qa-drawer');
+        if (!drawer) return;
+        const d = selectedScan();
+        if (!d) {
+          state.qaOpen = false;
+          syncQaChrome();
+          if (opts.background && state.lastQaSig === 'null') return;
+          state.lastQaSig = 'null';
+          state.lastQaScanId = null;
+          drawer.innerHTML = '';
+          return;
+        }
+
+        const threadItems = state.threads[d.id] || [];
+        const isAsking = Boolean(state.qaLoading[d.id]);
+        const draft = state.qaDrafts[d.id] || '';
+        const qaSig = JSON.stringify({
+          id: d.id,
+          repo: d.repoFullName,
+          pr: d.prNumber,
+          sha: (d.headSha || '').slice(0, 7),
+          asking: isAsking,
+          wide: state.qaWide,
+          threads: threadItems,
+        });
+        if (opts.background && state.lastQaSig === qaSig) return;
+
+        const sameScan = state.lastQaScanId === d.id;
+        const prevTh = drawer.querySelector('#th');
+        const thScrollTop = sameScan && prevTh ? prevTh.scrollTop : 0;
+        const thWasAtBottom = prevTh ? prevTh.scrollHeight - prevTh.scrollTop - prevTh.clientHeight <= 10 : true;
+        const activeEl = document.activeElement;
+        const wasAsking = activeEl && activeEl.id === 'qi';
+        const selStart = wasAsking ? activeEl.selectionStart : null;
+        const selEnd = wasAsking ? activeEl.selectionEnd : null;
+
+        const threadHtml = threadItems.length
+          ? threadItems
+              .map((m) => {
+                const prov = m.a
+                  ? m.usedAi
+                    ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
+                    : 'Answered by deterministic fallback'
+                  : 'Reading the audit…';
+                const cleanAnswer = m.a ? cleanDashboardReply(m.a) : '';
+                return `<div class="me">${esc(m.q)}</div>
+                  <div class="bot">${cleanAnswer ? renderMarkdownBlocks(cleanAnswer) : ''}<small>${esc(prov)}</small></div>`;
+              })
+              .join('')
+          : `<div class="qa-empty">
+              <b>Grounded PR Security Q&amp;A</b>
+              Ask about exploitability, exposed secrets, egress anomalies, or patch verification for
+              <span class="mono">${esc(d.repoFullName)}#${esc(d.prNumber)}</span>.
+              Off-topic prompts are refused before any LLM call.
+            </div>`;
+
+        drawer.innerHTML = `<div class="qa-head">
+            <div class="qa-head-info">
+              <div class="qa-head-title"><i class="ai-sq"></i><span>Ask @spriteguard</span></div>
+              <div class="qa-head-sub mono">${esc(d.repoFullName)}#${esc(d.prNumber)} · ${esc((d.headSha || '').slice(0, 7) || '—')}</div>
+            </div>
+            <div class="qa-head-acts">
+              <button type="button" class="btn sm" id="qa-wide-btn" aria-pressed="${state.qaWide}" title="Toggle drawer width">${
+                state.qaWide ? 'Narrower' : 'Wider'
+              }</button>
+              <button type="button" class="btn sm" id="qa-close-btn" aria-label="Close Ask SpriteGuard" title="Close (Esc)">×</button>
+            </div>
+          </div>
+          <div class="th" id="th">${threadHtml}</div>
+          <div class="qa-foot">
+            <div class="chips">${['Why was this flagged?', 'Is it exploitable?', 'How do I fix this?', 'Why was egress flagged?']
+              .map((qText) => `<button type="button" data-ask="${esc(qText)}" ${isAsking ? 'disabled' : ''}>${esc(qText)}</button>`)
+              .join('')}</div>
+            <form class="af" id="af">
+              <input id="qi" name="q" maxlength="500" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
+              <button type="submit" class="btn ai" ${isAsking ? 'disabled aria-busy="true"' : ''}>${
+                isAsking ? 'Querying…' : 'Ask'
+              }</button>
+            </form>
+          </div>`;
+
+        state.lastQaSig = qaSig;
+        state.lastQaScanId = d.id;
+        syncQaChrome();
+
+        const th = drawer.querySelector('#th');
+        if (th) {
+          th.scrollTop = opts.scrollThreadToBottom || !sameScan || thWasAtBottom ? th.scrollHeight : thScrollTop;
+        }
+        if (wasAsking) {
+          const qi = $('#qi');
+          if (qi && !qi.disabled) {
+            qi.focus();
+            if (selStart !== null && selEnd !== null) {
+              try {
+                qi.setSelectionRange(selStart, selEnd);
+              } catch {}
+            }
+          }
+        }
+      }
+
       function serializeDetailState(d) {
         if (!d) return 'null';
         const cached = state.detailsCache[d.id];
@@ -3700,6 +4160,9 @@
         return JSON.stringify({
           id: d.id,
           tab: state.tab,
+          focusMode: state.focusMode,
+          qaOpen: state.qaOpen,
+          threadCount: (state.threads[d.id] || []).length,
           status: d.status,
           riskScore: d.riskScore,
           findingsCount: d.findingsCount,
@@ -3722,10 +4185,8 @@
           runningStage: isRunning ? getRunningStage(d) : null,
           approving: Boolean(state.approving[d.id]),
           rescanning: Boolean(state.rescanning[d.id]),
-          asking: Boolean(state.qaLoading[d.id]),
           hydrating: Boolean(state.hydrating[d.id]),
           revealSecrets: state.revealSecrets,
-          threads: state.threads[d.id] || [],
           credEntries,
           hasCachedRaw: state.tab === 'r' ? Boolean(cached) : false,
         });
@@ -3735,16 +4196,14 @@
         const el = $('#detail');
         if (!state.initialLoaded) {
           el.innerHTML = `<div class="dh" aria-hidden="true">
-            <div style="flex:1;display:grid;gap:8px">
+            <div style="flex:1;display:grid;gap:7px">
               <div class="skel" style="height:12px;width:36%"></div>
-              <div class="skel" style="height:22px;width:72%"></div>
+              <div class="skel" style="height:20px;width:72%"></div>
             </div>
             <div class="skel" style="height:32px;width:120px"></div>
           </div>
-          <div class="facts" aria-hidden="true">
-            <div><div class="skel" style="height:12px;width:45%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:65%"></div></div>
-            <div><div class="skel" style="height:12px;width:55%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:45%"></div></div>
-            <div><div class="skel" style="height:12px;width:45%;margin-bottom:8px"></div><div class="skel" style="height:18px;width:60%"></div></div>
+          <div class="meta-bar" aria-hidden="true">
+            <div class="skel" style="height:14px;width:76%"></div>
           </div>
           <div class="pane" aria-hidden="true" style="display:grid;gap:10px">
             <div class="skel" style="height:74px;width:100%"></div>
@@ -3757,6 +4216,7 @@
         const d = selectedScan();
         if (!d) {
           syncRunningTicker(false);
+          if (state.focusMode) setFocusMode(false);
           if (opts.background && state.lastDetailSig === 'null') return;
           state.lastDetailSig = 'null';
           state.lastDetailScanId = null;
@@ -3777,13 +4237,10 @@
         const sameView = state.lastDetailScanId === d.id && state.lastDetailTab === state.tab;
         const prevPane = el.querySelector('.pane');
         const prevDiff = el.querySelector('.diff');
-        const prevTh = el.querySelector('#th');
         const paneScrollTop = sameView && prevPane ? prevPane.scrollTop : 0;
         const paneScrollLeft = sameView && prevPane ? prevPane.scrollLeft : 0;
         const diffScrollTop = sameView && prevDiff ? prevDiff.scrollTop : 0;
         const diffScrollLeft = sameView && prevDiff ? prevDiff.scrollLeft : 0;
-        const thScrollTop = sameView && prevTh ? prevTh.scrollTop : 0;
-        const thWasAtBottom = prevTh ? prevTh.scrollHeight - prevTh.scrollTop - prevTh.clientHeight <= 8 : true;
 
         const cached = state.detailsCache[d.id];
         const patch = d.patch || (cached && cached.patch) || null;
@@ -3802,18 +4259,30 @@
         const isRescanning = Boolean(state.rescanning[d.id]);
         const stillExposed = countExposedSecrets([d]);
         const spInfo = spriteStateInfo(d.spriteState || 'none');
+        const threadCount = (state.threads[d.id] || []).length;
+
+        const egressMeta = !fin
+          ? '–'
+          : flaggedHosts.length
+            ? `${d.flaggedEgressCount} flagged (${flaggedHosts.map((x) => x.host).join(', ')})`
+            : (d.egressDomains || []).length
+              ? `0 flagged (${d.egressDomains.length} allowlisted)`
+              : '0 flagged';
 
         let h = `<div class="mob-back">
           <button type="button" class="btn sm" id="mob-back-btn">← Back to audits</button>
           <span class="mono">${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
         </div>
         <div class="dh">
-          <div style="min-width:0">
-            <div class="crumb">${esc(d.repoFullName)}#${esc(d.prNumber)} <span class="mono">${esc(shortSha)}</span></div>
-            <h2>${esc(d.prTitle)}</h2>
+          <div class="dh-title">
+            <div class="crumb"><span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span><span class="mono">${esc(shortSha)}</span></div>
+            <h2 title="${esc(d.prTitle)}">${esc(d.prTitle)}</h2>
           </div>
           <div class="acts">
-            ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt">Fix Prompt for Whole PR</button>` : ''}
+            <button type="button" class="btn ai-ghost" id="ask-open-btn" aria-expanded="${state.qaOpen}" aria-controls="qa-drawer" title="Open @spriteguard PR Q&A drawer (/)">
+              <i class="ai-sq"></i><span>Ask @spriteguard</span>${threadCount ? `<span class="qa-count">${threadCount}</span>` : ''}<kbd>/</kbd>
+            </button>
+            ${nf ? `<button type="button" class="btn" data-fp="${esc(d.id)}::all" title="Build a portable fix prompt for the whole PR">Fix Prompt</button>` : ''}
             ${
               !isRunning
                 ? `<button type="button" class="btn" id="rs-btn" ${isRescanning || isApproving ? 'disabled' : ''}${
@@ -3839,36 +4308,40 @@
             }
           </div>
         </div>
-        <div class="facts">
-          <div>
-            <span class="l">Risk</span>
-            <b>${fin ? gauge(risk, sc) + risk : '–'}</b>
-            <small>${fin ? esc(sl + (crit ? `, ${crit} critical` : '')) : isRunning ? 'Scanning…' : 'No result'}</small>
-          </div>
-          <div>
-            <span class="l">Findings</span>
+        <div class="meta-bar">
+          <span class="meta-item" title="Risk score and severity">
+            <span>Risk</span>
+            ${fin ? gauge(risk, sc) : ''}
+            <b>${fin ? risk : '–'}</b>
+            <span class="meta-sub">${fin ? esc(sl + (crit ? ` · ${crit} crit` : '')) : isRunning ? 'Scanning…' : 'No result'}</span>
+          </span>
+          <span class="meta-sep" aria-hidden="true">|</span>
+          <span class="meta-item" title="Total findings and exposed credentials">
+            <span>Findings</span>
             <b>${fin ? nf : '–'}</b>
-            <small>${fin ? `${ns} secret${ns === 1 ? '' : 's'}` : 'No result'}</small>
-          </div>
-          <div>
-            <span class="l">Egress</span>
+            ${fin ? `<span class="meta-sub">(${ns} secret${ns === 1 ? '' : 's'})</span>` : ''}
+          </span>
+          <span class="meta-sep" aria-hidden="true">|</span>
+          <span class="meta-item" title="${esc(egressMeta)}">
+            <span>Egress</span>
             <b>${fin ? d.flaggedEgressCount : '–'}</b>
-            <small>${
+            ${
               fin
-                ? flaggedHosts.length
-                  ? esc(flaggedHosts.map((x) => x.host).join(', '))
-                  : (d.egressDomains || []).length
-                    ? `${d.egressDomains.length} allowlisted`
-                    : 'no outbound hosts'
-                : 'No result'
-            }</small>
-          </div>
-        </div>
-        <div class="sid" title="${esc(spInfo.hint)}">
-          <i class="sp ${esc(spInfo.label)}"></i>
-          <span>Sprite ${esc(spInfo.label)}</span>
-          ${d.spriteName ? `<code>${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
-          <span class="sid-hint">· ${esc(spInfo.hint)}</span>
+                ? `<span class="meta-sub">${
+                    flaggedHosts.length
+                      ? esc(flaggedHosts.map((x) => x.host).join(', '))
+                      : (d.egressDomains || []).length
+                        ? `${d.egressDomains.length} allowlisted`
+                        : 'clean'
+                  }</span>`
+                : ''
+            }
+          </span>
+          <span class="meta-sprite" title="${esc(spInfo.hint)}">
+            <i class="sp ${esc(spInfo.label)}"></i>
+            <span>Sprite ${esc(spInfo.label)}</span>
+            ${d.spriteName ? `<code title="${esc(d.spriteName)}">${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
+          </span>
         </div>`;
 
         h += buildStatusStrip(d, patch, stillExposed, nf);
@@ -3910,7 +4383,9 @@
               ([k, label, hk]) =>
                 `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}" title="Shortcut: ${hk}">${label}<kbd>${hk}</kbd></button>`,
             )
-            .join('')}</div><div class="pane">`;
+            .join('')}<button type="button" class="tab-expand" id="focus-btn" aria-pressed="${state.focusMode}" title="${
+            state.focusMode ? 'Exit focus overlay (f or Esc)' : 'Expand reader into full-viewport focus overlay (f)'
+          }">${state.focusMode ? ICON_COMPRESS : ICON_EXPAND}<span>${state.focusMode ? 'Exit Focus' : 'Expand'}</span><kbd>f</kbd></button></div><div class="pane">`;
 
           if (state.tab === 'f') {
             if (d.status === 'failed' || d.status === 'publish_failed') {
@@ -4015,35 +4490,6 @@
           h += `</div>`;
         }
 
-        const threadItems = state.threads[d.id] || [];
-        const isAsking = Boolean(state.qaLoading[d.id]);
-        const draft = state.qaDrafts[d.id] || '';
-        const threadHtml = threadItems
-          .map((m) => {
-            const prov = m.a
-              ? m.usedAi
-                ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
-                : 'Answered by deterministic fallback'
-              : 'Reading the audit…';
-            const cleanAnswer = m.a ? cleanDashboardReply(m.a) : '';
-            return `<div class="me">${esc(m.q)}</div>
-              <div class="bot">${cleanAnswer ? renderMarkdownBlocks(cleanAnswer) : ''}<small>${esc(prov)}</small></div>`;
-          })
-          .join('');
-
-        h += `<div class="ask">
-          <div class="th" id="th">${threadHtml}</div>
-          <div class="chips">${['Why was this flagged?', 'Is it exploitable?', 'Why was egress flagged?']
-            .map((qText) => `<button type="button" data-ask="${esc(qText)}" ${isAsking ? 'disabled' : ''}>${esc(qText)}</button>`)
-            .join('')}</div>
-          <form class="af" id="af">
-            <input id="qi" name="q" maxlength="500" value="${esc(draft)}" ${isAsking ? 'disabled' : ''} placeholder="Ask @spriteguard about this PR" autocomplete="off" aria-label="Ask SpriteGuard" />
-            <button type="submit" class="btn ai" ${isAsking ? 'disabled aria-busy="true"' : ''}>${
-              isAsking ? 'Querying SpriteGuard…' : 'Ask'
-            }</button>
-          </form>
-        </div>`;
-
         el.innerHTML = h;
         state.lastDetailSig = nextSig;
         state.lastDetailScanId = d.id;
@@ -4061,35 +4507,15 @@
             nextDiff.scrollLeft = diffScrollLeft;
           }
         }
-        const th = $('#th');
-        if (th) {
-          th.scrollTop = opts.scrollThreadToBottom || !sameView || thWasAtBottom ? th.scrollHeight : thScrollTop;
-        }
       }
 
       function renderAll(opts = {}) {
-        const activeEl = document.activeElement;
-        const wasAsking = activeEl && activeEl.id === 'qi';
-        const selStart = wasAsking ? activeEl.selectionStart : null;
-        const selEnd = wasAsking ? activeEl.selectionEnd : null;
-
         updateEnvPill();
         renderGettingStarted();
         renderStats();
         renderList(opts);
         renderDetail(opts);
-
-        if (wasAsking) {
-          const qi = $('#qi');
-          if (qi && !qi.disabled) {
-            qi.focus();
-            if (selStart !== null && selEnd !== null) {
-              try {
-                qi.setSelectionRange(selStart, selEnd);
-              } catch {}
-            }
-          }
-        }
+        renderQaDrawer(opts);
       }
 
       function updateEnvPill() {
@@ -4503,8 +4929,6 @@
           return;
         }
 
-        const prevSpriteState = d.spriteState;
-        d.spriteState = 'running';
         state.approving[d.id] = true;
         renderAll();
         try {
@@ -4524,8 +4948,11 @@
               : `Patch pushed (${(out.commitSha || '').slice(0, 7)})`,
           );
         } catch (err) {
-          d.spriteState = prevSpriteState;
-          toast('Approval failed: ' + err.message, true);
+          toast(
+            'Approval failed: ' + err.message,
+            true,
+            'Verify maintainer permissions or click Rescan to refresh the PR head, then retry.',
+          );
         } finally {
           delete state.approving[d.id];
           renderAll();
@@ -4535,8 +4962,6 @@
       async function rescanSelected() {
         const d = selectedScan();
         if (!d || state.rescanning[d.id]) return;
-        const prevSpriteState = d.spriteState;
-        d.spriteState = 'running';
         state.rescanning[d.id] = true;
         renderAll();
         try {
@@ -4557,8 +4982,11 @@
             await refreshAll(true);
           }
         } catch (err) {
-          d.spriteState = prevSpriteState;
-          toast('Rescan failed: ' + err.message, true);
+          toast(
+            'Rescan failed: ' + err.message,
+            true,
+            'Check System health in the footer or retry in a moment.',
+          );
         } finally {
           delete state.rescanning[d.id];
           renderAll();
@@ -4568,11 +4996,13 @@
       async function askQuestion(question) {
         const d = selectedScan();
         if (!d || state.qaLoading[d.id]) return;
+        if (!state.qaOpen) setQaOpen(true);
         const entry = { q: question, a: null, provider: '', model: '', usedAi: false };
         (state.threads[d.id] = state.threads[d.id] || []).push(entry);
         state.qaLoading[d.id] = true;
         state.qaDrafts[d.id] = '';
-        renderDetail({ scrollThreadToBottom: true });
+        renderDetail();
+        renderQaDrawer({ scrollThreadToBottom: true });
 
         try {
           const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/ask', {
@@ -4590,7 +5020,8 @@
           entry.a = `Error: ${err.message}`;
         } finally {
           delete state.qaLoading[d.id];
-          renderDetail({ scrollThreadToBottom: true });
+          renderDetail();
+          renderQaDrawer({ scrollThreadToBottom: true });
         }
       }
 
@@ -4685,6 +5116,12 @@
 
         const prActions = cur
           ? [
+              [`Ask @spriteguard (${curLabel})`, 'Selected PR', () => setQaOpen(true, { focusInput: true })],
+              [
+                `${state.focusMode ? 'Exit Focus Overlay' : 'Expand Reader Focus'} (${curLabel})`,
+                'Selected PR',
+                () => setFocusMode(!state.focusMode),
+              ],
               ...(curFindings
                 ? [[`Copy Fix Prompt (${curLabel})`, 'Selected PR', () => openFixPrompt(cur.id, 'all')]]
                 : []),
@@ -4820,7 +5257,7 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop',
         );
         if (!t) return;
 
@@ -4838,6 +5275,17 @@
               behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
             });
           }
+        } else if (t.id === 'focus-btn') {
+          setFocusMode(!state.focusMode);
+        } else if (t.id === 'focus-backdrop') {
+          setFocusMode(false);
+        } else if (t.id === 'ask-open-btn') {
+          setQaOpen(!state.qaOpen, { focusInput: !state.qaOpen });
+        } else if (t.id === 'qa-close-btn' || t.id === 'qa-backdrop') {
+          setQaOpen(false);
+          $('#ask-open-btn')?.focus();
+        } else if (t.id === 'qa-wide-btn') {
+          setQaWide(!state.qaWide);
         } else if (t.id === 'mob-back-btn') {
           setMobileView('list');
         } else if (t.id === 'emp-pg-btn') {
@@ -5130,7 +5578,22 @@
         const tag = e.target.tagName;
         if (e.key === 'Escape') {
           if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            if (e.target.id === 'qi' && state.qaOpen) {
+              setQaOpen(false);
+              $('#ask-open-btn')?.focus();
+              return;
+            }
             e.target.blur();
+            return;
+          }
+          if (!openDlg && state.focusMode) {
+            setFocusMode(false);
+            $('#focus-btn')?.focus();
+            return;
+          }
+          if (!openDlg && state.qaOpen) {
+            setQaOpen(false);
+            $('#ask-open-btn')?.focus();
             return;
           }
           if (!openDlg && state.pgOpen) {
@@ -5164,9 +5627,17 @@
             if (state.tab === 'r' && !state.detailsCache[sel.id]) fetchScanDetail(sel.id);
             renderDetail();
           }
+        } else if (e.key === 'f') {
+          const sel = selectedScan();
+          if (sel && sel.status !== 'running' && sel.status !== 'queued') {
+            e.preventDefault();
+            setFocusMode(!state.focusMode);
+          }
         } else if (e.key === '/') {
-          e.preventDefault();
-          $('#qi')?.focus();
+          if (selectedScan()) {
+            e.preventDefault();
+            setQaOpen(true, { focusInput: true });
+          }
         }
       });
 

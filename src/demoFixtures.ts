@@ -1,4 +1,5 @@
 import { buildGitDiff, fakeSha, type LocalGitHubSimulator, type SimulatedPullRequest } from './fly/githubConnector.js';
+import type { PatchRecord, ScanRecord } from './types.js';
 
 /**
  * Self-contained realistic PR fixtures for LOCAL_SANDBOX_MODE demos & integration tests.
@@ -9,6 +10,74 @@ export function registerDemoMaintainers(sim: LocalGitHubSimulator, repoFullName 
   sim.setPermission(repoFullName, 'alice-maintainer', 'maintain');
   sim.setPermission(repoFullName, 'bob-admin', 'admin');
   sim.setPermission(repoFullName, 'mallory-contributor', 'read');
+}
+
+/**
+ * Ensures the in-memory LocalGitHubSimulator has standard demo maintainer permissions
+ * (`alice-maintainer` as `maintain`, `mallory-contributor` as `read`) and, if the server
+ * restarted while scans remained persisted in Postgres, rehydrates a matching open
+ * simulated PR so demo patch approvals succeed cleanly end-to-end.
+ */
+export function ensureDemoApprovalReady(
+  sim: LocalGitHubSimulator,
+  scan: ScanRecord,
+  patch: PatchRecord | null,
+): void {
+  registerDemoMaintainers(sim, scan.repoFullName);
+
+  try {
+    sim.getPullRequest(scan.repoFullName, scan.prNumber);
+    return;
+  } catch {
+    // PR is not yet in the in-memory simulator (e.g. persisted in Postgres across a restart).
+  }
+
+  // Ensure lower PR numbers exist as closed placeholders so sequential scans in LocalWriteConnector
+  // never hit a 404 gap when committing to sparse persisted PR numbers.
+  for (let n = 1; n < scan.prNumber; n++) {
+    try {
+      sim.getPullRequest(scan.repoFullName, n);
+    } catch {
+      sim.upsertPullRequest({
+        repoFullName: scan.repoFullName,
+        number: n,
+        title: `Archived demo PR #${n}`,
+        body: '',
+        author: 'sandbox-user',
+        baseRef: scan.baseRef || 'main',
+        headRef: `archived/demo-${n}`,
+        headSha: fakeSha(`${scan.repoFullName}#${n}:archived`),
+        baseFiles: {},
+        headFiles: {},
+        commits: [],
+        state: 'closed',
+      });
+    }
+  }
+
+  const headFiles: Record<string, string> = {};
+  if (patch) {
+    for (const f of patch.files) {
+      if (f.action !== 'create') {
+        headFiles[f.path] = '';
+      }
+    }
+  }
+
+  sim.upsertPullRequest({
+    repoFullName: scan.repoFullName,
+    number: scan.prNumber,
+    title: scan.prTitle,
+    body: `Rehydrated demo PR #${scan.prNumber} for persisted scan ${scan.id}.`,
+    author: scan.prAuthor || 'sandbox-user',
+    baseRef: scan.baseRef || 'main',
+    headRef: scan.headRef || `demo/pr-${scan.prNumber}`,
+    headSha: scan.headSha,
+    baseFiles: {},
+    headFiles,
+    commits: [],
+    state: 'open',
+  });
 }
 
 export function createVulnerablePrFixture(

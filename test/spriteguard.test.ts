@@ -1045,3 +1045,86 @@ test('Q&A layered guard: domain gate, tailored deterministic fallback, zero-LLM 
     await sg.close();
   }
 });
+
+test('POST /api/demo/scans/:id/approve grants alice-maintainer maintain permission while preserving RBAC for read-only users', async () => {
+  const sg = await createApp(
+    loadConfig({
+      NODE_ENV: 'test',
+      LOG_LEVEL: 'error',
+      LOCAL_SANDBOX_MODE: 'true',
+      LOCAL_ALLOW_UNTRUSTED_EXEC: 'false',
+    }),
+  );
+
+  try {
+    // 1. Trigger a vulnerable demo PR
+    const trig = await sg.app.inject({
+      method: 'POST',
+      url: '/api/demo/trigger',
+      payload: { kind: 'vulnerable' },
+    });
+    assert.equal(trig.statusCode, 201);
+    const scanId = trig.json().scan.id as string;
+
+    // Simulate missing/reset permission in simulator (e.g. fresh process or custom repo)
+    sg.connectors.simulator?.setPermission('acme/payments-service', 'alice-maintainer', 'read');
+
+    // 2. Unauthorized user (mallory-contributor) must still be denied
+    const denied = await sg.app.inject({
+      method: 'POST',
+      url: `/api/demo/scans/${scanId}/approve`,
+      payload: { approver: 'mallory-contributor' },
+    });
+    assert.equal(denied.statusCode, 400);
+    assert.equal(denied.json().ok, false);
+
+    // 3. Default demo maintainer (alice-maintainer) succeeds cleanly end-to-end
+    const approved = await sg.app.inject({
+      method: 'POST',
+      url: `/api/demo/scans/${scanId}/approve`,
+      payload: { approver: 'alice-maintainer' },
+    });
+    assert.equal(approved.statusCode, 200);
+    assert.equal(approved.json().ok, true);
+    assert.ok(approved.json().commitSha);
+
+    const updated = await sg.store.getScan(scanId);
+    assert.equal(updated?.status, 'pushed');
+
+    // 4. Persisted scan whose PR isn't in the in-memory simulator (simulating post-restart Neon state)
+    const persisted = await sg.store.createScan({
+      repoFullName: 'acme/restarted-demo',
+      prNumber: 4,
+      headSha: '111122223333444455556666777788889999aaaa',
+      headRef: 'feat/restarted-demo',
+      headRepoFullName: 'acme/restarted-demo',
+      baseRef: 'main',
+      prTitle: 'Persisted demo scan after restart',
+      prAuthor: 'mallory-contributor',
+    });
+    await sg.store.updateScan(persisted.id, { status: 'awaiting_approval', spriteState: 'sleeping' });
+    await sg.store.savePatch({
+      scanId: persisted.id,
+      summary: 'Move secret to env',
+      files: [{ path: 'src/app.mjs', action: 'modify', content: 'export const k = process.env.KEY;\n' }],
+      diff: '--- a/src/app.mjs\n+++ b/src/app.mjs\n',
+      diffSha256: 'abc123',
+      postMergeActions: ['Rotate key'],
+      generator: 'heuristic',
+      verification: null,
+      status: 'verified',
+    });
+
+    const restartedApprove = await sg.app.inject({
+      method: 'POST',
+      url: `/api/demo/scans/${persisted.id}/approve`,
+      payload: {},
+    });
+    assert.equal(restartedApprove.statusCode, 200);
+    assert.equal(restartedApprove.json().ok, true);
+    assert.ok(restartedApprove.json().commitSha);
+    assert.equal((await sg.store.getScan(persisted.id))?.status, 'pushed');
+  } finally {
+    await sg.close();
+  }
+});

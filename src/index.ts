@@ -5,7 +5,12 @@ import { Octokit } from '@octokit/rest';
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import { loadConfig, type AppConfig } from './config.js';
 import { createStore, type Store } from './db/client.js';
-import { createCleanPrFixture, createVulnerablePrFixture, registerDemoMaintainers } from './demoFixtures.js';
+import {
+  createCleanPrFixture,
+  createVulnerablePrFixture,
+  ensureDemoApprovalReady,
+  registerDemoMaintainers,
+} from './demoFixtures.js';
 import {
   buildGitDiff,
   createGitHubConnectors,
@@ -505,6 +510,10 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
   });
 
   const simInstance = playgroundEnabled ? (connectors.simulator ?? new LocalGitHubSimulator(config.github.botLogin)) : null;
+  if (simInstance) {
+    registerDemoMaintainers(simInstance, 'acme/payments-service');
+    registerDemoMaintainers(simInstance, 'playground/custom-sandbox');
+  }
   const playgroundOrchestratorInstance = simInstance
     ? connectors.simulator
       ? orchestrator
@@ -698,6 +707,8 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       const scan = await store.getScan(id);
       if (!scan) return reply.code(404).send({ error: 'Scan not found' });
       const approver = body.approver?.trim() || 'alice-maintainer';
+      const patch = await store.getPatch(scan.id);
+      ensureDemoApprovalReady(sim, scan, patch);
       const outcome = await playgroundOrchestrator.handleApproval(scan.repoFullName, scan.prNumber, approver);
       return reply.code(outcome.ok ? 200 : 400).send(outcome);
     });
