@@ -78,7 +78,75 @@ Open **http://localhost:8080** in your browser. In `LOCAL_SANDBOX_MODE=true`, th
 
 ---
 
-## 4. Production Deployment Guide
+## 4. Configuring AI Providers (Cloud, Open-Source, Local Ollama, or Zero-AI)
+
+SpriteGuard is provider-agnostic and selects its Layer C AI engine using strict environment variable precedence:
+
+1. **`LLM_BASE_URL` is set** → routes to any OpenAI-compatible `/chat/completions` endpoint (Local Ollama, OpenRouter, Google Gemini, Groq, OpenAI, vLLM, etc.).
+2. **Else `ANTHROPIC_API_KEY` is set** → uses the native Anthropic SDK directly.
+3. **Else (both unset)** → runs in **Zero-AI** mode using Layer A/B deterministic scanners and the built-in heuristic auditor, patcher, and grounded Q&A fallback.
+
+> **Secret-Redaction Privacy Guarantee (`RedactionVault`):** Before any diff, runtime output, or Q&A context leaves the server, SpriteGuard's in-memory `RedactionVault` scans and replaces detected secret literals with opaque `[REDACTED_SECRET_N:...]` placeholders. Raw credentials are never sent to external LLM providers and never persisted to Postgres. For zero outbound LLM traffic, use **Local Ollama** or **Zero-AI** mode.
+
+### Option 1 — Local Ollama (Fully Local Privacy)
+```dotenv
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=qwen2.5-coder
+```
+`LLM_API_KEY=ollama` serves as a placeholder key so OpenAI-compatible clients do not reject empty keys.
+
+> **Fly.io `localhost` caveat:** `http://localhost:11434/v1` works when SpriteGuard runs locally on your machine alongside Ollama. When deployed on **Fly.io**, `localhost` refers to the Fly VM itself—use a tunnel or hosted OpenAI-compatible endpoint instead.
+
+### Option 2 — OpenRouter (Open-Source & Multi-Model Routing)
+```dotenv
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_API_KEY=your-key
+LLM_MODEL=qwen/qwen-2.5-coder-32b-instruct
+```
+
+### Option 3 — Google Gemini (OpenAI-Compatible Endpoint)
+```dotenv
+LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+LLM_API_KEY=your-key
+LLM_MODEL=gemini-2.5-flash
+```
+
+### Option 4 — Anthropic Claude (Native SDK)
+Leave `LLM_BASE_URL` unset and configure:
+```dotenv
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+Current Anthropic model IDs: `claude-sonnet-4-6` and `claude-haiku-4-5` are fastest for PR audits, while `claude-opus-4-6` provides the deepest security reasoning.
+
+### Option 5 — Zero-AI Deterministic Mode
+Leave both `LLM_BASE_URL` and `ANTHROPIC_API_KEY` unset:
+```dotenv
+LLM_BASE_URL=
+ANTHROPIC_API_KEY=
+```
+SpriteGuard runs 100% deterministically on Layer A static/history/dotenv secret scanning, Layer B runtime egress & canary traps, deterministic patch generation/verification, and grounded Q&A fallback with zero external LLM calls.
+
+### Self-Hosting on Fly.io (`fly.toml` `[env]` vs `fly secrets`)
+Keep non-secret provider routing in `fly.toml` under `[env]` so model switches are version-controlled, and store API keys strictly as encrypted Fly secrets:
+
+```toml
+# fly.toml
+[env]
+  LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+  LLM_MODEL = "gemini-2.5-flash"
+```
+
+```bash
+fly secrets set -a spriteguard LLM_API_KEY="your-key"
+```
+
+*(For native Claude on Fly.io, omit `LLM_BASE_URL` from `[env]`, set `ANTHROPIC_MODEL = "claude-sonnet-4-6"`, and run `fly secrets set -a spriteguard ANTHROPIC_API_KEY="sk-ant-..."`.)*
+
+---
+
+## 5. Production Deployment Guide
 
 ### A. Neon Postgres + pgvector Setup
 1. Create a Neon project and copy your pooled connection string.
@@ -126,7 +194,7 @@ Create a **GitHub App** (recommended) with:
 
 ---
 
-## 5. Pull Request Commands
+## 6. Pull Request Commands
 
 Once SpriteGuard posts its Security Audit Report on a PR:
 - **`/spriteguard approve`** — Maintainer-only (`admin` or `maintain`, configurable via `APPROVER_MIN_PERMISSION`). Wakes the sleeping Sprite, cross-checks the verified patch `diff_sha256`, commits the verified patch via the GitHub Write Connector, and destroys the Sprite.
@@ -135,7 +203,7 @@ Once SpriteGuard posts its Security Audit Report on a PR:
 
 ---
 
-## 6. HTTP Endpoints & Project Structure
+## 7. HTTP Endpoints & Project Structure
 
 | Endpoint | Description |
 | --- | --- |

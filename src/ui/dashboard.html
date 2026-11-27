@@ -2065,6 +2065,95 @@
       .hs.down {
         color: var(--cr);
       }
+      .hl-acts {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .link-btn {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ac);
+        padding: 1px 6px;
+        border-radius: 5px;
+        border: 1px solid transparent;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .link-btn:hover {
+        background: var(--ar);
+        border-color: color-mix(in srgb, var(--ac) 35%, transparent);
+      }
+      #ai-cfg {
+        max-width: 540px;
+      }
+      .ai-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        margin-top: 12px;
+      }
+      .ai-tabs button {
+        flex: 1 1 auto;
+      }
+      .ai-env-wrap {
+        position: relative;
+        margin-top: 10px;
+        border: 1px solid var(--ln);
+        border-radius: var(--r);
+        background: var(--sb);
+        overflow: hidden;
+      }
+      .ai-env-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--ln);
+        font-size: 11.5px;
+        color: var(--mu);
+      }
+      .ai-env-code {
+        margin: 0;
+        padding: 10px 12px;
+        font: 12px/1.6 var(--m);
+        color: var(--tx);
+        overflow-x: auto;
+        white-space: pre;
+      }
+      .ai-note {
+        margin-top: 10px;
+        padding: 9px 11px;
+        border-radius: var(--r);
+        border: 1px solid var(--ln);
+        border-left: 3px solid var(--ac);
+        background: color-mix(in srgb, var(--sb) 65%, var(--pn));
+        font-size: 12.5px;
+        color: var(--mu);
+        line-height: 1.5;
+      }
+      .ai-note.warn {
+        border-left-color: var(--hi);
+      }
+      .ai-note b {
+        color: var(--tx);
+        font-weight: 500;
+      }
+      .ai-fly-hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--mu);
+        line-height: 1.5;
+      }
+      .ai-fly-hint code {
+        font-family: var(--m);
+        font-size: 11.5px;
+        color: var(--tx);
+        background: var(--sb);
+        border: 1px solid var(--ln);
+        border-radius: 4px;
+        padding: 0 4px;
+      }
       .steps {
         list-style: none;
         padding: 0;
@@ -2768,6 +2857,35 @@
         <div class="dgb">
           <button type="button" class="btn" data-close>Close</button>
           <button type="button" class="btn pri" id="hchk">Check Now</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Configure AI Dialog -->
+    <dialog id="ai-cfg">
+      <div class="dg">
+        <h3>Configure AI</h3>
+        <p>Set environment variables and restart SpriteGuard. Detected secrets are redacted before prompts leave the server.</p>
+        <div class="seg ai-tabs" id="ai-tabs" role="tablist" aria-label="AI provider">
+          <button type="button" role="tab" aria-selected="true" data-ai-tab="local">Local</button>
+          <button type="button" role="tab" aria-selected="false" data-ai-tab="openrouter">OpenRouter</button>
+          <button type="button" role="tab" aria-selected="false" data-ai-tab="gemini">Gemini</button>
+          <button type="button" role="tab" aria-selected="false" data-ai-tab="claude">Claude</button>
+          <button type="button" role="tab" aria-selected="false" data-ai-tab="zero">Zero-AI</button>
+        </div>
+        <div class="ai-env-wrap">
+          <div class="ai-env-head">
+            <span id="ai-env-label" class="mono">.env</span>
+            <button type="button" class="btn sm" id="ai-copy-btn">Copy</button>
+          </div>
+          <pre class="ai-env-code" id="ai-env-code"></pre>
+        </div>
+        <div class="ai-note" id="ai-env-note"></div>
+        <p class="ai-fly-hint">
+          Deploying on Fly.io: put non-secrets (<code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>) in <code>fly.toml</code> <code>[env]</code> and store API keys with <code>fly secrets set -a spriteguard</code>.
+        </p>
+        <div class="dgb">
+          <button type="button" class="btn pri" data-close>Done</button>
         </div>
       </div>
     </dialog>
@@ -4547,6 +4665,92 @@
         }
       }
 
+      const AI_CONFIG_TABS = {
+        local: {
+          label: '.env — Local Ollama',
+          snippet: [
+            'LLM_BASE_URL=http://localhost:11434/v1',
+            'LLM_API_KEY=ollama',
+            'LLM_MODEL=qwen2.5-coder',
+          ].join('\n'),
+          warn: true,
+          note: '<b>Local Ollama caveat:</b> Works when SpriteGuard runs locally on your machine. On Fly.io, localhost refers to the Fly VM unless exposed via a tunnel or hosted endpoint. <code>LLM_API_KEY=ollama</code> acts as a placeholder key for OpenAI-compatible clients.',
+        },
+        openrouter: {
+          label: '.env — OpenRouter',
+          snippet: [
+            'LLM_BASE_URL=https://openrouter.ai/api/v1',
+            'LLM_API_KEY=your-key',
+            'LLM_MODEL=qwen/qwen-2.5-coder-32b-instruct',
+          ].join('\n'),
+          warn: false,
+          note: '<b>Open-source & multi-model routing:</b> Swap <code>LLM_MODEL</code> to any OpenRouter slug (e.g. Qwen 2.5 Coder, DeepSeek, Llama, or Claude) without changing code.',
+        },
+        gemini: {
+          label: '.env — Google Gemini',
+          snippet: [
+            'LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/',
+            'LLM_API_KEY=your-key',
+            'LLM_MODEL=gemini-2.5-flash',
+          ].join('\n'),
+          warn: false,
+          note: '<b>Gemini OpenAI-compatible endpoint:</b> Use <code>gemini-2.5-flash</code> for fast PR audits or <code>gemini-2.5-pro</code> for deeper security reasoning.',
+        },
+        claude: {
+          label: '.env — Anthropic Claude',
+          snippet: [
+            'ANTHROPIC_API_KEY=sk-ant-...',
+            'ANTHROPIC_MODEL=claude-sonnet-4-6',
+          ].join('\n'),
+          warn: false,
+          note: '<b>Native Anthropic SDK:</b> Leave <code>LLM_BASE_URL</code> unset. Current model IDs: <code>claude-sonnet-4-6</code> or <code>claude-haiku-4-5</code> (fastest for PR audits) and <code>claude-opus-4-6</code> (deepest analysis).',
+        },
+        zero: {
+          label: '.env — Zero-AI Deterministic Mode',
+          snippet: [
+            '# Leave both unset for 100% deterministic local analysis:',
+            'LLM_BASE_URL=',
+            'ANTHROPIC_API_KEY=',
+          ].join('\n'),
+          warn: false,
+          note: '<b>Zero external LLM calls:</b> Leaving <code>LLM_BASE_URL</code> and <code>ANTHROPIC_API_KEY</code> unset runs SpriteGuard 100% deterministically on Layer A/B scanners and the built-in heuristic auditor, patcher, and grounded fallback.',
+        },
+      };
+
+      function renderAiConfigTab(tabKey) {
+        const key = AI_CONFIG_TABS[tabKey] ? tabKey : 'local';
+        state.aiCfgTab = key;
+        const cfg = AI_CONFIG_TABS[key];
+        document.querySelectorAll('#ai-tabs button').forEach((b) => {
+          b.setAttribute('aria-selected', String(b.dataset.aiTab === key));
+        });
+        $('#ai-env-label').textContent = cfg.label;
+        $('#ai-env-code').textContent = cfg.snippet;
+        const copyBtn = $('#ai-copy-btn');
+        copyBtn.dataset.copy = cfg.snippet;
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+        const noteEl = $('#ai-env-note');
+        noteEl.className = 'ai-note' + (cfg.warn ? ' warn' : '');
+        noteEl.innerHTML = cfg.note;
+      }
+
+      function openAiConfigModal() {
+        const hd = $('#hd');
+        if (hd && hd.open) hd.close();
+        const h = state.health;
+        let initialTab = state.aiCfgTab || 'local';
+        if (!state.aiCfgTab && h) {
+          if (!h.aiEnabled) initialTab = 'zero';
+          else if (h.provider === 'anthropic') initialTab = 'claude';
+          else if (String(h.model || '').toLowerCase().includes('gemini')) initialTab = 'gemini';
+          else if (String(h.model || '').includes('/')) initialTab = 'openrouter';
+          else initialTab = 'local';
+        }
+        renderAiConfigTab(initialTab);
+        showModalWithFocus($('#ai-cfg'), $('#ai-copy-btn'));
+      }
+
       function renderHealthUI() {
         const h = state.health;
         const btn = $('#hbtn');
@@ -4567,58 +4771,66 @@
               : 'Healthy (deterministic fallback active)';
         }
 
-        const aiConfigHint =
-          'Self-hosting: switch models with <code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>, and <code>LLM_API_KEY</code> (Gemini, Claude, OpenRouter, or local Ollama at <code>http://localhost:11434/v1</code>).';
+        const aiTrustLine =
+          'Detected secrets are redacted before prompts leave the server. Supports local Ollama or Zero-AI mode for full data privacy.';
 
         const items = !h
           ? [
-              ['Deterministic scanners', 'unknown', 'Backend /health unreachable'],
-              ['AI engine', 'unknown', state.healthError || 'Health endpoint unreachable', aiConfigHint],
-              ['Fallback engine', 'unknown', 'Health endpoint unreachable'],
-              ['Neon pgvector store', 'unknown', 'Health endpoint unreachable'],
-              ['Split GitHub connectors', 'unknown', 'Health endpoint unreachable'],
-              ['Fly Sprites runtime', 'unknown', 'Health endpoint unreachable'],
+              { label: 'Deterministic scanners', st: 'unknown', detail: 'Backend /health unreachable' },
+              {
+                label: 'AI engine',
+                st: 'unknown',
+                detail: state.healthError || 'Health endpoint unreachable',
+                hint: aiTrustLine,
+                actionHtml: '<button type="button" class="link-btn" id="switch-ai-btn">Switch model</button>',
+              },
+              { label: 'Fallback engine', st: 'unknown', detail: 'Health endpoint unreachable' },
+              { label: 'Neon pgvector store', st: 'unknown', detail: 'Health endpoint unreachable' },
+              { label: 'Split GitHub connectors', st: 'unknown', detail: 'Health endpoint unreachable' },
+              { label: 'Fly Sprites runtime', st: 'unknown', detail: 'Health endpoint unreachable' },
             ]
           : [
-              [
-                'Deterministic scanners',
-                'ok',
-                'Layer A secret scanner & Layer B runtime egress probe online.',
-              ],
-              [
-                'AI engine',
-                h.aiEnabled ? 'ok' : 'degraded',
-                h.aiEnabled
+              {
+                label: 'Deterministic scanners',
+                st: 'ok',
+                detail: 'Layer A secret scanner & Layer B runtime egress probe online.',
+              },
+              {
+                label: 'AI engine',
+                st: h.aiEnabled ? 'ok' : 'degraded',
+                detail: h.aiEnabled
                   ? `Active provider: ${h.provider} (${h.model}).`
                   : `No external LLM key configured (${h.provider}); deterministic fallback is handling audits.`,
-                aiConfigHint,
-              ],
-              [
-                'Fallback engine',
-                'ok',
-                'Deterministic heuristic auditor, patcher, and grounded Q&A ready.',
-              ],
-              [
-                'Neon pgvector store',
-                h.dbHealthy ? 'ok' : 'down',
-                h.dbHealthy
+                hint: aiTrustLine,
+                actionHtml: '<button type="button" class="link-btn" id="switch-ai-btn">Switch model</button>',
+              },
+              {
+                label: 'Fallback engine',
+                st: 'ok',
+                detail: 'Deterministic heuristic auditor, patcher, and grounded Q&A ready.',
+              },
+              {
+                label: 'Neon pgvector store',
+                st: h.dbHealthy ? 'ok' : 'down',
+                detail: h.dbHealthy
                   ? h.store === 'postgres'
                     ? 'Connected to Neon Postgres + pgvector.'
                     : 'Connected to in-memory vector store (LOCAL_SANDBOX_MODE).'
                   : 'Database ping failed.',
-              ],
-              [
-                'Split GitHub connectors',
-                'ok',
-                `Read-Only & Trusted Write connectors separated (mode: ${h.githubMode}).`,
-              ],
-              [
-                'Fly Sprites runtime',
-                h.spriteDriver === 'fly-sprites' ? 'ok' : 'degraded',
-                h.spriteDriver === 'fly-sprites'
-                  ? 'Hardware-isolated Firecracker Sprites active.'
-                  : 'Running with local-sandbox driver (LOCAL_SANDBOX_MODE).',
-              ],
+              },
+              {
+                label: 'Split GitHub connectors',
+                st: 'ok',
+                detail: `Read-Only & Trusted Write connectors separated (mode: ${h.githubMode}).`,
+              },
+              {
+                label: 'Fly Sprites runtime',
+                st: h.spriteDriver === 'fly-sprites' ? 'ok' : 'degraded',
+                detail:
+                  h.spriteDriver === 'fly-sprites'
+                    ? 'Hardware-isolated Firecracker Sprites active.'
+                    : 'Running with local-sandbox driver (LOCAL_SANDBOX_MODE).',
+              },
             ];
 
         $('#hm').textContent = h
@@ -4626,10 +4838,10 @@
           : 'Could not reach GET /health. Component statuses shown as unknown.';
 
         $('#hl').innerHTML = items
-          .map(([label, st, detail, hintHtml]) => {
+          .map(({ label, st, detail, hint, actionHtml }) => {
             const badge = st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown';
-            return `<li><div><b>${esc(label)}</b><em class="hs ${esc(st)}">${esc(badge)}</em></div><p>${esc(detail)}</p>${
-              hintHtml ? `<p class="hl-hint">${hintHtml}</p>` : ''
+            return `<li><div><b>${esc(label)}</b><span class="hl-acts">${actionHtml || ''}<em class="hs ${esc(st)}">${esc(badge)}</em></span></div><p>${esc(detail)}</p>${
+              hint ? `<p class="hl-hint">${esc(hint)}</p>` : ''
             }</li>`;
           })
           .join('');
@@ -5191,6 +5403,7 @@
               switchTheme(c === 'dark' ? 'light' : 'dark');
             },
           ],
+          ['Configure AI Engine', 'Setup', openAiConfigModal],
           ['Check System Health', 'Diagnostics', () => { renderHealthUI(); showModalWithFocus($('#hd'), $('#hchk')); }],
           ['Show Getting Started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
           ['Filter: Needs Review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
@@ -5257,7 +5470,7 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn',
         );
         if (!t) return;
 
@@ -5275,6 +5488,10 @@
               behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
             });
           }
+        } else if (t.id === 'switch-ai-btn') {
+          openAiConfigModal();
+        } else if (t.dataset.aiTab) {
+          renderAiConfigTab(t.dataset.aiTab);
         } else if (t.id === 'focus-btn') {
           setFocusMode(!state.focusMode);
         } else if (t.id === 'focus-backdrop') {
