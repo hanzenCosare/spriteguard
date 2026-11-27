@@ -65,6 +65,23 @@
         box-sizing: border-box;
         margin: 0;
       }
+      [hidden] {
+        display: none !important;
+      }
+      html.theme-switching body,
+      html.theme-switching .card,
+      html.theme-switching .top,
+      html.theme-switching .top-bar,
+      html.theme-switching .btn,
+      html.theme-switching .stats,
+      html.theme-switching .row,
+      html.theme-switching .ask,
+      html.theme-switching dialog,
+      html.theme-switching input,
+      html.theme-switching textarea,
+      html.theme-switching select {
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      }
       html {
         scroll-padding-top: env(safe-area-inset-top, 0px);
       }
@@ -210,6 +227,7 @@
         background: var(--pn);
         font-size: 13px;
         font-weight: 500;
+        text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 7px;
@@ -234,6 +252,9 @@
         color: var(--on);
       }
       .btn.pri:hover:not(:disabled) {
+        background: var(--ac);
+        border-color: var(--ac);
+        color: var(--on);
         filter: brightness(1.08);
       }
       .btn.ai {
@@ -241,7 +262,11 @@
         border-color: var(--ai);
         color: var(--on);
       }
-      .btn.ai:hover:not(:disabled) {
+      .btn.ai:hover:not(:disabled),
+      .ask .btn:hover:not(:disabled) {
+        background: var(--ai);
+        border-color: var(--ai);
+        color: var(--on);
         filter: brightness(1.08);
       }
       .btn[aria-busy='true']::before {
@@ -1973,14 +1998,14 @@
           <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting…</span></span>
         </div>
         <div class="grow"></div>
-        <button class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
+        <button type="button" class="btn live" id="live" aria-pressed="true" title="Toggle 5s background polling">
           <i class="dot"></i><span>Live</span>
         </button>
-        <button class="btn" id="cbtn">Connect Repo</button>
-        <button class="btn" id="kbtn" title="Search audits and run actions (Ctrl or ⌘ K)">
+        <button type="button" class="btn" id="cbtn">Connect Repo</button>
+        <button type="button" class="btn" id="kbtn" title="Search audits and run actions (Ctrl or ⌘ K)">
           Search <kbd>⌘K</kbd>
         </button>
-        <button class="btn" id="theme-btn" title="Switch to light mode" aria-label="Switch to light mode">
+        <button type="button" class="btn" id="theme-btn" title="Switch to light mode" aria-label="Switch to light mode">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
@@ -1995,7 +2020,7 @@
       <section class="gs card" id="gs" aria-label="Get started">
         <div class="gh">
           <b>Get started with SpriteGuard</b>
-          <button class="btn" id="gsx">Hide</button>
+          <button type="button" class="btn" id="gsx">Hide</button>
         </div>
         <ol id="gso"></ol>
       </section>
@@ -2026,7 +2051,7 @@
               <option value="clean">Clean PR: no expected findings</option>
             </select>
           </label>
-          <button class="btn pri" id="demo-btn">Run Demo Audit</button>
+          <button type="button" class="btn pri" id="demo-btn">Run Demo Audit</button>
         </div>
 
         <form class="custom-pane" id="custom-form" hidden>
@@ -2082,11 +2107,11 @@
     </main>
 
     <footer class="wrap foot">
-      <button class="btn" id="hbtn" title="Component health and diagnostics">
+      <button type="button" class="btn" id="hbtn" title="Component health and diagnostics">
         <i class="dot mu"></i><span>System health: checking…</span>
       </button>
       <span class="grow"></span>
-      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>a</kbd> approve <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
+      <span><kbd>j</kbd><kbd>k</kbd> move <kbd>/</kbd> ask <kbd>⌘K</kbd> menu</span>
     </footer>
 
     <!-- Approve Confirmation Dialog -->
@@ -2099,8 +2124,9 @@
           <button type="button" class="btn" data-copy="/spriteguard approve">Copy</button>
         </div>
         <div class="dgb">
-          <button class="btn" value="x">Cancel</button>
-          <button class="btn pri" id="dlg-ok" value="ok">Approve and Push</button>
+          <button type="submit" class="btn" value="x">Cancel</button>
+          <button type="submit" class="btn pri" id="dlg-ok" value="ok">Approve and Push</button>
+          <a id="dlg-gh-link" class="btn pri" href="https://github.com" target="_blank" rel="noopener noreferrer" hidden>Open PR on GitHub</a>
         </div>
       </form>
     </dialog>
@@ -2355,6 +2381,7 @@
         t.className = 'on';
         t.textContent = msg + ' ';
         const b = document.createElement('button');
+        b.type = 'button';
         b.className = 'ub';
         b.textContent = 'Undo';
         b.onclick = () => {
@@ -2373,8 +2400,16 @@
       const THEME_ICON_MOON =
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 
-      function applyTheme(theme) {
+      let themeSwitchTimer = null;
+      function applyTheme(theme, animate = false) {
         const t = theme === 'light' ? 'light' : 'dark';
+        if (animate) {
+          document.documentElement.classList.add('theme-switching');
+          clearTimeout(themeSwitchTimer);
+          themeSwitchTimer = setTimeout(() => {
+            document.documentElement.classList.remove('theme-switching');
+          }, 220);
+        }
         document.documentElement.setAttribute('data-theme', t);
         ls('sg-theme', t);
         const btn = $('#theme-btn');
@@ -2386,7 +2421,7 @@
           btn.setAttribute('aria-label', label);
         }
       }
-      applyTheme(ls('sg-theme') || 'dark');
+      applyTheme(ls('sg-theme') || 'dark', false);
 
       function setActivePreset(presetKey) {
         state.activePreset = presetKey || null;
@@ -2616,7 +2651,7 @@
               `<li class="${done ? 'done' : ''}"><b>${esc(title)}<em>${
                 done === null ? 'Check on GitHub' : done ? 'Done' : 'To do'
               }</em></b><span>${esc(desc)}</span>${
-                btnLabel ? `<button class="btn" data-open="${esc(dlgId)}">${esc(btnLabel)}</button>` : ''
+                btnLabel ? `<button type="button" class="btn" data-open="${esc(dlgId)}">${esc(btnLabel)}</button>` : ''
               }</li>`,
           )
           .join('');
@@ -3184,7 +3219,7 @@
               d.status === 'awaiting_approval'
                 ? `<button type="button" class="btn pri" id="ap-btn" ${isApproving || isRescanning ? 'disabled' : ''}${
                     isApproving ? ' aria-busy="true"' : ''
-                  }>${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch <kbd>a</kbd>'}</button>`
+                  }>${isApproving ? 'Waking Sprite &amp; Pushing…' : 'Approve Patch'}</button>`
                 : ''
             }
           </div>
@@ -3574,7 +3609,8 @@
         }
       }
 
-      async function runDemoAudit() {
+      async function runDemoAudit(ev) {
+        if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
         if (state.runningDemo) return;
         const kind = $('#scn').value;
         const btn = $('#demo-btn');
@@ -3694,6 +3730,15 @@
         }
       }
 
+      function resolvePrUrl(scan) {
+        if (!scan) return '';
+        if (scan.prUrl && /^https?:\/\//i.test(scan.prUrl)) return scan.prUrl;
+        if (scan.repoFullName && scan.prNumber !== undefined && scan.prNumber !== null) {
+          return `https://github.com/${scan.repoFullName}/pull/${scan.prNumber}`;
+        }
+        return '';
+      }
+
       function promptApprove() {
         const d = selectedScan();
         if (!d || d.status !== 'awaiting_approval' || state.approving[d.id]) return;
@@ -3702,16 +3747,26 @@
         if (isDemo) {
           $('#dmsg').textContent = `This will wake Sprite ${d.spriteName || ''}, verify the diff SHA-256, and commit the patch to ${d.repoFullName}#${d.prNumber}. Keys in earlier git history must still be rotated.`;
           $('#dlg-cmd-box').hidden = true;
+          $('#dlg-ok').hidden = false;
           $('#dlg-ok').textContent = 'Approve and Push';
           $('#dlg-ok').dataset.mode = 'demo';
+          $('#dlg-gh-link').hidden = true;
         } else {
+          const prUrl = resolvePrUrl(d);
           $('#dmsg').textContent = `For zero-trust split-connector safety, production PR approvals are triggered directly by repository maintainers commenting on ${d.repoFullName}#${d.prNumber}. Copy and post this command on the PR:`;
           $('#dlg-cmd-box').hidden = false;
-          $('#dlg-ok').textContent = 'Open PR on GitHub';
+          $('#dlg-ok').hidden = true;
           $('#dlg-ok').dataset.mode = 'github';
+          $('#dlg-ok').dataset.prUrl = prUrl;
+          $('#dlg-gh-link').href = prUrl || 'https://github.com';
+          $('#dlg-gh-link').hidden = false;
         }
         $('#dlg').showModal();
       }
+
+      $('#dlg-gh-link').addEventListener('click', () => {
+        $('#dlg').close('x');
+      });
 
       $('#dlg').addEventListener('close', async () => {
         if ($('#dlg').returnValue !== 'ok') {
@@ -3723,7 +3778,8 @@
         if (!d) return;
 
         if ($('#dlg-ok').dataset.mode === 'github') {
-          window.open(`https://github.com/${d.repoFullName}/pull/${d.prNumber}`, '_blank', 'noopener,noreferrer');
+          const prUrl = $('#dlg-ok').dataset.prUrl || resolvePrUrl(d);
+          if (prUrl) window.open(prUrl, '_blank', 'noopener,noreferrer');
           return;
         }
 
@@ -4102,7 +4158,7 @@
       $('#kbtn').addEventListener('click', openPalette);
       $('#theme-btn').addEventListener('click', () => {
         const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-        applyTheme(cur === 'dark' ? 'light' : 'dark');
+        applyTheme(cur === 'dark' ? 'light' : 'dark', true);
       });
       $('#live').addEventListener('click', () => {
         state.live = !state.live;
@@ -4180,8 +4236,6 @@
             state.tab = 'f';
             renderAll();
           }
-        } else if (e.key === 'a') {
-          promptApprove();
         } else if (e.key === '/') {
           e.preventDefault();
           $('#qi')?.focus();
