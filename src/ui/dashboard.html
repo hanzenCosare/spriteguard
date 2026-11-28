@@ -898,6 +898,11 @@
         color: var(--mu);
         margin-right: 6px;
       }
+      .dm-tag {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--mu);
+      }
       .rm {
         color: var(--mu);
         font-size: 12.5px;
@@ -1756,6 +1761,47 @@
       }
       .gh-body a:hover {
         text-decoration: underline;
+      }
+      .gh-meter {
+        display: inline-flex;
+        vertical-align: -1px;
+        margin-right: 5px;
+      }
+      .fail-card {
+        border: 1px solid color-mix(in srgb, var(--cr) 35%, var(--ln));
+        border-left: 3px solid var(--cr);
+        border-radius: var(--r);
+        background: color-mix(in srgb, var(--cr) 4%, var(--sb));
+        padding: 18px 20px;
+        display: grid;
+        gap: 10px;
+      }
+      .fail-card-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--tx);
+      }
+      .fail-card-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--cr);
+        flex-shrink: 0;
+      }
+      .fail-card p {
+        font-size: 13.5px;
+        color: var(--tx);
+        line-height: 1.5;
+      }
+      .fail-card .fail-sub {
+        font-size: 12.5px;
+        color: var(--mu);
+      }
+      .fail-card .acts {
+        margin-top: 4px;
       }
 
       /* @spriteguard Slide-Over Drawer (docks as 3rd column on >=1540px) */
@@ -2815,7 +2861,7 @@
             </g>
           </svg>
           SpriteGuard
-          <span class="env" id="env-pill"><i class="dot" id="env-dot"></i><span id="env-text">Connecting…</span></span>
+          <span class="env" id="env-pill"><i class="dot mu" id="env-dot"></i><span id="env-text">Connecting…</span></span>
           <span class="demo-badge" id="demo-badge" hidden>Demo Preview</span>
         </div>
         <div class="grow"></div>
@@ -3186,7 +3232,9 @@
         pgOpen: false,
         pgUserToggled: false,
         health: null,
+        healthChecked: false,
         healthError: '',
+        showFailedRaw: false,
         mode: 'production',
         playgroundEnabled: false,
         storeBackend: '—',
@@ -3490,6 +3538,73 @@
       }
 
       const isPlaygroundScan = (scan) => /^(acme|playground|demo)\//i.test(scan.repoFullName || '');
+      function demoScenarioTag(scan) {
+        if (!scan) return 'Demo';
+        if (/custom-sandbox/i.test(scan.repoFullName || '')) return 'Custom Sandbox';
+        const title = String(scan.prTitle || '');
+        if (scan.status === 'clean' || (!Number(scan.findingsCount || 0) && /clean|math|integer/i.test(title))) {
+          return 'Clean PR';
+        }
+        return 'Vulnerable PR';
+      }
+
+      function explainAuditError(rawError) {
+        const raw = String(rawError || '').trim();
+        if (!raw) {
+          return {
+            summary: 'The audit stopped before completing — check System health in the footer, then click Retry Rescan.',
+            raw: '',
+          };
+        }
+        if (/auth(?:entication)?\s*fail|unauthorized|401|invalid.*(?:token|key|cred)/i.test(raw)) {
+          return {
+            summary: 'Authentication failed — check SPRITES_TOKEN on the server, then click Retry Rescan.',
+            raw,
+          };
+        }
+        if (/timed?\s*out|timeout|exceeded/i.test(raw)) {
+          return {
+            summary: 'Audit timed out before completion — the sandbox took too long or restarted. Click Retry Rescan to start a fresh run.',
+            raw,
+          };
+        }
+        if (/rate\s*limit|429/i.test(raw)) {
+          return {
+            summary: 'Upstream API rate limit reached — wait a minute or check GITHUB_READ_TOKEN, then click Retry Rescan.',
+            raw,
+          };
+        }
+        if (/not\s*found|404/i.test(raw)) {
+          return {
+            summary: 'Pull Request or repository not found — confirm the PR is open and accessible to the Read connector, then click Retry Rescan.',
+            raw,
+          };
+        }
+        if (/enotfound|econnrefused|econnreset|network|fetch\s*failed/i.test(raw)) {
+          return {
+            summary: 'Network error reaching upstream services — verify connectivity in System health, then click Retry Rescan.',
+            raw,
+          };
+        }
+        return {
+          summary: `${raw}${raw.endsWith('.') ? '' : '.'} Check System health in the footer, then click Retry Rescan.`,
+          raw,
+        };
+      }
+
+      function syncSelectionToFilter() {
+        const vis = visibleScans();
+        if (vis.length === 0) {
+          state.selId = null;
+        } else if (!vis.some((s) => s.id === state.selId)) {
+          state.selId = vis[0].id;
+          state.tab = 'f';
+          state.revealSecrets = false;
+          state.showFailedRaw = false;
+          if (!state.detailsCache[state.selId]) fetchScanDetail(state.selId);
+        }
+        syncUrlState();
+      }
       const needsAttention = (scan) =>
         scan.status === 'awaiting_approval' || scan.status === 'needs_review' || scan.status === 'running' || scan.status === 'queued';
       const sevMeta = (score) => {
@@ -3618,6 +3733,13 @@
         const [, avgColor] = sevMeta(avg);
         const totalSecrets = activePool.reduce((a, s) => a + Number(s.secretsCount || 0), 0);
         const stillExposed = countExposedSecrets(activePool);
+        const isDemoScope =
+          state.sourceFilter === 'playground' ||
+          (state.sourceFilter === 'all' && liveScans.length === 0 && pgScans.length > 0);
+        const exposedColor = stillExposed ? (isDemoScope ? 'hi' : 'cr') : 'ok';
+        const exposedHtml = `<small style="color:var(--${exposedColor})">${stillExposed} still exposed${
+          isDemoScope ? '<span class="dm" style="margin:0 0 0 6px">Demo</span>' : ''
+        }</small>`;
         const activeSprites = state.scans.filter(
           (s) =>
             s.status !== 'failed' &&
@@ -3640,7 +3762,7 @@
           <div>
             <span class="l">Secrets found <em>${esc(scopeLabel)}</em></span>
             <b>${totalSecrets}</b>
-            <small style="color:var(--${stillExposed ? 'cr' : 'ok'})">${stillExposed} still exposed</small>
+            ${exposedHtml}
           </div>
           <div>
             <span class="l">Average risk</span>
@@ -3813,7 +3935,9 @@
           return `<button type="button" class="row" role="option" aria-selected="${d.id === state.selId}" data-id="${esc(d.id)}">
             <span class="rk">${gauge(score, col)}<b>${isRunning ? '…' : score}</b></span>
             <span style="min-width:0">
-              <div class="rt">${isDemo ? '<span class="dm">Demo</span>' : ''}${esc(d.prTitle)}</div>
+              <div class="rt">${isDemo ? '<span class="dm">Demo</span>' : ''}${esc(d.prTitle)}${
+                isDemo ? ` <span class="dm-tag">· ${esc(demoScenarioTag(d))}</span>` : ''
+              }</div>
               <div class="rm">
                 <span>${esc(d.repoFullName)}#${esc(d.prNumber)}</span>
                 <span class="mono">${esc(shortSha)}</span>
@@ -3882,17 +4006,32 @@
       }
 
       /* Markdown Rendering (XSS-safe for both @spriteguard Q&A and PR Report Preview) */
+      function renderRiskMeterHtml(barStr) {
+        const filled = (barStr.match(/█/g) || []).length;
+        const total = Math.max(1, barStr.length);
+        const pct = Math.round((filled / total) * 100);
+        const [, col] = sevMeta(pct);
+        return `<span class="gh-meter" title="Risk meter ${pct}%">${gauge(pct, col)}</span>`;
+      }
+
       function renderInlineMd(raw) {
         let s = esc(raw).replace(/&amp;nbsp;/g, '&nbsp;');
         const codes = [];
         s = s.replace(/`([^`]+)`/g, (_, code) => {
           const idx = codes.length;
           let html = '<code>' + code + '</code>';
-          if (/🔴\s*CRITICAL/i.test(code)) html = '<span class="chip" style="color:var(--cr)">' + code + '</span>';
+          if (/^\[([█░]{4,})\]$/.test(code)) {
+            html = renderRiskMeterHtml(code.slice(1, -1));
+          } else if (/🔴\s*CRITICAL/i.test(code)) html = '<span class="chip" style="color:var(--cr)">' + code + '</span>';
           else if (/🟠\s*HIGH/i.test(code)) html = '<span class="chip" style="color:var(--hi)">' + code + '</span>';
           else if (/🟡\s*MEDIUM/i.test(code)) html = '<span class="chip" style="color:var(--md)">' + code + '</span>';
           else if (/🟢\s*LOW/i.test(code)) html = '<span class="chip" style="color:var(--ok)">' + code + '</span>';
           codes.push(html);
+          return '\x00CODE' + idx + '\x00';
+        });
+        s = s.replace(/\[([█░]{4,})\]/g, (_, bar) => {
+          const idx = codes.length;
+          codes.push(renderRiskMeterHtml(bar));
           return '\x00CODE' + idx + '\x00';
         });
         s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
@@ -4570,6 +4709,7 @@
           rescanning: Boolean(state.rescanning[d.id]),
           hydrating: Boolean(state.hydrating[d.id]),
           revealSecrets: state.revealSecrets,
+          showFailedRaw: state.showFailedRaw,
           credEntries,
           hasCachedRaw: state.tab === 'r' ? Boolean(cached) : false,
         });
@@ -4600,17 +4740,27 @@
         if (!d) {
           syncRunningTicker();
           if (state.focusMode) setFocusMode(false);
-          if (opts.background && state.lastDetailSig === 'null') return;
-          state.lastDetailSig = 'null';
+          const emptySig = state.scans.length > 0 ? 'empty-filter' : 'empty-all';
+          if (opts.background && state.lastDetailSig === emptySig) return;
+          state.lastDetailSig = emptySig;
           state.lastDetailScanId = null;
           state.lastDetailTab = null;
-          el.innerHTML = `<div class="emp-card">
-            <b>Select an audit to inspect</b>
-            <p>Choose any PR on the left, or launch an isolated Sandbox run from the header.</p>
-            <div class="acts">
-              <button type="button" class="btn pri" id="emp-pg-btn">${state.playgroundEnabled ? 'Open Playground' : 'Scan Public PR'}</button>
-            </div>
-          </div>`;
+          el.innerHTML =
+            state.scans.length > 0
+              ? `<div class="emp-card">
+                  <b>No audits match this filter</b>
+                  <p>No pull requests match the active source, status, or search filter.</p>
+                  <div class="acts">
+                    <button type="button" class="btn pri" data-reset-filters="1">Reset Filters</button>
+                  </div>
+                </div>`
+              : `<div class="emp-card">
+                  <b>Select an audit to inspect</b>
+                  <p>Choose any PR on the left, or launch an isolated Sandbox run from the header.</p>
+                  <div class="acts">
+                    <button type="button" class="btn pri" id="emp-pg-btn">${state.playgroundEnabled ? 'Open Playground' : 'Scan Public PR'}</button>
+                  </div>
+                </div>`;
           return;
         }
 
@@ -4691,93 +4841,141 @@
                 : ''
             }
           </div>
-        </div>
-        <div class="meta-bar">
-          <span class="meta-item" title="Risk score and severity">
-            <span>Risk</span>
-            ${fin ? gauge(risk, sc) : ''}
-            <b>${fin ? risk : '–'}</b>
-            <span class="meta-sub">${fin ? esc(sl + (crit ? ` · ${crit} crit` : '')) : isRunning ? 'Scanning…' : 'No result'}</span>
-          </span>
-          <span class="meta-sep" aria-hidden="true">|</span>
-          <span class="meta-item" title="Total findings and exposed credentials">
-            <span>Findings</span>
-            <b>${fin ? nf : '–'}</b>
-            ${fin ? `<span class="meta-sub">(${ns} secret${ns === 1 ? '' : 's'})</span>` : ''}
-          </span>
-          <span class="meta-sep" aria-hidden="true">|</span>
-          <span class="meta-item" title="${esc(egressMeta)}">
-            <span>Egress</span>
-            <b>${fin ? d.flaggedEgressCount : '–'}</b>
-            ${
-              fin
-                ? `<span class="meta-sub">${
-                    flaggedHosts.length
-                      ? esc(flaggedHosts.map((x) => x.host).join(', '))
-                      : (d.egressDomains || []).length
-                        ? `${d.egressDomains.length} allowlisted`
-                        : 'clean'
-                  }</span>`
-                : ''
-            }
-          </span>
-          <span class="meta-sprite" title="${esc(`Sprite ${spInfo.label}: ${spInfo.hint}`)}">
-            <i class="sp ${esc(spInfo.label)}"></i>
-            <span>Sprite ${esc(spInfo.label)}</span>
-            <span class="meta-sprite-hint">· ${esc(spInfo.hint)}</span>
-            ${d.spriteName ? `<code title="${esc(d.spriteName)}">${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
-          </span>
         </div>`;
 
-        h += buildStatusStrip(d, patch, stillExposed, nf);
-
-        if (isRunning) {
-          const runInfo = getRunningInfo(d);
-          const curStep = runInfo.stepIdx;
+        if (d.status === 'failed') {
+          const errInfo = explainAuditError(d.error);
+          const rawPayload = cached ? { scan: cached.scan, patch: cached.patch } : { scan: d, patch };
+          const rawJsonStr = JSON.stringify(rawPayload, null, 2);
+          const shownJson = state.revealSecrets ? rawJsonStr : maskSecretText(rawJsonStr);
           h += `<div class="pane">
-            <div class="hero-tl">
-              <div class="hero-tl-head">
-                <b>Live Zero-Trust Audit Pipeline</b>
-                <span>${esc(runInfo.stepLabel)} · ${esc(runInfo.elapsedLabel)}</span>
+            <div class="fail-card" role="alert">
+              <div class="fail-card-head"><span class="fail-card-dot" aria-hidden="true"></span><span>Audit failed before completing</span></div>
+              <p>${esc(errInfo.summary)}</p>
+              <div class="fail-sub">Sprite <span class="mono">${esc(d.spriteName || 'none')}</span> · ${esc(spInfo.hint)}${
+                d.createdAt ? ` · ${esc(timeAgo(d.createdAt))}` : ''
+              }</div>
+              <div class="acts">
+                <button type="button" class="btn pri" id="rs-err-btn" ${isRescanning ? 'disabled aria-busy="true"' : ''}>${
+                  isRescanning ? 'Rescanning…' : 'Retry Rescan'
+                }</button>
+                <button type="button" class="btn" id="open-health-btn">Check System Health</button>
+                <button type="button" class="btn" id="failed-raw-btn" aria-pressed="${state.showFailedRaw}">${
+                  state.showFailedRaw ? 'Hide Raw JSON' : 'Inspect Raw JSON'
+                }</button>
               </div>
-              <div class="step-rail" aria-hidden="true">${LIVE_STEPS.map(
-                (_, idx) => `<span class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"></span>`,
-              ).join('')}</div>
-              <ol class="steps">${LIVE_STEPS.map(
-                ([title, desc], idx) =>
-                  `<li class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"><i></i><div><b>${esc(
-                    title,
-                  )}</b><small>${esc(desc)}</small></div></li>`,
-              ).join('')}</ol>
+              ${
+                errInfo.raw && errInfo.raw !== errInfo.summary
+                  ? `<details class="adv"><summary>Raw error details</summary><code class="ev" style="margin-top:8px">${esc(errInfo.raw)}</code></details>`
+                  : ''
+              }
             </div>
+            ${
+              state.showFailedRaw
+                ? `<div style="margin-top:14px">
+                    <div class="pane-bar">
+                      <span>${state.revealSecrets ? 'Secret values revealed' : 'Secret-like tokens masked by default'}</span>
+                      <div class="acts">
+                        <button type="button" class="btn sm" id="toggle-mask-btn" aria-pressed="${state.revealSecrets}">${
+                          state.revealSecrets ? 'Mask Secrets' : 'Reveal'
+                        }</button>
+                        <button type="button" class="btn sm" id="copy-json-btn">Copy JSON</button>
+                      </div>
+                    </div>
+                    <pre class="raw">${esc(shownJson)}</pre>
+                  </div>`
+                : ''
+            }
           </div>`;
         } else {
-          const tabs = [
-            ['f', 'Findings' + (nf ? ` (${nf})` : ''), '1'],
-            ['p', 'Patch', '2'],
-            ['m', 'PR Report', '3'],
-            ['r', 'Raw JSON', '4'],
-          ];
-          h += `<div class="tabs" role="tablist">${tabs
-            .map(
-              ([k, label, hk]) =>
-                `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}" title="Shortcut: ${hk}">${label}<kbd>${hk}</kbd></button>`,
-            )
-            .join('')}<button type="button" class="tab-expand" id="focus-btn" aria-pressed="${state.focusMode}" title="${
-            state.focusMode ? 'Exit focus overlay (f or Esc)' : 'Expand reader into full-viewport focus overlay (f)'
-          }">${state.focusMode ? ICON_COMPRESS : ICON_EXPAND}<span>${state.focusMode ? 'Exit Focus' : 'Expand'}</span><kbd>f</kbd></button></div><div class="pane">`;
+          h += `<div class="meta-bar">
+            <span class="meta-item" title="Risk score and severity">
+              <span>Risk</span>
+              ${fin ? gauge(risk, sc) : ''}
+              <b>${fin ? risk : '–'}</b>
+              <span class="meta-sub">${fin ? esc(sl + (crit ? ` · ${crit} crit` : '')) : isRunning ? 'Scanning…' : 'No result'}</span>
+            </span>
+            <span class="meta-sep" aria-hidden="true">|</span>
+            <span class="meta-item" title="Total findings and exposed credentials">
+              <span>Findings</span>
+              <b>${fin ? nf : '–'}</b>
+              ${fin ? `<span class="meta-sub">(${ns} secret${ns === 1 ? '' : 's'})</span>` : ''}
+            </span>
+            <span class="meta-sep" aria-hidden="true">|</span>
+            <span class="meta-item" title="${esc(egressMeta)}">
+              <span>Egress</span>
+              <b>${fin ? d.flaggedEgressCount : '–'}</b>
+              ${
+                fin
+                  ? `<span class="meta-sub">${
+                      flaggedHosts.length
+                        ? esc(flaggedHosts.map((x) => x.host).join(', '))
+                        : (d.egressDomains || []).length
+                          ? `${d.egressDomains.length} allowlisted`
+                          : 'clean'
+                    }</span>`
+                  : ''
+              }
+            </span>
+            <span class="meta-sprite" title="${esc(`Sprite ${spInfo.label}: ${spInfo.hint}`)}">
+              <i class="sp ${esc(spInfo.label)}"></i>
+              <span>Sprite ${esc(spInfo.label)}</span>
+              <span class="meta-sprite-hint">· ${esc(spInfo.hint)}</span>
+              ${d.spriteName ? `<code title="${esc(d.spriteName)}">${esc(d.spriteName)}</code><button type="button" class="btn" data-copy="${esc(d.spriteName)}">Copy</button>` : ''}
+            </span>
+          </div>`;
 
-          if (state.tab === 'f') {
-            if (d.status === 'failed' || d.status === 'publish_failed') {
-              h += `<div class="note err" role="alert">
-                <b>Audit error.</b> ${esc(d.error || 'The audit failed before completing.')}
-                <div class="acts" style="margin-top:10px">
-                  <button type="button" class="btn" id="rs-err-btn" ${isRescanning ? 'disabled aria-busy="true"' : ''}>${
-                    isRescanning ? 'Rescanning…' : 'Retry Rescan'
-                  }</button>
+          h += buildStatusStrip(d, patch, stillExposed, nf);
+
+          if (isRunning) {
+            const runInfo = getRunningInfo(d);
+            const curStep = runInfo.stepIdx;
+            h += `<div class="pane">
+              <div class="hero-tl">
+                <div class="hero-tl-head">
+                  <b>Live Zero-Trust Audit Pipeline</b>
+                  <span>${esc(runInfo.stepLabel)} · ${esc(runInfo.elapsedLabel)}</span>
                 </div>
-              </div>`;
-            } else if (findings.length > 0) {
+                <div class="step-rail" aria-hidden="true">${LIVE_STEPS.map(
+                  (_, idx) => `<span class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"></span>`,
+                ).join('')}</div>
+                <ol class="steps">${LIVE_STEPS.map(
+                  ([title, desc], idx) =>
+                    `<li class="${idx < curStep ? 'done' : idx === curStep ? 'on' : ''}"><i></i><div><b>${esc(
+                      title,
+                    )}</b><small>${esc(desc)}</small></div></li>`,
+                ).join('')}</ol>
+              </div>
+            </div>`;
+          } else {
+            const tabs = [
+              ['f', 'Findings' + (nf ? ` (${nf})` : ''), '1'],
+              ['p', 'Patch', '2'],
+              ['m', 'PR Report', '3'],
+              ['r', 'Raw JSON', '4'],
+            ];
+            h += `<div class="tabs" role="tablist">${tabs
+              .map(
+                ([k, label, hk]) =>
+                  `<button type="button" role="tab" aria-selected="${k === state.tab}" data-t="${k}" title="Shortcut: ${hk}">${label}<kbd>${hk}</kbd></button>`,
+              )
+              .join('')}<button type="button" class="tab-expand" id="focus-btn" aria-pressed="${state.focusMode}" title="${
+              state.focusMode ? 'Exit focus overlay (f or Esc)' : 'Expand reader into full-viewport focus overlay (f)'
+            }">${state.focusMode ? ICON_COMPRESS : ICON_EXPAND}<span>${state.focusMode ? 'Exit Focus' : 'Expand'}</span><kbd>f</kbd></button></div><div class="pane">`;
+
+            if (state.tab === 'f') {
+              if (d.status === 'publish_failed') {
+                const errInfo = explainAuditError(d.error);
+                h += `<div class="fail-card" role="alert">
+                  <div class="fail-card-head"><span class="fail-card-dot" aria-hidden="true"></span><span>Patch push failed</span></div>
+                  <p>${esc(errInfo.summary)}</p>
+                  <div class="acts">
+                    <button type="button" class="btn pri" id="rs-err-btn" ${isRescanning ? 'disabled aria-busy="true"' : ''}>${
+                      isRescanning ? 'Rescanning…' : 'Retry Rescan'
+                    }</button>
+                  </div>
+                </div>`;
+              } else if (findings.length > 0) {
               h += renderOverview(d, findings);
               h += findings
                 .map((f, idx) => {
@@ -4869,6 +5067,7 @@
           }
           h += `</div>`;
         }
+        }
 
         el.innerHTML = h;
         state.lastDetailSig = nextSig;
@@ -4910,6 +5109,13 @@
         if (demoBadge) {
           demoBadge.hidden = !viewingDemo;
           demoBadge.title = 'Inspecting synthetic Playground fixture; live repository metrics remain separated';
+        }
+        if (!state.healthChecked) {
+          pill.className = 'env';
+          pill.title = 'Checking SpriteGuard server health…';
+          envDot.className = 'dot mu';
+          envText.textContent = 'Connecting…';
+          return;
         }
         if (!h) {
           pill.className = 'env';
@@ -5165,6 +5371,7 @@
             state.health = null;
             state.healthError = healthRes.reason?.message || 'network error';
           }
+          state.healthChecked = true;
           renderHealthUI();
 
           if (scansRes.status !== 'fulfilled') throw scansRes.reason;
@@ -5213,11 +5420,7 @@
             if (btn) btn.textContent = state.playgroundEnabled ? 'Playground / Scan URL' : 'Scan Public PR';
           }
 
-          if (!state.selId || !state.scans.some((s) => s.id === state.selId)) {
-            const vis = visibleScans();
-            state.selId = (vis[0] || state.scans[0] || {}).id || null;
-          }
-          syncUrlState();
+          syncSelectionToFilter();
 
           renderAll({ background: !force });
           if (state.tab === 'r' && state.selId && !state.detailsCache[state.selId]) {
@@ -5684,8 +5887,8 @@
           ['Configure AI Engine', 'Setup', openAiConfigModal],
           ['Check System Health', 'Diagnostics', () => { renderHealthUI(); showModalWithFocus($('#hd'), $('#hchk')); }],
           ['Show Getting Started', 'Help', () => { ls('sg-gs', '1'); renderGettingStarted(); }],
-          ['Filter: Needs Review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); renderList(); }],
-          ['Filter: All Audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); renderList(); }],
+          ['Filter: Needs Review', 'Filter', () => { state.statusFilter = 'rev'; ls('sg-flt', 'rev'); syncSelectionToFilter(); renderAll(); }],
+          ['Filter: All Audits', 'Filter', () => { state.statusFilter = 'all'; ls('sg-flt', 'all'); syncSelectionToFilter(); renderAll(); }],
         ];
 
         const actions = [...prActions, ...workspaceActions]
@@ -5748,7 +5951,7 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn,#hretry',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn,#hretry,#open-health-btn,#failed-raw-btn',
         );
         if (!t) return;
 
@@ -5756,6 +5959,7 @@
           state.selId = t.dataset.id;
           state.tab = 'f';
           state.revealSecrets = false;
+          state.showFailedRaw = false;
           setMobileView('detail');
           syncUrlState();
           renderAll();
@@ -5768,6 +5972,15 @@
           }
         } else if (t.id === 'switch-ai-btn') {
           openAiConfigModal();
+        } else if (t.id === 'open-health-btn') {
+          renderHealthUI();
+          showModalWithFocus($('#hd'), $('#hchk'));
+        } else if (t.id === 'failed-raw-btn') {
+          state.showFailedRaw = !state.showFailedRaw;
+          if (state.showFailedRaw && state.selId && !state.detailsCache[state.selId]) {
+            fetchScanDetail(state.selId);
+          }
+          renderDetail();
         } else if (t.dataset.aiTab) {
           renderAiConfigTab(t.dataset.aiTab);
         } else if (t.id === 'focus-btn') {
@@ -5795,6 +6008,7 @@
           $('#q').value = '';
           ls('sg-src', 'all');
           ls('sg-flt', 'all');
+          syncSelectionToFilter();
           renderAll();
         } else if (t.dataset.toggleGroup) {
           const gKey = t.dataset.toggleGroup;
@@ -5804,11 +6018,13 @@
           state.sourceFilter = t.dataset.src;
           state.sourceFilterExplicit = true;
           ls('sg-src', state.sourceFilter);
+          syncSelectionToFilter();
           renderAll();
         } else if (t.dataset.f) {
           state.statusFilter = t.dataset.f;
           ls('sg-flt', state.statusFilter);
-          renderList();
+          syncSelectionToFilter();
+          renderAll();
         } else if (t.dataset.t) {
           state.tab = t.dataset.t;
           syncUrlState();
@@ -5963,7 +6179,8 @@
 
       $('#q').addEventListener('input', (e) => {
         state.searchQuery = e.target.value.toLowerCase();
-        renderList();
+        syncSelectionToFilter();
+        renderAll();
       });
       $('#scn').addEventListener('change', () => {
         const val = $('#scn').value;
@@ -6022,11 +6239,13 @@
           }
           if (!res.ok) {
             state.health = payload;
+            state.healthChecked = true;
             state.healthError = `HTTP ${res.status} ${res.statusText || ''}`.trim();
             renderHealthUI();
             return;
           }
           state.health = payload;
+          state.healthChecked = true;
           state.healthError = '';
           renderHealthUI();
           if (okEl) {
@@ -6038,6 +6257,7 @@
           await refreshAll(true);
         } catch (err) {
           state.health = null;
+          state.healthChecked = true;
           state.healthError = (err && err.message) || 'Network error reaching /health';
           renderHealthUI();
         } finally {
@@ -6165,9 +6385,12 @@
             setFocusMode(!state.focusMode);
           }
         } else if (e.key === '/') {
+          e.preventDefault();
+          e.stopPropagation();
           if (selectedScan()) {
-            e.preventDefault();
             setQaOpen(true, { focusInput: true });
+          } else {
+            requestAnimationFrame(() => $('#q')?.focus());
           }
         }
       });
