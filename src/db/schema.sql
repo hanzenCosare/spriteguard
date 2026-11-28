@@ -98,3 +98,9 @@ CREATE INDEX IF NOT EXISTS idx_audit_patches_scan
 
 CREATE INDEX IF NOT EXISTS idx_audit_patches_status
   ON audit_patches (status);
+
+CREATE TABLE IF NOT EXISTS runtime_settings (
+  key TEXT PRIMARY KEY,
+  value_json JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

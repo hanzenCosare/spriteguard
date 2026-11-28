@@ -107,9 +107,9 @@ LLM_MODEL=qwen/qwen-2.5-coder-32b-instruct
 
 ### Option 3 — Google Gemini (OpenAI-Compatible Endpoint)
 ```dotenv
-LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 LLM_API_KEY=your-key
-LLM_MODEL=gemini-2.5-flash
+LLM_MODEL=gemini-3.5-flash
 ```
 
 ### Option 4 — Anthropic Claude (Native SDK)
@@ -134,8 +134,8 @@ Keep non-secret provider routing in `fly.toml` under `[env]` so model switches a
 ```toml
 # fly.toml
 [env]
-  LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-  LLM_MODEL = "gemini-2.5-flash"
+  LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+  LLM_MODEL = "gemini-3.5-flash"
 ```
 
 ```bash

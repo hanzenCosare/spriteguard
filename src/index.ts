@@ -30,6 +30,14 @@ import { WebhookHandler } from './github/webhookHandler.js';
 import { createLogger, type Logger } from './logger.js';
 import { AuditOrchestrator, TrustedPublisher } from './orchestrator.js';
 import { MAX_QA_QUESTION_CHARS, OpusAuditor } from './scanner/opusAuditor.js';
+import type { ConversationTurn } from './scanner/qa/index.js';
+import {
+  isProviderId,
+  isValidHttpUrl,
+  LLM_PROVIDER_LABELS,
+  RuntimeLlmStore,
+  type PersistedLlmSettings,
+} from './services/llmConfig.js';
 import type { CommitPatch, PatchRecord, PrContext, ScanRecord, ScanStatus } from './types.js';
 
 declare module 'fastify' {
@@ -38,11 +46,19 @@ declare module 'fastify' {
   }
 }
 
+export interface CreateAppOptions {
+  fetchFn?: typeof fetch;
+  env?: NodeJS.ProcessEnv;
+  probeCacheTtlMs?: number;
+  nowFn?: () => number;
+}
+
 export interface SpriteGuardApp {
   app: FastifyInstance;
   config: AppConfig;
   log: Logger;
   store: Store;
+  llmStore: RuntimeLlmStore;
   spriteManager: SpriteManager;
   connectors: GitHubConnectors;
   orchestrator: AuditOrchestrator;
@@ -216,12 +232,27 @@ function createNoopWriteConnector(): GitHubWriteConnector {
   };
 }
 
-export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardApp> {
+export async function createApp(customConfig?: AppConfig, opts: CreateAppOptions = {}): Promise<SpriteGuardApp> {
   const config = customConfig ?? loadConfig();
   const log = createLogger(config.logLevel);
 
   const { store, embeddings } = createStore(config, log);
   await store.init();
+
+  const llmStore = new RuntimeLlmStore({
+    appConfig: config,
+    env: opts.env ?? (customConfig ? {} : process.env),
+    fetchFn: opts.fetchFn,
+    probeCacheTtlMs: opts.probeCacheTtlMs,
+    nowFn: opts.nowFn,
+  });
+
+  if (store.backend === 'postgres') {
+    const persisted = await store.getRuntimeSetting<PersistedLlmSettings>('llm_config');
+    if (persisted) {
+      llmStore.hydratePersistedSettings(persisted);
+    }
+  }
 
   const spriteManager = createSpriteManager(
     {
@@ -234,7 +265,10 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
   );
 
   const connectors = createGitHubConnectors(config, log);
-  const auditor = new OpusAuditor(config.llm, log.child({ module: 'opus' }));
+  const auditor = new OpusAuditor(
+    { ...config.llm, llmStore, fetchFn: opts.fetchFn },
+    log.child({ module: 'opus' }),
+  );
   const publisher = new TrustedPublisher(connectors.write);
   const orchestrator = new AuditOrchestrator(
     config,
@@ -290,11 +324,19 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     return reply.type('text/html; charset=utf-8').send(cachedDashboardHtml);
   });
 
-  const healthHandler = async (_req: FastifyRequest, reply: FastifyReply) => {
-    const dbHealthy = await store.ping();
+  const healthHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+    const q = req.query as { force?: string } | undefined;
+    const force = ['1', 'true', 'yes'].includes(String(q?.force ?? '').trim().toLowerCase());
+    const [dbHealthy, probe] = await Promise.all([
+      store.ping(),
+      llmStore.getCachedHealthProbe({ force }),
+    ]);
+    const active = llmStore.getActiveConfig();
+    const aiEnabled = active.provider !== 'zero-ai';
     const statusCode = dbHealthy ? 200 : 503;
+    const overallStatus = dbHealthy && probe.ok ? 'ok' : 'degraded';
     return reply.code(statusCode).send({
-      status: dbHealthy ? 'ok' : 'degraded',
+      status: overallStatus,
       service: 'spriteguard',
       mode: config.localSandboxMode ? 'local-sandbox' : 'production',
       playgroundEnabled,
@@ -302,15 +344,146 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       dbHealthy,
       spriteDriver: spriteManager.driver.kind,
       githubMode: connectors.read.mode,
-      aiEnabled: auditor.hasAi,
-      provider: auditor.provider,
-      model: auditor.model,
+      aiEnabled,
+      activeProvider: active.provider,
+      activeProviderLabel: LLM_PROVIDER_LABELS[active.provider],
+      activeModel: active.model,
+      provider: active.provider,
+      model: active.model,
+      aiStatus: probe.status,
+      aiHealthMessage: probe.ok
+        ? (probe.message ?? `${LLM_PROVIDER_LABELS[active.provider]} healthy`)
+        : (probe.error ?? `${LLM_PROVIDER_LABELS[active.provider]} health check failed`),
+      lastProbe: probe,
       timestamp: new Date().toISOString(),
     });
   };
 
   app.get('/health', healthHandler);
   app.get('/api/health', healthHandler);
+
+  // Runtime LLM Configuration, Model Auto-Discovery & Verification Probes
+  app.get('/api/llm/config', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    return reply.send(llmStore.getSanitizedConfig());
+  });
+
+  app.post('/api/llm/models', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const body = (req.body ?? {}) as { provider?: unknown; baseUrl?: unknown; apiKey?: unknown };
+    if (!isProviderId(body.provider)) {
+      return reply.code(400).send({
+        ok: false,
+        error: 'provider must be one of: local, openrouter, gemini, claude, zero-ai',
+      });
+    }
+    const baseUrl = typeof body.baseUrl === 'string' && body.baseUrl.trim() ? body.baseUrl.trim() : undefined;
+    if (body.provider !== 'zero-ai' && baseUrl && !isValidHttpUrl(baseUrl)) {
+      return reply.code(400).send({ ok: false, error: 'baseUrl must start with http:// or https://' });
+    }
+    const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined;
+    const result = await llmStore.discoverModels({
+      provider: body.provider,
+      ...(baseUrl ? { baseUrl } : {}),
+      ...(apiKey ? { apiKey } : {}),
+    });
+    return reply.send(result);
+  });
+
+  app.post('/api/llm/test', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const body = (req.body ?? {}) as {
+      provider?: unknown;
+      baseUrl?: unknown;
+      apiKey?: unknown;
+      model?: unknown;
+    };
+    if (!isProviderId(body.provider)) {
+      return reply.code(400).send({
+        ok: false,
+        error: 'provider must be one of: local, openrouter, gemini, claude, zero-ai',
+      });
+    }
+    const baseUrl = typeof body.baseUrl === 'string' && body.baseUrl.trim() ? body.baseUrl.trim() : undefined;
+    if (body.provider !== 'zero-ai' && baseUrl && !isValidHttpUrl(baseUrl)) {
+      return reply.code(400).send({ ok: false, error: 'baseUrl must start with http:// or https://' });
+    }
+    const model = typeof body.model === 'string' ? body.model.trim() : undefined;
+    if (body.provider !== 'zero-ai' && !model && !llmStore.getProviderCredentials(body.provider).model) {
+      return reply.code(400).send({ ok: false, error: `model is required for ${LLM_PROVIDER_LABELS[body.provider]}` });
+    }
+    const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined;
+    const probe = await llmStore.probeConnection(
+      {
+        provider: body.provider,
+        ...(baseUrl ? { baseUrl } : {}),
+        ...(apiKey ? { apiKey } : {}),
+        ...(model ? { model } : {}),
+      },
+      { prompt: 'Reply OK', maxTokens: 8, timeoutMs: 8_000 },
+    );
+    return reply.send({
+      ok: probe.ok,
+      provider: probe.provider,
+      model: probe.model,
+      latencyMs: probe.latencyMs,
+      status: probe.status,
+      ...(probe.httpStatus !== undefined ? { httpStatus: probe.httpStatus } : {}),
+      ...(probe.message ? { message: probe.message } : {}),
+      ...(probe.error ? { error: probe.error } : {}),
+    });
+  });
+
+  app.post('/api/llm/config', async (req, reply) => {
+    if (!checkDashboardAuth(req, reply, config.dashboardToken)) return;
+    const body = (req.body ?? {}) as {
+      provider?: unknown;
+      baseUrl?: unknown;
+      apiKey?: unknown;
+      model?: unknown;
+      verify?: unknown;
+    };
+    if (!isProviderId(body.provider)) {
+      return reply.code(400).send({
+        ok: false,
+        error: 'provider must be one of: local, openrouter, gemini, claude, zero-ai',
+      });
+    }
+    const baseUrl = typeof body.baseUrl === 'string' && body.baseUrl.trim() ? body.baseUrl.trim() : undefined;
+    if (body.provider !== 'zero-ai' && baseUrl && !isValidHttpUrl(baseUrl)) {
+      return reply.code(400).send({ ok: false, error: 'baseUrl must start with http:// or https://' });
+    }
+    const model = typeof body.model === 'string' ? body.model.trim() : undefined;
+    const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined;
+
+    try {
+      llmStore.updateConfig({
+        provider: body.provider,
+        ...(baseUrl ? { baseUrl } : {}),
+        ...(apiKey ? { apiKey } : {}),
+        ...(model !== undefined ? { model } : {}),
+      });
+    } catch (err) {
+      return reply.code(400).send({ ok: false, error: err instanceof Error ? err.message : 'Invalid LLM config' });
+    }
+
+    if (store.backend === 'postgres') {
+      try {
+        await store.setRuntimeSetting('llm_config', llmStore.exportPersistedSettings());
+      } catch (err) {
+        log.warn({ err }, 'Failed to persist non-secret runtime LLM settings');
+      }
+    }
+
+    const shouldVerify = body.verify !== false;
+    const probe = shouldVerify ? await llmStore.getCachedHealthProbe({ force: true }) : null;
+
+    return reply.send({
+      ok: true,
+      config: llmStore.getSanitizedConfig(),
+      probe,
+    });
+  });
 
   app.post('/webhook', async (req, reply) => {
     const event = typeof req.headers['x-github-event'] === 'string' ? req.headers['x-github-event'] : undefined;
@@ -378,13 +551,17 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       }),
     );
 
+    const activeLlm = llmStore.getActiveConfig();
     return reply.send({
       mode: config.localSandboxMode ? 'local-sandbox' : 'production',
       playgroundEnabled,
       storeBackend: store.backend,
       spriteDriver: spriteManager.driver.kind,
-      provider: auditor.provider,
-      model: auditor.model,
+      activeProvider: activeLlm.provider,
+      activeProviderLabel: LLM_PROVIDER_LABELS[activeLlm.provider],
+      provider: activeLlm.provider,
+      model: activeLlm.model,
+      aiEnabled: activeLlm.provider !== 'zero-ai',
       stats,
       scans,
     });
@@ -447,7 +624,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       });
     }
     const { id } = req.params as { id: string };
-    const body = (req.body ?? {}) as { asker?: string; question?: string };
+    const body = (req.body ?? {}) as { asker?: string; question?: string; history?: unknown };
     const scan = await store.getScan(id);
     if (!scan) return reply.code(404).send({ error: 'Scan not found' });
 
@@ -457,6 +634,25 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       return reply.code(400).send({ error: `question is too long (max ${MAX_QA_QUESTION_CHARS} chars)` });
     }
 
+    const history: ConversationTurn[] = Array.isArray(body.history)
+      ? body.history
+          .slice(-10)
+          .filter(
+            (t): t is Record<string, unknown> =>
+              typeof t === 'object' &&
+              t !== null &&
+              (t.role === 'user' || t.role === 'assistant') &&
+              typeof t.content === 'string',
+          )
+          .map((t) => ({
+            role: t.role as 'user' | 'assistant',
+            content: (t.content as string).slice(0, 1500),
+            ...(typeof t.meta === 'object' && t.meta !== null
+              ? { meta: t.meta as ConversationTurn['meta'] }
+              : {}),
+          }))
+      : [];
+
     const patch = await store.getPatch(scan.id);
     const qVec = await embeddings.embed(question);
     const relatedIncidents = await store.searchSimilarFindings(scan.repoFullName, qVec, {
@@ -465,21 +661,27 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
       minSimilarity: 0.25,
     });
 
-    const { answer, usedAi } = await auditor.answerQuestion({
+    const qaResult = await auditor.answerQuestion({
       scan,
       report: scan.report,
       patch,
       relatedIncidents,
       question,
       asker: body.asker?.trim() || 'dashboard-user',
+      history,
     });
 
     return reply.send({
       ok: true,
-      answer,
-      provider: auditor.provider,
-      model: auditor.model,
-      usedAi,
+      answer: qaResult.answer,
+      engine: qaResult.engine,
+      provider: qaResult.provider,
+      model: qaResult.model,
+      usedAi: qaResult.usedAi,
+      ...(qaResult.mode ? { mode: qaResult.mode } : {}),
+      ...(qaResult.fallbackReason ? { fallbackReason: qaResult.fallbackReason } : {}),
+      latencyMs: qaResult.latencyMs,
+      meta: qaResult.meta,
     });
   });
 
@@ -785,6 +987,7 @@ export async function createApp(customConfig?: AppConfig): Promise<SpriteGuardAp
     config,
     log,
     store,
+    llmStore,
     spriteManager,
     connectors,
     orchestrator,

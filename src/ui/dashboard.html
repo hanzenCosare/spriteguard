@@ -2239,7 +2239,43 @@
         border-color: color-mix(in srgb, var(--ac) 35%, transparent);
       }
       #ai-cfg {
-        max-width: 540px;
+        max-width: 580px;
+        width: min(580px, calc(100vw - 24px));
+      }
+      .ai-active-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 8px 11px;
+        border-radius: var(--r);
+        border: 1px solid var(--ln);
+        background: var(--sb);
+        font-size: 12.5px;
+      }
+      .ai-active-banner.degraded {
+        border-color: color-mix(in srgb, var(--hi) 45%, var(--ln));
+        background: color-mix(in srgb, var(--hi) 8%, var(--sb));
+      }
+      .ai-active-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .ai-active-left strong {
+        color: var(--tx);
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ai-active-sub {
+        font-size: 11.5px;
+        color: var(--hi);
+        margin-top: 3px;
+        line-height: 1.4;
       }
       .ai-tabs {
         display: flex;
@@ -2249,6 +2285,164 @@
       }
       .ai-tabs button {
         flex: 1 1 auto;
+      }
+      .ai-form {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        margin-top: 12px;
+      }
+      .ai-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .ai-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--mu);
+      }
+      .ai-label-row label {
+        font-weight: 500;
+        color: var(--tx);
+      }
+      .ai-label-acts {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .ai-key-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--ok);
+        background: color-mix(in srgb, var(--ok) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent);
+      }
+      .ai-input,
+      .ai-select {
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: var(--r);
+        border: 1px solid var(--ln);
+        background: var(--sb);
+        color: var(--tx);
+        font: 12.5px/1.4 var(--m);
+      }
+      .ai-input:focus-visible,
+      .ai-select:focus-visible {
+        outline: 2px solid var(--ac);
+        outline-offset: 1px;
+      }
+      .ai-model-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ai-model-row .ai-select,
+      .ai-model-row .ai-input {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .ai-status-line {
+        font-size: 12px;
+        color: var(--mu);
+        line-height: 1.4;
+        min-height: 16px;
+      }
+      .ai-status-line.ok {
+        color: var(--ok);
+      }
+      .ai-status-line.err {
+        color: var(--cr);
+      }
+      .ai-actions-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid var(--ln);
+        flex-wrap: wrap;
+      }
+      .ai-actions-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ai-env-details {
+        margin-top: 12px;
+        border-top: 1px solid var(--ln);
+        padding-top: 10px;
+      }
+      .ai-env-details summary {
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--mu);
+        font-weight: 500;
+        user-select: none;
+      }
+      .ai-env-details summary:hover {
+        color: var(--tx);
+      }
+      .qa-model-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--ln);
+        background: var(--sb);
+        color: var(--tx);
+        font: 11px/1.3 var(--m);
+        cursor: pointer;
+        max-width: 100%;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .qa-model-pill:hover {
+        border-color: color-mix(in srgb, var(--ac) 45%, var(--ln));
+        background: color-mix(in srgb, var(--ac) 10%, var(--sb));
+      }
+      .qa-model-pill .dot {
+        width: 6px;
+        height: 6px;
+        flex: 0 0 auto;
+      }
+      .qa-model-pill span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .bot small {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .attr-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        flex: 0 0 auto;
+        background: var(--mu);
+      }
+      .attr-dot.ai {
+        background: var(--ok);
+      }
+      .attr-dot.zero {
+        background: var(--ac);
+      }
+      .attr-dot.fb {
+        background: var(--hi);
       }
       .ai-env-wrap {
         position: relative;
@@ -3095,28 +3289,84 @@
     <dialog id="ai-cfg">
       <div class="dg">
         <h3>Configure AI</h3>
-        <p>Set environment variables and restart SpriteGuard. Detected secrets are redacted before prompts leave the server.</p>
+        <p>Switch providers and models live with zero server restarts. Detected secrets are redacted before prompts leave the server.</p>
+        <div class="ai-active-banner" id="ai-active-banner">
+          <div class="ai-active-left">
+            <i class="dot" id="ai-active-dot"></i>
+            <div>
+              <strong id="ai-active-label">Active now: —</strong>
+              <div class="ai-active-sub" id="ai-active-sub" hidden></div>
+            </div>
+          </div>
+        </div>
         <div class="seg ai-tabs" id="ai-tabs" role="tablist" aria-label="AI provider">
           <button type="button" role="tab" aria-selected="true" data-ai-tab="local">Local</button>
           <button type="button" role="tab" aria-selected="false" data-ai-tab="openrouter">OpenRouter</button>
           <button type="button" role="tab" aria-selected="false" data-ai-tab="gemini">Gemini</button>
           <button type="button" role="tab" aria-selected="false" data-ai-tab="claude">Claude</button>
-          <button type="button" role="tab" aria-selected="false" data-ai-tab="zero">Zero-AI</button>
+          <button type="button" role="tab" aria-selected="false" data-ai-tab="zero-ai">Zero-AI</button>
         </div>
-        <div class="ai-env-wrap">
-          <div class="ai-env-head">
-            <span id="ai-env-label" class="mono">.env</span>
-            <button type="button" class="btn sm" id="ai-copy-btn">Copy</button>
+
+        <div class="ai-form" id="ai-form">
+          <div class="ai-field" id="ai-url-field">
+            <div class="ai-label-row">
+              <label for="ai-base-url">Base URL</label>
+            </div>
+            <input type="url" id="ai-base-url" class="ai-input" placeholder="https://..." autocomplete="off" spellcheck="false" />
           </div>
-          <pre class="ai-env-code" id="ai-env-code"></pre>
+
+          <div class="ai-field" id="ai-key-field">
+            <div class="ai-label-row">
+              <label for="ai-api-key">API Key</label>
+              <span class="ai-key-badge" id="ai-key-badge" hidden>Key configured</span>
+            </div>
+            <input type="password" id="ai-api-key" class="ai-input" placeholder="Paste API key" autocomplete="new-password" spellcheck="false" />
+          </div>
+
+          <div class="ai-field" id="ai-model-field">
+            <div class="ai-label-row">
+              <label for="ai-model-select">Model</label>
+              <span class="ai-label-acts">
+                <button type="button" class="link-btn" id="ai-custom-toggle">Custom model ID</button>
+                <button type="button" class="btn sm" id="ai-detect-btn">Detect Models</button>
+              </span>
+            </div>
+            <input type="search" id="ai-model-filter" class="ai-input" placeholder="Filter detected models…" hidden autocomplete="off" />
+            <div class="ai-model-row">
+              <select id="ai-model-select" class="ai-select" aria-label="Select model"></select>
+              <input type="text" id="ai-model-custom" class="ai-input" placeholder="Enter exact model ID (e.g. gemini-3.5-flash)" hidden autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="ai-status-line" id="ai-detect-msg"></div>
+          </div>
+
+          <div class="ai-note" id="ai-zero-info" hidden>
+            <b>Zero-AI Deterministic Mode:</b> Runs 100% locally on Layer A secret scanning, Layer B runtime egress traps, deterministic patch verification, and the offline grounded Q&amp;A engine with zero outbound LLM requests.
+          </div>
         </div>
-        <div class="ai-note" id="ai-env-note"></div>
-        <p class="ai-fly-hint">
-          Deploying on Fly.io: put non-secrets (<code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>) in <code>fly.toml</code> <code>[env]</code> and store API keys with <code>fly secrets set -a spriteguard</code>.
-        </p>
-        <div class="dgb">
-          <button type="button" class="btn pri" data-close>Done</button>
+
+        <div class="ai-actions-bar">
+          <div class="ai-status-line" id="ai-test-result" role="status"></div>
+          <div class="ai-actions-right">
+            <button type="button" class="btn" id="ai-test-btn">Test Connection</button>
+            <button type="button" class="btn pri" id="ai-apply-btn">Apply &amp; Save</button>
+            <button type="button" class="btn" data-close>Close</button>
+          </div>
         </div>
+
+        <details class="ai-env-details" id="ai-env-details">
+          <summary>Deploy / .env reference</summary>
+          <div class="ai-env-wrap">
+            <div class="ai-env-head">
+              <span id="ai-env-label" class="mono">.env</span>
+              <button type="button" class="btn sm" id="ai-copy-btn">Copy</button>
+            </div>
+            <pre class="ai-env-code" id="ai-env-code"></pre>
+          </div>
+          <div class="ai-note" id="ai-env-note"></div>
+          <p class="ai-fly-hint">
+            Deploying on Fly.io: put non-secrets (<code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>) in <code>fly.toml</code> <code>[env]</code> and store API keys with <code>fly secrets set -a spriteguard</code>.
+          </p>
+        </details>
       </div>
     </dialog>
 
@@ -3238,8 +3488,16 @@
         mode: 'production',
         playgroundEnabled: false,
         storeBackend: '—',
-        provider: '—',
-        model: '—',
+        provider: 'zero-ai',
+        model: 'deterministic',
+        llmConfig: null,
+        aiCfgTab: null,
+        aiDrafts: {},
+        aiModelsCache: {},
+        aiCustomMode: {},
+        aiDetecting: false,
+        aiTesting: false,
+        aiSaving: false,
         scans: [],
         detailsCache: {},
         hydrating: {},
@@ -3256,6 +3514,7 @@
         threads: {},
         qaLoading: {},
         qaDrafts: {},
+        qaSuggestions: {},
         approving: {},
         rescanning: {},
         runningDemo: false,
@@ -3751,7 +4010,7 @@
           (s) => s.status !== 'failed' && s.status !== 'closed' && s.status !== 'superseded' && s.spriteState === 'sleeping',
         ).length;
         updateBrandLogo(activeSprites, sleepingSprites);
-        const modelText = `${state.model || '—'} · ${state.storeBackend || '—'}`;
+        const modelText = `${providerLabel(state.provider)} · ${state.model || '—'} · ${state.storeBackend || '—'}`;
 
         $('#stats').innerHTML = `
           <div>
@@ -4582,6 +4841,7 @@
         const threadItems = state.threads[d.id] || [];
         const isAsking = Boolean(state.qaLoading[d.id]);
         const draft = state.qaDrafts[d.id] || '';
+        const aiStatusNow = state.health?.aiStatus || 'healthy';
         const qaSig = JSON.stringify({
           id: d.id,
           repo: d.repoFullName,
@@ -4589,6 +4849,9 @@
           sha: (d.headSha || '').slice(0, 7),
           asking: isAsking,
           wide: state.qaWide,
+          provider: state.provider,
+          model: state.model,
+          aiStatus: aiStatusNow,
           threads: threadItems,
         });
         if (opts.background && state.lastQaSig === qaSig) return;
@@ -4605,14 +4868,27 @@
         const threadHtml = threadItems.length
           ? threadItems
               .map((m) => {
-                const prov = m.a
-                  ? m.usedAi
-                    ? `Answered by ${m.provider || 'LLM'} (${m.model || 'configured'}) grounded in this scan`
-                    : 'Answered by deterministic fallback'
-                  : 'Reading the audit…';
+                let dotCls = 'attr-dot';
+                let prov = 'Reading the audit…';
+                if (m.a) {
+                  if (m.engine === 'llm' || m.usedAi) {
+                    dotCls = 'attr-dot ai';
+                    const lat = typeof m.latencyMs === 'number' && m.latencyMs > 0 ? ` · ${m.latencyMs}ms` : '';
+                    prov = `Answered by ${providerLabel(m.provider)} · ${m.model || 'configured'}${lat}`;
+                  } else if (m.mode === 'zero-ai' || m.provider === 'zero-ai') {
+                    dotCls = 'attr-dot zero';
+                    prov = 'Answered by deterministic engine (Zero-AI mode)';
+                  } else if (m.fallbackReason) {
+                    dotCls = 'attr-dot fb';
+                    prov = `Answered by deterministic fallback (${m.fallbackReason})`;
+                  } else {
+                    dotCls = 'attr-dot';
+                    prov = 'Answered by deterministic fallback';
+                  }
+                }
                 const cleanAnswer = m.a ? cleanDashboardReply(m.a) : '';
                 return `<div class="me">${esc(m.q)}</div>
-                  <div class="bot">${cleanAnswer ? renderMarkdownBlocks(cleanAnswer) : ''}<small>${esc(prov)}</small></div>`;
+                  <div class="bot">${cleanAnswer ? renderMarkdownBlocks(cleanAnswer) : ''}<small><i class="${dotCls}"></i><span>${esc(prov)}</span></small></div>`;
               })
               .join('')
           : `<div class="qa-empty">
@@ -4622,10 +4898,21 @@
               Off-topic prompts are refused before any LLM call.
             </div>`;
 
+        const pillDotCls = state.provider === 'zero-ai' ? 'dot' : aiStatusNow === 'degraded' ? 'dot warn' : 'dot';
+        const pillText =
+          state.provider === 'zero-ai'
+            ? 'Zero-AI · deterministic'
+            : `${providerLabel(state.provider)} · ${state.model || 'unconfigured'}`;
+
         drawer.innerHTML = `<div class="qa-head">
             <div class="qa-head-info">
               <div class="qa-head-title"><i class="ai-sq"></i><span>Ask @spriteguard</span></div>
               <div class="qa-head-sub mono">${esc(d.repoFullName)}#${esc(d.prNumber)} · ${esc((d.headSha || '').slice(0, 7) || '—')}</div>
+              <button type="button" class="qa-model-pill" id="qa-switch-model-btn" title="Switch active AI provider or model">
+                <i class="${pillDotCls}"></i>
+                <span>${esc(pillText)}</span>
+                <span aria-hidden="true">▾</span>
+              </button>
             </div>
             <div class="qa-head-acts">
               <button type="button" class="btn sm" id="qa-wide-btn" aria-pressed="${state.qaWide}" title="Toggle drawer width">${
@@ -4636,7 +4923,11 @@
           </div>
           <div class="th" id="th">${threadHtml}</div>
           <div class="qa-foot">
-            <div class="chips">${['Why was this flagged?', 'Is it exploitable?', 'How do I fix this?', 'Why was egress flagged?']
+            <div class="chips">${(
+              (state.qaSuggestions[d.id] && state.qaSuggestions[d.id].length
+                ? state.qaSuggestions[d.id]
+                : ['Why was this flagged?', 'Is it exploitable?', 'How do I fix this?', 'Why was egress flagged?'])
+            )
               .map((qText) => `<button type="button" data-ask="${esc(qText)}" ${isAsking ? 'disabled' : ''}>${esc(qText)}</button>`)
               .join('')}</div>
             <form class="af" id="af">
@@ -5131,90 +5422,526 @@
         envText.textContent = isLocal ? 'Local Sandbox' : 'Production';
       }
 
-      const AI_CONFIG_TABS = {
+      const PROVIDER_META = {
         local: {
-          label: '.env — Local Ollama',
-          snippet: [
-            'LLM_BASE_URL=http://localhost:11434/v1',
-            'LLM_API_KEY=ollama',
-            'LLM_MODEL=qwen2.5-coder',
-          ].join('\n'),
+          label: 'Local',
+          envLabel: '.env — Local Ollama',
+          defaultBaseUrl: 'http://localhost:11434/v1',
+          defaultModel: '',
           warn: true,
-          note: '<b>Local Ollama caveat:</b> Works when SpriteGuard runs locally on your machine. On Fly.io, localhost refers to the Fly VM unless exposed via a tunnel or hosted endpoint. <code>LLM_API_KEY=ollama</code> acts as a placeholder key for OpenAI-compatible clients.',
+          note: '<b>Local Ollama caveat:</b> Works when SpriteGuard runs locally on your machine. On Fly.io, localhost refers to the Fly VM unless exposed via a tunnel or hosted endpoint.',
         },
         openrouter: {
-          label: '.env — OpenRouter',
-          snippet: [
-            'LLM_BASE_URL=https://openrouter.ai/api/v1',
-            'LLM_API_KEY=your-key',
-            'LLM_MODEL=qwen/qwen-2.5-coder-32b-instruct',
-          ].join('\n'),
+          label: 'OpenRouter',
+          envLabel: '.env — OpenRouter',
+          defaultBaseUrl: 'https://openrouter.ai/api/v1',
+          defaultModel: 'google/gemini-3.5-flash',
           warn: false,
-          note: '<b>Open-source & multi-model routing:</b> Swap <code>LLM_MODEL</code> to any OpenRouter slug (e.g. Qwen 2.5 Coder, DeepSeek, Llama, or Claude) without changing code.',
+          note: '<b>Open-source & multi-model routing:</b> Pick any OpenRouter chat model (e.g. <code>google/gemini-3.5-flash</code>, Qwen 2.5 Coder, DeepSeek, or Claude) without restarting.',
         },
         gemini: {
-          label: '.env — Google Gemini',
-          snippet: [
-            'LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/',
-            'LLM_API_KEY=your-key',
-            'LLM_MODEL=gemini-2.5-flash',
-          ].join('\n'),
+          label: 'Gemini',
+          envLabel: '.env — Google Gemini',
+          defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+          defaultModel: 'gemini-3.5-flash',
           warn: false,
-          note: '<b>Gemini OpenAI-compatible endpoint:</b> Use <code>gemini-2.5-flash</code> for fast PR audits or <code>gemini-2.5-pro</code> for deeper security reasoning.',
+          note: '<b>Gemini OpenAI-compatible endpoint:</b> Use <code>gemini-3.5-flash</code> for fast PR audits or select any detected Gemini chat model.',
         },
         claude: {
-          label: '.env — Anthropic Claude',
-          snippet: [
-            'ANTHROPIC_API_KEY=sk-ant-...',
-            'ANTHROPIC_MODEL=claude-sonnet-4-6',
-          ].join('\n'),
+          label: 'Claude',
+          envLabel: '.env — Anthropic Claude',
+          defaultBaseUrl: 'https://api.anthropic.com/v1',
+          defaultModel: 'claude-sonnet-4-20250514',
           warn: false,
-          note: '<b>Native Anthropic SDK:</b> Leave <code>LLM_BASE_URL</code> unset. Current model IDs: <code>claude-sonnet-4-6</code> or <code>claude-haiku-4-5</code> (fastest for PR audits) and <code>claude-opus-4-6</code> (deepest analysis).',
+          note: '<b>Native Anthropic Messages API:</b> Uses <code>/v1/messages</code> directly with <code>x-api-key</code> and <code>anthropic-version: 2023-06-01</code>.',
         },
-        zero: {
-          label: '.env — Zero-AI Deterministic Mode',
-          snippet: [
-            '# Leave both unset for 100% deterministic local analysis:',
-            'LLM_BASE_URL=',
-            'ANTHROPIC_API_KEY=',
-          ].join('\n'),
+        'zero-ai': {
+          label: 'Zero-AI',
+          envLabel: '.env — Zero-AI Deterministic Mode',
+          defaultBaseUrl: '',
+          defaultModel: 'deterministic',
           warn: false,
-          note: '<b>Zero external LLM calls:</b> Leaving <code>LLM_BASE_URL</code> and <code>ANTHROPIC_API_KEY</code> unset runs SpriteGuard 100% deterministically on Layer A/B scanners and the built-in heuristic auditor, patcher, and grounded fallback.',
+          note: '<b>Zero external LLM calls:</b> Runs SpriteGuard 100% deterministically on Layer A/B scanners and the built-in heuristic auditor, patcher, and grounded Q&A engine.',
         },
       };
 
-      function renderAiConfigTab(tabKey) {
-        const key = AI_CONFIG_TABS[tabKey] ? tabKey : 'local';
+      function providerLabel(p) {
+        const key = String(p || '').toLowerCase();
+        if (PROVIDER_META[key]) return PROVIDER_META[key].label;
+        if (key === 'anthropic') return 'Claude';
+        if (key === 'heuristic' || key === 'zero') return 'Zero-AI';
+        if (key === 'openai-compatible') return 'OpenAI-Compatible';
+        return p ? String(p) : '—';
+      }
+
+      function normalizeTabKey(key) {
+        if (key === 'zero' || key === 'heuristic') return 'zero-ai';
+        if (key === 'anthropic') return 'claude';
+        return PROVIDER_META[key] ? key : 'gemini';
+      }
+
+      function getAiTabDraft(tabKey) {
+        const key = normalizeTabKey(tabKey);
+        const srv = state.llmConfig?.providers?.[key];
+        const meta = PROVIDER_META[key];
+        if (!state.aiDrafts[key]) {
+          state.aiDrafts[key] = {
+            baseUrl: (srv && srv.baseUrl) || meta.defaultBaseUrl,
+            apiKey: '',
+            model: (srv && srv.model) || meta.defaultModel,
+          };
+        }
+        return state.aiDrafts[key];
+      }
+
+      function syncDraftFromInputs() {
+        const key = state.aiCfgTab;
+        if (!key || !PROVIDER_META[key] || key === 'zero-ai') return;
+        const draft = getAiTabDraft(key);
+        const urlEl = $('#ai-base-url');
+        const keyEl = $('#ai-api-key');
+        const customEl = $('#ai-model-custom');
+        const selectEl = $('#ai-model-select');
+        if (urlEl) draft.baseUrl = urlEl.value.trim();
+        if (keyEl) draft.apiKey = keyEl.value.trim();
+        if (state.aiCustomMode[key]) {
+          if (customEl) draft.model = customEl.value.trim();
+        } else if (selectEl && selectEl.value) {
+          draft.model = selectEl.value.trim();
+        } else if (customEl && customEl.value.trim()) {
+          draft.model = customEl.value.trim();
+        }
+      }
+
+      function buildEnvSnippet(tabKey, baseUrl, model) {
+        const key = normalizeTabKey(tabKey);
+        const meta = PROVIDER_META[key];
+        const url = baseUrl || meta.defaultBaseUrl;
+        const mod = model || meta.defaultModel || 'qwen2.5-coder';
+        if (key === 'zero-ai') {
+          return ['# Leave both unset for 100% deterministic local analysis:', 'LLM_PROVIDER=zero-ai', 'LLM_BASE_URL=', 'ANTHROPIC_API_KEY='].join('\n');
+        }
+        if (key === 'claude') {
+          return ['LLM_PROVIDER=claude', 'ANTHROPIC_API_KEY=sk-ant-...', `ANTHROPIC_MODEL=${mod}`].join('\n');
+        }
+        if (key === 'local') {
+          return ['LLM_PROVIDER=local', `LLM_BASE_URL=${url}`, `LLM_MODEL=${mod}`].join('\n');
+        }
+        return [`LLM_PROVIDER=${key}`, `LLM_BASE_URL=${url}`, 'LLM_API_KEY=your-key', `LLM_MODEL=${mod}`].join('\n');
+      }
+
+      function renderAiActiveBanner() {
+        const banner = $('#ai-active-banner');
+        const dot = $('#ai-active-dot');
+        const label = $('#ai-active-label');
+        const sub = $('#ai-active-sub');
+        if (!banner || !dot || !label || !sub) return;
+        const cfg = state.llmConfig;
+        const activeProv = cfg?.activeProvider || normalizeTabKey(state.provider);
+        const activeModel = cfg?.activeModel || state.model || 'deterministic';
+        const probe = cfg?.lastProbe || state.health?.lastProbe || null;
+        const isDegraded = activeProv !== 'zero-ai' && probe && probe.ok === false;
+        banner.className = 'ai-active-banner' + (isDegraded ? ' degraded' : '');
+        dot.className = 'dot' + (isDegraded ? ' warn' : '');
+        label.textContent =
+          activeProv === 'zero-ai'
+            ? 'Active now: Zero-AI · Deterministic'
+            : `Active now: ${providerLabel(activeProv)} · ${activeModel}`;
+        if (isDegraded && probe.error) {
+          sub.hidden = false;
+          sub.textContent = `Degraded — ${probe.error}`;
+        } else if (activeProv !== 'zero-ai' && probe && probe.ok && typeof probe.latencyMs === 'number') {
+          sub.hidden = false;
+          sub.style.color = 'var(--ok)';
+          sub.textContent = `Verified healthy · ${probe.latencyMs}ms`;
+        } else {
+          sub.hidden = true;
+          sub.textContent = '';
+          sub.style.color = '';
+        }
+      }
+
+      function renderAiEnvSnippet() {
+        const key = normalizeTabKey(state.aiCfgTab || 'gemini');
+        const meta = PROVIDER_META[key];
+        const draft = getAiTabDraft(key);
+        const snippet = buildEnvSnippet(key, draft.baseUrl, draft.model);
+        $('#ai-env-label').textContent = meta.envLabel;
+        $('#ai-env-code').textContent = snippet;
+        const copyBtn = $('#ai-copy-btn');
+        if (copyBtn) {
+          copyBtn.dataset.copy = snippet;
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('copied');
+        }
+        const noteEl = $('#ai-env-note');
+        if (noteEl) {
+          noteEl.className = 'ai-note' + (meta.warn ? ' warn' : '');
+          noteEl.innerHTML = meta.note;
+        }
+      }
+
+      function renderAiModelPicker(tabKey) {
+        const key = normalizeTabKey(tabKey);
+        const draft = getAiTabDraft(key);
+        const cached = state.aiModelsCache[key] || [];
+        const filterEl = $('#ai-model-filter');
+        const selectEl = $('#ai-model-select');
+        const customEl = $('#ai-model-custom');
+        const toggleBtn = $('#ai-custom-toggle');
+        const filterText = (filterEl?.value || '').trim().toLowerCase();
+
+        const useCustom = Boolean(state.aiCustomMode[key]) || cached.length === 0;
+        if (toggleBtn) {
+          toggleBtn.hidden = cached.length === 0;
+          toggleBtn.textContent = useCustom ? 'Use detected list' : 'Custom model ID';
+        }
+        if (filterEl) {
+          filterEl.hidden = useCustom || cached.length <= 8;
+        }
+        if (selectEl) {
+          selectEl.hidden = useCustom;
+        }
+        if (customEl) {
+          customEl.hidden = !useCustom;
+          customEl.value = draft.model || '';
+          customEl.placeholder =
+            key === 'gemini'
+              ? 'e.g. gemini-3.5-flash'
+              : key === 'openrouter'
+                ? 'e.g. google/gemini-3.5-flash'
+                : key === 'claude'
+                  ? 'e.g. claude-sonnet-4-20250514'
+                  : 'e.g. qwen2.5-coder';
+        }
+
+        if (!useCustom && selectEl) {
+          const filtered = filterText
+            ? cached.filter((m) => m.id.toLowerCase().includes(filterText) || (m.label || '').toLowerCase().includes(filterText))
+            : cached;
+          const options = [...filtered];
+          if (draft.model && !options.some((m) => m.id === draft.model)) {
+            options.unshift({ id: draft.model, label: `${draft.model} (current)` });
+          }
+          selectEl.innerHTML = options.length
+            ? options.map((m) => `<option value="${esc(m.id)}">${esc(m.label || m.id)}</option>`).join('')
+            : '<option value="">No matching models</option>';
+          if (draft.model && options.some((m) => m.id === draft.model)) {
+            selectEl.value = draft.model;
+          } else if (options[0]) {
+            selectEl.value = options[0].id;
+            draft.model = options[0].id;
+          }
+        }
+        renderAiEnvSnippet();
+      }
+
+      function renderAiConfigTab(tabKey, opts = {}) {
+        const key = normalizeTabKey(tabKey);
+        if (state.aiCfgTab && state.aiCfgTab !== key && !opts.skipSave) {
+          syncDraftFromInputs();
+        }
         state.aiCfgTab = key;
-        const cfg = AI_CONFIG_TABS[key];
+        const draft = getAiTabDraft(key);
+        const srv = state.llmConfig?.providers?.[key];
+        const isZero = key === 'zero-ai';
+        const hideKey = isZero || key === 'local';
+
         document.querySelectorAll('#ai-tabs button').forEach((b) => {
           b.setAttribute('aria-selected', String(b.dataset.aiTab === key));
         });
-        $('#ai-env-label').textContent = cfg.label;
-        $('#ai-env-code').textContent = cfg.snippet;
-        const copyBtn = $('#ai-copy-btn');
-        copyBtn.dataset.copy = cfg.snippet;
-        copyBtn.textContent = 'Copy';
-        copyBtn.classList.remove('copied');
-        const noteEl = $('#ai-env-note');
-        noteEl.className = 'ai-note' + (cfg.warn ? ' warn' : '');
-        noteEl.innerHTML = cfg.note;
+
+        renderAiActiveBanner();
+
+        $('#ai-url-field').hidden = isZero;
+        $('#ai-key-field').hidden = hideKey;
+        $('#ai-model-field').hidden = isZero;
+        $('#ai-zero-info').hidden = !isZero;
+
+        const urlEl = $('#ai-base-url');
+        if (urlEl) {
+          urlEl.value = draft.baseUrl || '';
+          urlEl.placeholder = PROVIDER_META[key].defaultBaseUrl || 'https://...';
+        }
+
+        const keyEl = $('#ai-api-key');
+        const keyBadge = $('#ai-key-badge');
+        const hasSavedKey = Boolean(srv && srv.hasApiKey);
+        if (keyBadge) {
+          if (hasSavedKey) {
+            keyBadge.hidden = false;
+            keyBadge.textContent = srv.maskedKey
+              ? `Key configured (${srv.keySource} · ${srv.maskedKey})`
+              : `Key configured (${srv.keySource})`;
+          } else {
+            keyBadge.hidden = true;
+          }
+        }
+        if (keyEl) {
+          keyEl.value = draft.apiKey || '';
+          keyEl.placeholder = hasSavedKey
+            ? 'Using saved server key (leave blank to keep)'
+            : `Paste ${PROVIDER_META[key].label} API key`;
+        }
+
+        const filterEl = $('#ai-model-filter');
+        if (filterEl) filterEl.value = '';
+        const detectMsg = $('#ai-detect-msg');
+        if (detectMsg) {
+          const cached = state.aiModelsCache[key];
+          detectMsg.className = 'ai-status-line';
+          detectMsg.textContent = cached && cached.length ? `${cached.length} model${cached.length === 1 ? '' : 's'} detected` : '';
+        }
+        const testRes = $('#ai-test-result');
+        if (testRes) {
+          testRes.className = 'ai-status-line';
+          testRes.textContent = '';
+        }
+        const testBtn = $('#ai-test-btn');
+        if (testBtn) testBtn.hidden = isZero;
+
+        renderAiModelPicker(key);
+
+        if (!opts.skipAutoDetect && !isZero && !state.aiModelsCache[key] && (key === 'local' || hasSavedKey || Boolean(draft.apiKey))) {
+          detectModelsForTab(key, { manual: false });
+        }
       }
 
-      function openAiConfigModal() {
+      async function fetchLlmConfig() {
+        try {
+          const res = await fetch('/api/llm/config', { headers: authHeaders() });
+          if (!res.ok) return null;
+          const cfg = await res.json();
+          state.llmConfig = cfg;
+          state.provider = cfg.activeProvider || state.provider;
+          state.model = cfg.activeModel || state.model;
+          for (const id of Object.keys(PROVIDER_META)) {
+            const p = cfg.providers?.[id];
+            if (p) {
+              const prevKey = state.aiDrafts[id]?.apiKey || '';
+              state.aiDrafts[id] = {
+                baseUrl: p.baseUrl || PROVIDER_META[id].defaultBaseUrl,
+                apiKey: prevKey,
+                model: p.model || PROVIDER_META[id].defaultModel,
+              };
+            }
+          }
+          return cfg;
+        } catch {
+          return null;
+        }
+      }
+
+      async function detectModelsForTab(tabKey, opts = { manual: true }) {
+        const key = normalizeTabKey(tabKey || state.aiCfgTab || 'gemini');
+        if (key === 'zero-ai') return;
+        syncDraftFromInputs();
+        const draft = getAiTabDraft(key);
+        const btn = $('#ai-detect-btn');
+        const msgEl = $('#ai-detect-msg');
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Detecting…';
+        }
+        if (msgEl) {
+          msgEl.className = 'ai-status-line';
+          msgEl.textContent = `Querying ${PROVIDER_META[key].label} models…`;
+        }
+        try {
+          const payload = {
+            provider: key,
+            ...(draft.baseUrl ? { baseUrl: draft.baseUrl } : {}),
+            ...(draft.apiKey ? { apiKey: draft.apiKey } : {}),
+          };
+          const res = await fetch('/api/llm/models', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || `Model discovery failed (HTTP ${res.status})`);
+          }
+          const models = Array.isArray(data.models) ? data.models : [];
+          state.aiModelsCache[key] = models;
+          if (models.length > 0) {
+            state.aiCustomMode[key] = false;
+            if (!draft.model && models[0]) {
+              draft.model = models[0].id;
+            }
+          }
+          if (state.aiCfgTab === key) {
+            renderAiModelPicker(key);
+            if (msgEl) {
+              msgEl.className = 'ai-status-line' + (models.length ? ' ok' : '');
+              msgEl.textContent = models.length
+                ? `Detected ${models.length} model${models.length === 1 ? '' : 's'}`
+                : 'No models returned — enter a custom model ID';
+            }
+          }
+        } catch (err) {
+          if (state.aiCfgTab === key && msgEl) {
+            msgEl.className = 'ai-status-line err';
+            msgEl.textContent = err.message || 'Model detection failed';
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Detect Models';
+          }
+        }
+      }
+
+      async function testAiConnection() {
+        const key = normalizeTabKey(state.aiCfgTab || 'gemini');
+        syncDraftFromInputs();
+        const draft = getAiTabDraft(key);
+        const btn = $('#ai-test-btn');
+        const out = $('#ai-test-result');
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = 'Testing…';
+        if (out) {
+          out.className = 'ai-status-line';
+          out.textContent = 'Sending 1-shot probe…';
+        }
+        try {
+          const res = await fetch('/api/llm/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({
+              provider: key,
+              ...(draft.baseUrl ? { baseUrl: draft.baseUrl } : {}),
+              ...(draft.apiKey ? { apiKey: draft.apiKey } : {}),
+              ...(draft.model ? { model: draft.model } : {}),
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || `Connection failed (HTTP ${res.status})`);
+          }
+          if (out) {
+            out.className = 'ai-status-line ok';
+            out.textContent = `✓ Connected · ${data.latencyMs ?? 0}ms`;
+          }
+        } catch (err) {
+          if (out) {
+            out.className = 'ai-status-line err';
+            out.textContent = err.message || 'Connection test failed';
+          }
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Test Connection';
+        }
+      }
+
+      async function applyAiConfig() {
+        const key = normalizeTabKey(state.aiCfgTab || 'gemini');
+        syncDraftFromInputs();
+        const draft = getAiTabDraft(key);
+        const btn = $('#ai-apply-btn');
+        const out = $('#ai-test-result');
+        if (!btn || btn.disabled) return;
+        if (key !== 'zero-ai' && !draft.model) {
+          if (out) {
+            out.className = 'ai-status-line err';
+            out.textContent = `Enter or select a model for ${PROVIDER_META[key].label}.`;
+          }
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'Applying…';
+        if (out) {
+          out.className = 'ai-status-line';
+          out.textContent = key === 'zero-ai' ? 'Switching to Zero-AI…' : 'Saving & verifying model…';
+        }
+        try {
+          const res = await fetch('/api/llm/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({
+              provider: key,
+              ...(key !== 'zero-ai' && draft.baseUrl ? { baseUrl: draft.baseUrl } : {}),
+              ...(key !== 'zero-ai' && draft.apiKey ? { apiKey: draft.apiKey } : {}),
+              ...(key !== 'zero-ai' ? { model: draft.model } : {}),
+              verify: true,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || `Failed to save config (HTTP ${res.status})`);
+          }
+          state.llmConfig = data.config;
+          state.provider = data.config.activeProvider;
+          state.model = data.config.activeModel;
+          if (state.aiDrafts[key]) state.aiDrafts[key].apiKey = '';
+          const keyEl = $('#ai-api-key');
+          if (keyEl) keyEl.value = '';
+
+          // Sync health object immediately with live probe result
+          if (state.health) {
+            state.health = {
+              ...state.health,
+              aiEnabled: data.config.aiEnabled,
+              activeProvider: data.config.activeProvider,
+              activeProviderLabel: data.config.activeProviderLabel,
+              activeModel: data.config.activeModel,
+              provider: data.config.activeProvider,
+              model: data.config.activeModel,
+              aiStatus: data.probe ? data.probe.status : 'healthy',
+              aiHealthMessage: data.probe ? (data.probe.ok ? data.probe.message : data.probe.error) : '',
+              lastProbe: data.probe || data.config.lastProbe || null,
+              status: state.health.dbHealthy && (!data.probe || data.probe.ok) ? 'ok' : 'degraded',
+            };
+          }
+
+          renderAiConfigTab(key, { skipSave: true, skipAutoDetect: true });
+          renderStats();
+          renderHealthUI();
+          renderQaDrawer();
+
+          const probe = data.probe;
+          if (probe && !probe.ok) {
+            if (out) {
+              out.className = 'ai-status-line err';
+              out.textContent = `Saved, but probe failed: ${probe.error || 'provider error'}`;
+            }
+            toast(`Saved ${providerLabel(key)} · ${state.model} (degraded: ${probe.error || 'check credentials'})`, 'err');
+          } else {
+            if (out) {
+              out.className = 'ai-status-line ok';
+              out.textContent =
+                key === 'zero-ai'
+                  ? '✓ Zero-AI deterministic mode active'
+                  : `✓ Active · ${providerLabel(key)} · ${state.model}${probe?.latencyMs ? ` (${probe.latencyMs}ms)` : ''}`;
+            }
+            toast(
+              key === 'zero-ai'
+                ? 'Switched AI engine to Zero-AI · deterministic'
+                : `Switched AI engine to ${providerLabel(key)} · ${state.model}`,
+              'ok',
+            );
+          }
+        } catch (err) {
+          if (out) {
+            out.className = 'ai-status-line err';
+            out.textContent = err.message || 'Failed to apply configuration';
+          }
+          toast(err.message || 'Failed to save AI config', 'err');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Apply & Save';
+        }
+      }
+
+      async function openAiConfigModal() {
         const hd = $('#hd');
         if (hd && hd.open) hd.close();
-        const h = state.health;
-        let initialTab = state.aiCfgTab || 'local';
-        if (!state.aiCfgTab && h) {
-          if (!h.aiEnabled) initialTab = 'zero';
-          else if (h.provider === 'anthropic') initialTab = 'claude';
-          else if (String(h.model || '').toLowerCase().includes('gemini')) initialTab = 'gemini';
-          else if (String(h.model || '').includes('/')) initialTab = 'openrouter';
-          else initialTab = 'local';
-        }
-        renderAiConfigTab(initialTab);
-        showModalWithFocus($('#ai-cfg'), $('#ai-copy-btn'));
+        state.aiModelsCache = {};
+        await fetchLlmConfig();
+        const initialTab = normalizeTabKey(state.llmConfig?.activeProvider || state.provider || 'gemini');
+        renderAiConfigTab(initialTab, { skipSave: true });
+        showModalWithFocus($('#ai-cfg'), $('#ai-apply-btn'));
       }
 
       function renderHealthUI() {
@@ -5222,23 +5949,52 @@
         const btn = $('#hbtn');
         updateEnvPill();
 
+        const activeProv = h ? normalizeTabKey(h.activeProvider || h.provider) : 'zero-ai';
+        const activeModel = h ? h.activeModel || h.model || 'deterministic' : '—';
+        const aiDegraded = Boolean(
+          h && activeProv !== 'zero-ai' && (h.aiStatus === 'degraded' || (h.lastProbe && h.lastProbe.ok === false)),
+        );
+
         if (!h) {
           btn.querySelector('.dot').className = 'dot err';
           btn.querySelector('span').textContent = state.healthError
             ? `System health: unreachable (${state.healthError})`
             : 'System health: disconnected';
         } else {
-          const degraded = h.status !== 'ok' || !h.dbHealthy;
+          const degraded = !h.dbHealthy || aiDegraded;
           btn.querySelector('.dot').className = 'dot' + (degraded ? ' warn' : '');
-          btn.querySelector('span').textContent = degraded
-            ? 'System health: degraded'
-            : h.aiEnabled
-              ? 'All components healthy'
-              : 'Healthy (deterministic fallback active)';
+          btn.querySelector('span').textContent = !h.dbHealthy
+            ? 'System health: database degraded'
+            : aiDegraded
+              ? 'System health: AI degraded'
+              : activeProv === 'zero-ai'
+                ? 'Healthy (Zero-AI deterministic)'
+                : 'All components healthy';
         }
 
         const aiTrustLine =
           'Detected secrets are redacted before prompts leave the server. Supports local Ollama or Zero-AI mode for full data privacy.';
+
+        let aiRowStatus = 'ok';
+        let aiRowBadge = 'Healthy';
+        let aiRowDetail = '';
+        if (h) {
+          if (activeProv === 'zero-ai') {
+            aiRowStatus = 'ok';
+            aiRowBadge = 'Healthy';
+            aiRowDetail = 'Zero-AI deterministic mode active (zero external LLM calls).';
+          } else if (aiDegraded) {
+            aiRowStatus = 'degraded';
+            aiRowBadge = 'Degraded';
+            const reason = h.lastProbe?.error || h.aiHealthMessage || 'Provider health probe failed';
+            aiRowDetail = `Active provider: ${providerLabel(activeProv)} (${activeModel}) — ${reason}. Deterministic fallback is handling requests.`;
+          } else {
+            aiRowStatus = 'ok';
+            aiRowBadge = 'Healthy';
+            const lat = typeof h.lastProbe?.latencyMs === 'number' && h.lastProbe.latencyMs > 0 ? ` · ${h.lastProbe.latencyMs}ms` : '';
+            aiRowDetail = `Active provider: ${providerLabel(activeProv)} (${activeModel})${lat}.`;
+          }
+        }
 
         const items = !h
           ? [
@@ -5263,10 +6019,9 @@
               },
               {
                 label: 'AI engine',
-                st: h.aiEnabled ? 'ok' : 'degraded',
-                detail: h.aiEnabled
-                  ? `Active provider: ${h.provider} (${h.model}).`
-                  : `No external LLM key configured (${h.provider}); deterministic fallback is handling audits.`,
+                st: aiRowStatus,
+                badgeOverride: aiRowBadge,
+                detail: aiRowDetail,
                 hint: aiTrustLine,
                 actionHtml: '<button type="button" class="link-btn" id="switch-ai-btn">Switch model</button>',
               },
@@ -5315,8 +6070,9 @@
         }
 
         $('#hl').innerHTML = items
-          .map(({ label, st, detail, hint, actionHtml }) => {
-            const badge = st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown';
+          .map(({ label, st, badgeOverride, detail, hint, actionHtml }) => {
+            const badge =
+              badgeOverride || (st === 'ok' ? 'Healthy' : st === 'degraded' ? 'Fallback' : st === 'down' ? 'Down' : 'Unknown');
             return `<li><div><b>${esc(label)}</b><span class="hl-acts">${actionHtml || ''}<em class="hs ${esc(st)}">${esc(badge)}</em></span></div><p>${esc(detail)}</p>${
               hint ? `<p class="hl-hint">${esc(hint)}</p>` : ''
             }</li>`;
@@ -5690,7 +6446,24 @@
         const d = selectedScan();
         if (!d || state.qaLoading[d.id]) return;
         if (!state.qaOpen) setQaOpen(true);
-        const entry = { q: question, a: null, provider: '', model: '', usedAi: false };
+        const priorItems = (state.threads[d.id] || []).slice(-4);
+        const history = [];
+        for (const item of priorItems) {
+          if (item.q) history.push({ role: 'user', content: item.q });
+          if (item.a) history.push({ role: 'assistant', content: item.a, ...(item.meta ? { meta: item.meta } : {}) });
+        }
+        const entry = {
+          q: question,
+          a: null,
+          engine: 'deterministic',
+          provider: '',
+          model: '',
+          usedAi: false,
+          mode: '',
+          fallbackReason: '',
+          latencyMs: 0,
+          meta: null,
+        };
         (state.threads[d.id] = state.threads[d.id] || []).push(entry);
         state.qaLoading[d.id] = true;
         state.qaDrafts[d.id] = '';
@@ -5701,14 +6474,55 @@
           const res = await fetch('/api/scans/' + encodeURIComponent(d.id) + '/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ question, asker: 'dashboard-user' }),
+            body: JSON.stringify({ question, asker: 'dashboard-user', history }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Q&A failed');
           entry.a = data.answer || 'No response';
+          entry.engine = data.engine || (data.usedAi ? 'llm' : 'deterministic');
           entry.provider = data.provider || state.provider;
           entry.model = data.model || state.model;
           entry.usedAi = Boolean(data.usedAi);
+          entry.mode = data.mode || '';
+          entry.fallbackReason = data.fallbackReason || '';
+          entry.latencyMs = typeof data.latencyMs === 'number' ? data.latencyMs : 0;
+          entry.meta = data.meta || null;
+          if (data.meta && Array.isArray(data.meta.suggestedQuestions) && data.meta.suggestedQuestions.length) {
+            state.qaSuggestions[d.id] = data.meta.suggestedQuestions;
+          }
+          if (data.fallbackReason && state.health) {
+            state.health = {
+              ...state.health,
+              status: 'degraded',
+              aiStatus: 'degraded',
+              aiHealthMessage: data.fallbackReason,
+              lastProbe: {
+                ...(state.health.lastProbe || {}),
+                ok: false,
+                status: 'degraded',
+                provider: entry.provider,
+                model: entry.model,
+                error: data.fallbackReason,
+              },
+            };
+            renderHealthUI();
+          } else if (entry.usedAi && state.health && state.health.aiStatus === 'degraded') {
+            state.health = {
+              ...state.health,
+              status: state.health.dbHealthy ? 'ok' : 'degraded',
+              aiStatus: 'healthy',
+              lastProbe: {
+                ...(state.health.lastProbe || {}),
+                ok: true,
+                status: 'healthy',
+                provider: entry.provider,
+                model: entry.model,
+                latencyMs: entry.latencyMs,
+                error: undefined,
+              },
+            };
+            renderHealthUI();
+          }
         } catch (err) {
           entry.a = `Error: ${err.message}`;
         } finally {
@@ -5951,7 +6765,7 @@
 
       document.addEventListener('click', async (e) => {
         const t = e.target.closest(
-          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#switch-ai-btn,#hretry,#open-health-btn,#failed-raw-btn',
+          '[data-id],[data-src],[data-f],[data-t],[data-copy],[data-ask],[data-rot],[data-fp],[data-open],[data-pi],[data-close],[data-pg-tab],[data-ai-tab],[data-preset],[data-toggle-group],[data-jump-rotate],[data-reset-filters],#ap-btn,#rs-btn,#rs-err-btn,#copy-md-btn,#copy-json-btn,#toggle-mask-btn,#mob-back-btn,#emp-pg-btn,#focus-btn,#focus-backdrop,#ask-open-btn,#qa-close-btn,#qa-wide-btn,#qa-backdrop,#qa-switch-model-btn,#switch-ai-btn,#ai-detect-btn,#ai-custom-toggle,#ai-test-btn,#ai-apply-btn,#hretry,#open-health-btn,#failed-raw-btn',
         );
         if (!t) return;
 
@@ -5970,8 +6784,19 @@
               behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
             });
           }
-        } else if (t.id === 'switch-ai-btn') {
+        } else if (t.id === 'switch-ai-btn' || t.id === 'qa-switch-model-btn') {
           openAiConfigModal();
+        } else if (t.id === 'ai-detect-btn') {
+          detectModelsForTab(state.aiCfgTab, { manual: true });
+        } else if (t.id === 'ai-custom-toggle') {
+          const key = normalizeTabKey(state.aiCfgTab || 'gemini');
+          syncDraftFromInputs();
+          state.aiCustomMode[key] = !state.aiCustomMode[key];
+          renderAiModelPicker(key);
+        } else if (t.id === 'ai-test-btn') {
+          testAiConnection();
+        } else if (t.id === 'ai-apply-btn') {
+          applyAiConfig();
         } else if (t.id === 'open-health-btn') {
           renderHealthUI();
           showModalWithFocus($('#hd'), $('#hchk'));
@@ -6230,7 +7055,7 @@
         if (okEl) okEl.hidden = true;
         clearTimeout(healthOkTimer);
         try {
-          const res = await fetch('/health', { headers: { accept: 'application/json' } });
+          const res = await fetch('/health?force=true', { headers: { accept: 'application/json' } });
           let payload = null;
           try {
             payload = await res.json();
@@ -6268,6 +7093,24 @@
       }
 
       $('#hchk').addEventListener('click', runHealthCheck);
+      $('#ai-base-url').addEventListener('input', () => {
+        syncDraftFromInputs();
+        renderAiEnvSnippet();
+      });
+      $('#ai-api-key').addEventListener('input', () => {
+        syncDraftFromInputs();
+      });
+      $('#ai-model-select').addEventListener('change', () => {
+        syncDraftFromInputs();
+        renderAiEnvSnippet();
+      });
+      $('#ai-model-custom').addEventListener('input', () => {
+        syncDraftFromInputs();
+        renderAiEnvSnippet();
+      });
+      $('#ai-model-filter').addEventListener('input', () => {
+        renderAiModelPicker(state.aiCfgTab || 'gemini');
+      });
       $('#fpc').addEventListener('click', async () => {
         const ta = $('#fpt');
         const btn = $('#fpc');

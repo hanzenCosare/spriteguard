@@ -94,6 +94,8 @@ export interface Store {
   updatePatch(scanId: string, patch: PatchUpdate): Promise<PatchRecord | null>;
   claimPatchApproval(scanId: string, approver: string): Promise<PatchRecord | null>;
   getStats(): Promise<DashboardStats>;
+  getRuntimeSetting<T>(key: string): Promise<T | null>;
+  setRuntimeSetting<T>(key: string, value: T): Promise<void>;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -723,6 +725,29 @@ export class PostgresStore implements Store {
       awaitingApproval: Number(r?.awaiting_approval ?? 0),
     };
   }
+
+  async getRuntimeSetting<T>(key: string): Promise<T | null> {
+    try {
+      const { rows } = await this.pool.query<{ value_json: T | string }>(
+        `SELECT value_json FROM runtime_settings WHERE key = $1 LIMIT 1`,
+        [key],
+      );
+      const row = rows[0];
+      if (!row) return null;
+      return parseJsonField<T | null>(row.value_json, null);
+    } catch {
+      return null;
+    }
+  }
+
+  async setRuntimeSetting<T>(key: string, value: T): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO runtime_settings (key, value_json, updated_at)
+       VALUES ($1, $2::jsonb, NOW())
+       ON CONFLICT (key) DO UPDATE SET value_json = EXCLUDED.value_json, updated_at = NOW()`,
+      [key, JSON.stringify(value)],
+    );
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -734,6 +759,7 @@ export class InMemoryStore implements Store {
   private readonly scans = new Map<string, ScanRecord>();
   private readonly patches = new Map<string, PatchRecord>();
   private readonly findings: Array<StoredFinding & { id: string; createdAt: string }> = [];
+  private readonly runtimeSettings = new Map<string, unknown>();
 
   async init(): Promise<void> {
     /* nothing to initialize */
@@ -972,6 +998,15 @@ export class InMemoryStore implements Store {
       patchesPushed: all.filter((s) => s.status === 'pushed').length,
       awaitingApproval: all.filter((s) => s.status === 'awaiting_approval').length,
     };
+  }
+
+  async getRuntimeSetting<T>(key: string): Promise<T | null> {
+    if (!this.runtimeSettings.has(key)) return null;
+    return structuredClone(this.runtimeSettings.get(key) as T);
+  }
+
+  async setRuntimeSetting<T>(key: string, value: T): Promise<void> {
+    this.runtimeSettings.set(key, structuredClone(value));
   }
 }
 
