@@ -248,3 +248,59 @@ spriteguard/
 ├── .env.example
 └── package.json
 ```
+
+---
+
+## Post-Hackathon Roadmap
+
+### 1. Product Vision — From Solo PR Reviewer to Autonomous AppSec Platform
+
+**Find. Fix. Verify.** — *One engine, multiple experiences.*
+
+SpriteGuard's core zero-trust microVM audit, patch, and verification engine scales cleanly across four audiences without sacrificing developer speed or split-connector safety:
+
+| Audience | Core Need | SpriteGuard Experience |
+| --- | --- | --- |
+| **Individual Developers** | Fast, zero-friction PR security checks | Instant isolated PR audits, copyable fix prompts, local Ollama / Zero-AI privacy |
+| **Development Teams** | Shared triage and safe patch approvals | Team ownership, `CODEOWNERS` quorum approvals, finding deduplication |
+| **Advanced Engineering Teams** | Policy enforcement and AI-era guardrails | CI/CD merge gates, SBOM/supply-chain checks, SARIF/CLI/Linear/Slack, AI Change Security Review |
+| **Security Organizations** | Fleet-wide visibility and governance | Multi-repo risk campaigns, SLAs, time-bound risk exceptions, audit trails |
+
+---
+
+### 2. Five-Phase Product & Engineering Roadmap
+
+1. **Phase 1 — Developer Experience *(Shipped)***
+   - Zero-config PR auditing inside ephemeral hardware-isolated Firecracker Sprites.
+   - Universal AI provider support (Anthropic Claude, OpenRouter, Gemini, Local Ollama) with `RedactionVault` scrubbing and deterministic Zero-AI fallback.
+   - Copyable fix prompts, grounded `@spriteguard` Q&A drawer, and a keyboard-first operations dashboard.
+
+2. **Phase 2 — Team Collaboration & Security Operations**
+   - Organizations, team workspaces, and `CODEOWNERS` quorum approvals (`N` maintainer sign-offs required before `/spriteguard approve` commits fixes).
+   - Cross-revision finding deduplication and full ownership lifecycle tracking (*Detected → Triaged → Assigned → Remediation → Verification → Closed*).
+
+3. **Phase 3 — Advanced Engineering & AI Security**
+   - Configurable CI/CD merge gates (`Block` / `Require Approval` / `Warn`).
+   - SBOM generation and transitive dependency / supply-chain analysis.
+   - Custom org-wide egress allowlists and reusable policy profiles.
+   - SARIF exports, CLI, REST API, Slack, and Linear integrations.
+   - **AI Change Security Review** to validate AI-generated diffs and agent tool permissions before merge.
+
+4. **Phase 4 — Enterprise Risk & Governance**
+   - Multi-repo fleet visibility and cross-repository security campaigns.
+   - Remediation SLA tracking, risk exception management with automatic expiry, and immutable compliance audit trails.
+
+5. **Phase 5 — Specialized Multi-Sprite Orchestration**
+   - Evolve from a single audit Sprite into specialized, policy-bound microVM workers sharing a unified evidence and permissions framework:
+     - **Secret Sprite** — deep static, git-history, and build-artifact credential scanning.
+     - **Supply Sprite** — lockfile, SBOM, and install-script supply-chain isolation.
+     - **Egress Sprite** — runtime DNS/TCP/HTTP capture and canary exfiltration traps.
+     - **Patch Sprite** — autonomous remediation drafting and test-suite re-verification.
+     - **Cloud Sprite** — IaC, IAM, and deployment manifest security validation.
+     - **Pipeline Sprite** — CI/CD workflow and GitHub Actions permission auditing.
+
+---
+
+### 3. Frontend Maintainability
+
+- **Split `src/ui/dashboard.html`:** Following the hackathon submission freeze, refactor the single-file dashboard into modular UI components, isolated stylesheets, and typed client modules for cleaner testing, code review, and long-term iteration.
