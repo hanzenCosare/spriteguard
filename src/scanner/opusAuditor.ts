@@ -1418,6 +1418,13 @@ export class OpusAuditor {
 
     // Re-scan workspace after patch application
     const treeLeaks = await scanWorkspaceFiles(sprites, spriteName, ['all']);
+    if (sprites.driver.isolated || input.allowLocalExec) {
+      await sprites.exec(
+        spriteName,
+        'if [ -f package.json ] && [ ! -d node_modules ]; then if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi; fi',
+        { cwd: repoDir, timeoutMs: 120_000 },
+      );
+    }
     const testRun = await runTestSuite({
       sprites,
       spriteName,
